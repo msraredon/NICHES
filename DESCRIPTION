@@ -1,0 +1,33 @@
+Package: SCC
+Version: 0.0.1
+Date: 2021-02-04
+Title: High Dimensional Mapping and Embedding of single cell connectomics
+Authors@R: person("Micha Sam", "Brickman Raredon", email = "michasam.raredon@yale.edu", role = c("aut", "cre"))
+Description: High Dimensional Mapping and Embedding of single cell connectomics
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.1
+VignetteBuilder: knitr
+Imports:
+  dplyr,
+  ggrepel,
+  igraph,
+  plotrix,
+  RColorBrewer,
+  scales,
+  Seurat,
+  tibble,
+  data.table,
+  BisRNA,
+  ggplot2,
+  cowplot,
+  Matrix,
+  gtools,
+  permute,
+  circlize,
+  ComplexHeatmap,
+  Connectome
+Suggests:
+  knitr,
+  rmarkdown
