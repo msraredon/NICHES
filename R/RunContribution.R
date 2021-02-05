@@ -1,29 +1,29 @@
-#' RunMilieu
+#' RunContribution
 #' 
-#' Condenses signaling information landing on each cell within a Seurat object. Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
+#' Condenses signaling information coming from each cell within a Seurat object. Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
 #' and the columns are each a single cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
-#' all signaling edges landing on that particular cell, from all cells in the system (including from itself.)
+#' all signaling edges coming from that particular cell, to every other cell in the system (including to itself.)
 #' This transformation allows rapid manipulation and dimensional reduction of how a cell is connected within the system.
-#' The default assay of this object is called "Milieu" to distinguish it from other Seurat objects.
-#' Meta.data slots by default contain "ReceivingType" information, which is the celltypes for each point, 
-#' and "ReceivingCell" which is the exact cell barcode present in the original Seurat object
+#' The default assay of this object is called "Contribution" to distinguish it from other Seurat objects.
+#' Meta.data slots by default contain "SendingType" information, which is the celltypes for each point, 
+#' and "SendingCell" which is the exact cell barcode present in the original Seurat object
 #' 
 #' @param object A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.
 #' @param LR.database Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.
 #' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
-#' @param assay The assay to run the Milieu transformation on. Defaults to "RNA."
+#' @param assay The assay to run the Contribution transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param blend Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"
 #'
 #' @export
 
 
-RunMilieu <- function(object,
-                   LR.database = 'fantom5',
-                   species,
-                   assay = 'RNA',
-                   min.cells.per.ident = 1,
-                   blend = 'sum'){
+RunContribution <- function(object,
+                      LR.database = 'fantom5',
+                      species,
+                      assay = 'RNA',
+                      min.cells.per.ident = 1,
+                      blend = 'sum'){
   
   require(Seurat)
   require(dplyr)
@@ -79,42 +79,42 @@ RunMilieu <- function(object,
   
   ### CREATE MAPPING ###
   
-  # Make SUMMED LIGAND INFO
-  lig.map <- sys.small@assays[[assay]]@data[ligands,]
-  dim(lig.map)
+  # Make SUMMED RECEPTOR INFO
+  rec.map <- sys.small@assays[[assay]]@data[receptors,]
+ 
   if (blend == 'sum'){
-    lig.map2 <- Matrix::rowSums(lig.map,dims = 1)
+    rec.map2 <- Matrix::rowSums(rec.map,dims = 1)
   }
   if (blend == 'mean'){
-    lig.map2 <- Matrix::rowMeans(lig.map,dims = 1)
+    rec.map2 <- Matrix::rowMeans(rec.map,dims = 1)
   }
-  lig.map2 <- do.call(cbind, replicate(ncol(lig.map), lig.map2, simplify=FALSE))
+  rec.map2 <- do.call(cbind, replicate(ncol(rec.map), rec.map2, simplify=FALSE))
   
-  # Receptor Map from imputed slot
-  rec.map <- sys.small@assays[[assay]]@data[receptors,]
+  # Ligand Map from imputed slot
+  lig.map <- sys.small@assays[[assay]]@data[ligands,]
 
   
   # Merged map (can be done with any operator, here is multiplication (RECOMMENDED: preserves zeroes and is quantitative))
-  sc.connectome <- lig.map2*rec.map
-
-
+  sc.connectome <- lig.map*rec.map2
+  
+  
   # Create the rownames (directed ligands and receptors)
   rownames(sc.connectome) <- paste(rownames(lig.map),rownames(rec.map),sep = '-')
-  # Create the column names (directed Environment-cell)
-  colnames(sc.connectome) <- paste("Environment",colnames(rec.map),sep = '-')
+  # Create the column names (directed cell-Environment)
+  colnames(sc.connectome) <- paste(colnames(lig.map),"Environment",sep = '-')
   
-  #Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'Milieu')
+  # Use this matrix to create a Seurat object:
+  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'Contribution')
   
   # Add metadata to the Seurat object
-  meta.data.to.add <- data.frame(as.character(colnames(rec.map)))
-  rownames(meta.data.to.add) <- paste("Environment",colnames(rec.map),sep = '-')
-  demo <- AddMetaData(demo,metadata = meta.data.to.add,col.name = 'ReceivingCell')
-  demo <- AddMetaData(demo,metadata = Idents(sys.small),col.name = 'ReceivingType')
+  meta.data.to.add <- data.frame(as.character(colnames(lig.map)))
+  rownames(meta.data.to.add) <- paste(colnames(lig.map),"Environment",sep = '-')
+  demo <- AddMetaData(demo,metadata = meta.data.to.add,col.name = 'SendingCell')
+  demo <- AddMetaData(demo,metadata = Idents(sys.small),col.name = 'SendingType')
   
   # How many vectors were captured by this sampling?
   
-  message(paste("\n",length(unique(demo$ReceivingCell)),'Milieus were computed, across',length(unique(demo$ReceivingType)),'cell types'))
+  message(paste("\n",length(unique(demo$SendingCell)),'Contributions were computed, across',length(unique(demo$SendingType)),'cell types'))
   return(demo)
 }
 
