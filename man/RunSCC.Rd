@@ -9,23 +9,38 @@ RunSCC(
   LR.database = "fantom5",
   species,
   assay = "RNA",
-  min.cells.per.ident = 10
+  min.cells.per.ident = 10,
+  meta.data.to.map = NULL,
+  position.info = NULL,
+  CellCell = T,
+  CellSystem = T,
+  SystemCell = T,
+  CellCellSpatial = T,
+  CellNeighborhood = T,
+  NeighborhoodCell = T,
+  ...
 )
 }
 \arguments{
-\item{object}{A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.}
+\item{object}{A Seurat 4.0 object. The active identity meta.data will be used to define populations for connectomic sampling and crossings.}
 
 \item{LR.database}{Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.}
 
-\item{species}{The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
+\item{species}{The species of the object that is being processed. Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
 
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
 
 \item{min.cells.per.ident}{Default 10. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
+
+\item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the SCC objects}
+
+\item{position.info}{The name of the meta.data column specifying spatial coordinates. Only relevant for spatial omics data.}
+
+\item{...}{Additional parameters to pass to RunCellCell, RunSystemCell, RunCellSystem, or spatial equivalents}
 }
 \description{
-Performs single-cell-connectivity (SCC) transformation on a Seurat object. Outputs another Seurat object, but where the columns of the matrix are 
-barcode-barcode pairs, and the rows of the matrix are ligand-receptor mechanisms. This allows rapid manipulation and dimensional reduction of cell-cell connectivity data.
-The default assay of this object is called "Edgeweight" to distinguish it from normal Seurat objects.
-Meta.data slots by default contain "SendingType" "ReceivingType" and "VectorType" information.
+Performs Single-Cell Connectivity (SCC) transformations on a Seurat object. 
+By default, references RunCellCell, RunCellSystem, and RunSystemCell functions. 
+If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
+Output is a set of specialized Seurat objects (SCC objects) corresponding to input arguments.
 }
