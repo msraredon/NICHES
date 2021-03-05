@@ -11,7 +11,8 @@ RunSCC(
   assay = "RNA",
   min.cells.per.ident = 10,
   meta.data.to.map = NULL,
-  position.info = NULL,
+  position.x = NULL,
+  position.y = NULL,
   CellCell = T,
   CellSystem = T,
   SystemCell = T,
@@ -22,7 +23,7 @@ RunSCC(
 )
 }
 \arguments{
-\item{object}{A Seurat 4.0 object. The active identity meta.data will be used to define populations for connectomic sampling and crossings.}
+\item{object}{A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.}
 
 \item{LR.database}{Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.}
 
@@ -34,7 +35,9 @@ RunSCC(
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the SCC objects}
 
-\item{position.info}{The name of the meta.data column specifying spatial coordinates. Only relevant for spatial omics data.}
+\item{position.x}{The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.}
+
+\item{position.y}{The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.}
 
 \item{...}{Additional parameters to pass to RunCellCell, RunSystemCell, RunCellSystem, or spatial equivalents}
 }
