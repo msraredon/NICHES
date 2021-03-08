@@ -10,6 +10,7 @@
 #' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 10. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
+#' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
 #'
 #' @export
 
@@ -18,10 +19,12 @@ RunCellToCell <- function(object,
                    LR.database = 'fantom5',
                    species,
                    assay = 'RNA',
-                   min.cells.per.ident = 10){
+                   min.cells.per.ident = 10,
+                   meta.data.to.map = NULL){
 
   require(Seurat)
   require(dplyr)
+  require(abind)
   
   # Check if setup is correct
   if (class(LR.database) == 'character'){
@@ -135,7 +138,6 @@ RunCellToCell <- function(object,
   
   # Combine all of these to make the full SCC matrix
   scc <- do.call(cbind,scc.data)
-
   
   #Use this matrix to create a Seurat object:
   demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
@@ -150,12 +152,32 @@ RunCellToCell <- function(object,
   meta.data.to.add$VectorType <- paste(meta.data.to.add$SendingType,
                                        meta.data.to.add$ReceivingType,
                                        sep = '-')
-  
   #Add metadata to the Seurat object
   demo <- AddMetaData(demo,metadata = meta.data.to.add)
   
+  # Gather and assemble additional metadata
+  if (!is.null(meta.data.to.map)){
+  # Identify sending and receiving barcodes
+  sending.barcodes <- colnames(do.call(cbind,lig.data)) #This can be simplified if the above SCC construction is simplified
+  receiving.barcodes <- colnames(do.call(cbind,rec.data)) #This can be simplified if the above SCC construction is simplified
+  # Pull and format sending and receiving metadata
+  sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
+  receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
+  # Make joint metadata
+  datArray <- abind(sending.metadata,receiving.metadata,along=3)
+  joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
+  # Define column names
+  colnames(joint.metadata) <- paste(colnames(sending.metadata),'Joint',sep = '.')
+  colnames(sending.metadata) <- paste(colnames(sending.metadata),'Sending',sep='.')
+  colnames(receiving.metadata) <- paste(colnames(receiving.metadata),'Receiving',sep='.')
+  # Compile
+  meta.data.to.add.also <- cbind(sending.metadata,receiving.metadata,joint.metadata)
+  rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='-')
+  # Add
+  demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+  }
+  
   # How many vectors were captured by this sampling?
- 
   message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Idents(sys.small)))^2,'total possible'))
   return(demo)
 }

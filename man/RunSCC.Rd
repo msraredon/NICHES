@@ -13,12 +13,12 @@ RunSCC(
   meta.data.to.map = NULL,
   position.x = NULL,
   position.y = NULL,
-  CellCell = T,
-  CellSystem = T,
-  SystemCell = T,
-  CellCellSpatial = T,
-  CellNeighborhood = T,
-  NeighborhoodCell = T,
+  CellToCell = T,
+  CellToSystem = F,
+  SystemToCell = T,
+  CellToCellSpatial = T,
+  CellToNeighborhood = F,
+  NeighborhoodToCell = T,
   ...
 )
 }
@@ -39,11 +39,11 @@ RunSCC(
 
 \item{position.y}{The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.}
 
-\item{...}{Additional parameters to pass to RunCellCell, RunSystemCell, RunCellSystem, or spatial equivalents}
+\item{...}{Additional parameters to pass to RunCellToCell, RunSystemToCell, RunCellToSystem, or spatial equivalents}
 }
 \description{
 Performs Single-Cell Connectivity (SCC) transformations on a Seurat object. 
-By default, references RunCellCell, RunCellSystem, and RunSystemCell functions. 
+By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
 If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
 Output is a set of specialized Seurat objects (SCC objects) corresponding to input arguments.
 }

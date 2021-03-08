@@ -18,11 +18,11 @@ FFPE2$y <- temp$X2
 
 # Testing runs
 test <- RunSCC(FFPE2,species = 'mouse',position.x = 'x',position.y = 'y',
-               CellCell = T,CellSystem = F,SystemCell = F,
-               CellCellSpatial = F,CellNeighborhood = F,NeighborhoodCell = F) #works
+               CellToCell = T,CellToSystem = F,SystemToCell = F,
+               CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
 test <- RunSCC(FFPE2,species = 'mouse',position.x = 'x',position.y = 'y',
-               CellCell = F,CellSystem = T,SystemCell = F,
-               CellCellSpatial = F,CellNeighborhood = F,NeighborhoodCell = F) #works
+               CellToCell = F,CellToSystem = T,SystemToCell = F,
+               CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F) #works
 test <- RunSCC(FFPE2,species = 'mouse',position.x = 'x',position.y = 'y',
                CellCell = F,CellSystem = F,SystemCell = T,
                CellCellSpatial = F,CellNeighborhood = F,NeighborhoodCell = F) #works

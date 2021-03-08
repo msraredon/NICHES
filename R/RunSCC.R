@@ -42,9 +42,9 @@ RunSCC <- function(object,
   
   # Calculate SCC objects without spatial restrictions
   
-  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(object,species = species,...)}
-  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(object,species = species,...)}
-  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(object,species = species,...)}
+  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(object,species = species,meta.data.to.map = meta.data.to.map,...)}
+  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(object,species = species,meta.data.to.map = meta.data.to.map,...)}
+  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(object,species = species,meta.data.to.map = meta.data.to.map,...)}
   
   # If requested, additionally calculate spatially-limited analogues
   
@@ -56,9 +56,9 @@ RunSCC <- function(object,
   
   }
   
-  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Cell-Cell vectors
-  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Cell-Neighborhood vectors
-  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
+  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(object,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Cell-Cell vectors
+  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Cell-Neighborhood vectors
+  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
 
   # Compile objects for output
   return(output)
