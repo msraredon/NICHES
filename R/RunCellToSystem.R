@@ -1,24 +1,24 @@
-#' RunCellSystem
+#' RunCellToSystem
 #' 
 #' Condenses all signaling edges coming from each cell within a Seurat object connecting to every other cell in the system, including itself. Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
 #' and the columns are each a single cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
 #' all signaling edges coming from that particular cell, to every other cell in the system (including to itself.)
 #' This transformation allows rapid manipulation and dimensional reduction of how a cell is connected within the system.
-#' The default assay of this object is called "CellSystem" to distinguish it from other Seurat objects.
+#' The default assay of this object is called "CellToSystem" to distinguish it from other Seurat objects.
 #' Meta.data slots by default contain "SendingType" information, which is the celltypes for each point, 
 #' and "SendingCell" which is the exact cell barcode present in the original Seurat object
 #' 
 #' @param object A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.
 #' @param LR.database Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.
 #' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
-#' @param assay The assay to run the CellSystem transformation on. Defaults to "RNA."
+#' @param assay The assay to run the CellToSystem transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param blend Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"
 #'
 #' @export
 
 
-RunCellSystem <- function(object,
+RunCellToSystem <- function(object,
                       LR.database = 'fantom5',
                       species,
                       assay = 'RNA',
@@ -104,7 +104,7 @@ RunCellSystem <- function(object,
   colnames(sc.connectome) <- paste(colnames(lig.map),"System",sep = '-')
   
   # Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'CellSystem')
+  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'CellToSystem')
   
   # Add metadata to the Seurat object
   meta.data.to.add <- data.frame(as.character(colnames(lig.map)))

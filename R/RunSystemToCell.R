@@ -1,10 +1,10 @@
-#' RunSystemCell
+#' RunSystemToCell
 #' 
 #' Condenses signaling edges landing on each cell within a Seurat object, from all other cells in the system. Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
 #' and the columns are each a single cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
 #' all signaling edges landing on that particular cell, from all cells in the system (including from itself.)
 #' This transformation allows rapid manipulation and dimensional reduction of how a cell is connected within the system.
-#' The default assay of this object is called "SystemCell" to distinguish it from other Seurat objects.
+#' The default assay of this object is called "SystemToCell" to distinguish it from other Seurat objects.
 #' Meta.data slots by default contain "ReceivingType" information, which is the celltypes for each point, 
 #' and "ReceivingCell" which is the exact cell barcode present in the original Seurat object
 #' 
@@ -18,7 +18,7 @@
 #' @export
 
 
-RunSystemCell <- function(object,
+RunSystemToCell <- function(object,
                    LR.database = 'fantom5',
                    species,
                    assay = 'RNA',
@@ -104,7 +104,7 @@ RunSystemCell <- function(object,
   colnames(sc.connectome) <- paste("System",colnames(rec.map),sep = '-')
   
   #Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'SystemCell')
+  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'SystemToCell')
   
   # Add metadata to the Seurat object
   meta.data.to.add <- data.frame(as.character(colnames(rec.map)))
@@ -114,7 +114,7 @@ RunSystemCell <- function(object,
   
   # How many vectors were captured by this sampling?
   
-  message(paste("\n",length(unique(demo$ReceivingCell)),'System-Cell edges were computed, across',length(unique(demo$ReceivingType)),'cell types'))
+  message(paste("\n",length(unique(demo$ReceivingCell)),'SystemToCell edges were computed, across',length(unique(demo$ReceivingType)),'cell types'))
   return(demo)
 }
 

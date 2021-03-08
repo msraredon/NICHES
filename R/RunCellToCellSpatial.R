@@ -1,4 +1,4 @@
-#' RunCellCellSpatial
+#' RunCellToCellSpatial
 #' 
 #' @param object A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param LR.database Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.
@@ -10,7 +10,7 @@
 #'
 #' @export
 
-RunCellCellSpatial <- function(object,
+RunCellToCellSpatial <- function(object,
                           LR.database = 'fantom5',
                           species,
                           assay = 'RNA',
@@ -85,7 +85,7 @@ RunCellCellSpatial <- function(object,
   df <- df[,c('x','y')]
   
   # Make adj matrix
-  # Within a circle of radius "rad" around each coordinate (I think this works! Set rad = 1 to do the same as above)
+  # Within a circle of radius "rad" around each coordinate (Set rad = 1 for only direct neighbors)
   rad = 1
   result <- apply(df, 1, function(pt) 
     (sqrt(abs(pt["x"] - df$x)^2 + abs(pt["y"] - df$y)^2) <= rad) 
@@ -116,7 +116,7 @@ RunCellCellSpatial <- function(object,
   dim(scc)
   
   # Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellCellSpatial')
+  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCellSpatial')
   
   # Cool, but in order to interpret, we need the additional metadata of cell types so that we can color it 
   # by sending cell type, receiving cell type, and overall celltype-to-celltype vector. 

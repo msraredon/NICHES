@@ -1,7 +1,7 @@
 #' RunSCC
 #' 
 #' Performs Single-Cell Connectivity (SCC) transformations on a Seurat object. 
-#' By default, references RunCellCell, RunCellSystem, and RunSystemCell functions. 
+#' By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
 #' If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
 #' Output is a set of specialized Seurat objects (SCC objects) corresponding to input arguments.
 #' 
@@ -13,7 +13,7 @@
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
 #' @param position.x The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.
 #' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
-#' @param ... Additional parameters to pass to RunCellCell, RunSystemCell, RunCellSystem, or spatial equivalents
+#' @param ... Additional parameters to pass to RunCellToCell, RunSystemToCell, RunCellToSystem, or spatial equivalents
 #'
 #' @export
 
@@ -26,12 +26,12 @@ RunSCC <- function(object,
                         meta.data.to.map = NULL,
                         position.x = NULL,
                         position.y = NULL,
-                        CellCell = T,
-                        CellSystem = T,
-                        SystemCell = T,
-                        CellCellSpatial = T,
-                        CellNeighborhood = T,
-                        NeighborhoodCell = T,
+                        CellToCell = T,
+                        CellToSystem = F,
+                        SystemToCell = T,
+                        CellToCellSpatial = T,
+                        CellToNeighborhood = F,
+                        NeighborhoodToCell = T,
                         ...){
   
   require(Seurat)
@@ -42,13 +42,13 @@ RunSCC <- function(object,
   
   # Calculate SCC objects without spatial restrictions
   
-  if (CellCell == T){output[[length(output)+1]] <- RunCellCell(object,species = species,...)}
-  if (CellSystem == T){output[[length(output)+1]] <- RunCellSystem(object,species = species,...)}
-  if (SystemCell == T){output[[length(output)+1]] <- RunSystemCell(object,species = species,...)}
+  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(object,species = species,...)}
+  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(object,species = species,...)}
+  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(object,species = species,...)}
   
   # If requested, additionally calculate spatially-limited analogues
   
-  if (CellCellSpatial == T | CellNeighborhood == T | NeighborhoodCell == T){
+  if (CellToCellSpatial == T | CellToNeighborhood == T | NeighborhoodToCell == T){
     
     if (is.null(position.x) | is.null(position.y)){stop("\n Position information not provided. Please specify metadata columns containing x- and y-axis spatial coordinates.")}
     
@@ -56,9 +56,9 @@ RunSCC <- function(object,
   
   }
   
-  if (CellCellSpatial == T){output[[length(output)+1]] <- RunCellCellSpatial(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Cell-Cell vectors
-  if (CellNeighborhood == T){output[[length(output)+1]] <- RunCellNeighborhood(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Cell-Neighborhood vectors
-  if (NeighborhoodCell == T){output[[length(output)+1]] <- RunNeighborhoodCell(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
+  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Cell-Cell vectors
+  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Cell-Neighborhood vectors
+  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
 
   # Compile objects for output
   return(output)

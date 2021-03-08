@@ -1,8 +1,8 @@
-#' RunCellCell
+#' RunCellToCell
 #' 
 #' Performs cell-cell transformation on a Seurat object, with structural downsampling to avoid data-inflation. Outputs another Seurat object, but where the columns of the matrix are 
 #' barcode-barcode pairs, and the rows of the matrix are ligand-receptor mechanisms. This allows rapid manipulation and dimensional reduction of cell-cell connectivity data.
-#' The default assay of this object is called "CellCell" to distinguish it from normal Seurat objects.
+#' The default assay of this object is called "CellToCell" to distinguish it from normal Seurat objects.
 #' Meta.data slots by default contain "SendingType" "ReceivingType" and "VectorType" information.
 #' 
 #' @param object A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.
@@ -14,7 +14,7 @@
 #' @export
 
 
-RunCellCell <- function(object,
+RunCellToCell <- function(object,
                    LR.database = 'fantom5',
                    species,
                    assay = 'RNA',
@@ -138,7 +138,7 @@ RunCellCell <- function(object,
 
   
   #Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellCell')
+  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
   
   # Cool, but in order to interpret, we need the additional metadata of cell types so that we can color it 
   # by sending cell type, receiving cell type, and overall celltype-to-celltype vector. 
