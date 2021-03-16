@@ -3,7 +3,7 @@
 #' Performs Single-Cell Connectivity (SCC) transformations on a Seurat object. 
 #' By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
 #' If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
-#' Output is a set of specialized Seurat objects (SCC objects) corresponding to input arguments.
+#' Output is a set of specialized Seurat objects (SCC objects) containing cell signaling information.
 #' 
 #' @param object A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param LR.database Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.
@@ -40,25 +40,25 @@ RunSCC <- function(object,
   # Initialize output structure
   output <- list()
   
-  # Calculate SCC objects without spatial restrictions
+  # Calculate SCC organizations without spatial restrictions
   
   if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(object,species = species,meta.data.to.map = meta.data.to.map,...)}
   if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(object,species = species,meta.data.to.map = meta.data.to.map,...)}
   if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(object,species = species,meta.data.to.map = meta.data.to.map,...)}
   
-  # If requested, additionally calculate spatially-limited analogues
+  # If requested, additionally calculate spatially-limited SCC organizations
   
   if (CellToCellSpatial == T | CellToNeighborhood == T | NeighborhoodToCell == T){
     
     if (is.null(position.x) | is.null(position.y)){stop("\n Position information not provided. Please specify metadata columns containing x- and y-axis spatial coordinates.")}
     
-  # Define distance between cells here, to use for radius calculations. Pass to the below three functions. This will generalize the function to any spatial dataset
+  ## Define distance between cells here (?), to use for radius calculations. Pass to the below three functions. This will generalize the function to any spatial dataset (?)
   
   }
   
-  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(object,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Cell-Cell vectors
-  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Cell-Neighborhood vectors
-  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
+  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Cell-Cell vectors
+  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Cell-Neighborhood vectors
+  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,species = species,position.x = position.x,position.y = position.y,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
 
   # Compile objects for output
   return(output)

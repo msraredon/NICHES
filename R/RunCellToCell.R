@@ -9,7 +9,7 @@
 #' @param LR.database Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.
 #' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
-#' @param min.cells.per.ident Default 10. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
+#' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
 #'
 #' @export
@@ -19,7 +19,7 @@ RunCellToCell <- function(object,
                    LR.database = 'fantom5',
                    species,
                    assay = 'RNA',
-                   min.cells.per.ident = 10,
+                   min.cells.per.ident = 1,
                    meta.data.to.map = NULL){
 
   require(Seurat)
@@ -142,8 +142,7 @@ RunCellToCell <- function(object,
   #Use this matrix to create a Seurat object:
   demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
   
-  # Cool, but in order to interpret, we need the additional metadata of cell types so that we can color it 
-  # by sending cell type, receiving cell type, and overall celltype-to-celltype vector. 
+  # Gather and assemble metadata based on "ident" slot
   sending.cell.idents.2 <- do.call(c,sending.cell.idents)
   receiving.cell.idents.2 <- do.call(c,receiving.cell.idents)
   meta.data.to.add <- data.frame(SendingType = sending.cell.idents.2,
@@ -152,7 +151,7 @@ RunCellToCell <- function(object,
   meta.data.to.add$VectorType <- paste(meta.data.to.add$SendingType,
                                        meta.data.to.add$ReceivingType,
                                        sep = '-')
-  #Add metadata to the Seurat object
+  #Add ident metadata
   demo <- AddMetaData(demo,metadata = meta.data.to.add)
   
   # Gather and assemble additional metadata
@@ -173,12 +172,12 @@ RunCellToCell <- function(object,
   # Compile
   meta.data.to.add.also <- cbind(sending.metadata,receiving.metadata,joint.metadata)
   rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='-')
-  # Add
+  # Add additional metadata
   demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
   # How many vectors were captured by this sampling?
-  message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Idents(sys.small)))^2,'total possible'))
+  message(paste("\n",ncol(demo),'Cell-To-Cell edges computed, sampling',length(unique(demo$VectorType)),'distinct VectorTypes, out of',length(table(Idents(sys.small)))^2,'total possible'))
   return(demo)
 }
 

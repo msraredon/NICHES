@@ -109,17 +109,19 @@ RunCellToNeighborhood <- function(object,
   
   # Make SCC matrix
   scc <- lig.data*rec.data
-  rownames(scc) <- paste(rownames(lig.data),rownames(rec.data),sep = '-')
-  colnames(scc) <- paste(colnames(lig.data),colnames(rec.data),sep = '-')
-  sending.cell.idents <- as.character(Idents(sys.small)[colnames(lig.data)])
-  receiving.cell.idents <- as.character(Idents(sys.small)[colnames(rec.data)])
-  dim(scc)
+  colnames(scc) <- colnames(lig.data) # Make columnes equal to sending cell
+  # Condense
   
+  
+  #rownames(scc) <- paste(rownames(lig.data),rownames(rec.data),sep = '-')
+  #colnames(scc) <- paste(colnames(lig.data),colnames(rec.data),sep = '-')
+  #sending.cell.idents <- as.character(Idents(sys.small)[colnames(lig.data)])
+  #receiving.cell.idents <- as.character(Idents(sys.small)[colnames(rec.data)])
+
   # Use this matrix to create a Seurat object:
   demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToNeighborhood')
   
-  # Cool, but in order to interpret, we need the additional metadata of cell types so that we can color it 
-  # by sending cell type, receiving cell type, and overall celltype-to-celltype vector. 
+  # Add metadata based on ident slot
   
   meta.data.to.add <- data.frame(SendingType = sending.cell.idents,
                                  ReceivingType = receiving.cell.idents)
