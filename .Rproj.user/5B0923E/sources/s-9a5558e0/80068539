@@ -1,0 +1,26 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1614724615238.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "80068539",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1614724615238,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "id" : "95a8e89474ce4df0a6dd151e53d30a67",
+        "name" : "scc_obj",
+        "title" : "scc_obj"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "object_explorer"
+}

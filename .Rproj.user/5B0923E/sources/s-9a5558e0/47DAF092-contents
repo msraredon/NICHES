@@ -1,0 +1,31 @@
+#' fantom5 human
+#'
+#' Human Ligand-Receptor annotions from
+#' fantom 5 database
+#'
+"ncomms8866_human"
+#' fantom5 mouse
+#'
+#' Mouse Ligand-Receptor annotions from
+#' fantom 5 database
+#'
+"ncomms8866_mouse"
+#' fantom5 pig
+#'
+#' Pig Ligand-Receptor annotions from
+#' fantom 5 database
+#'
+"ncomms8866_pig"
+#' fantom5 rat
+#'
+#' Rat Ligand-Receptor annotions from
+#' fantom 5 database
+#'
+"ncomms8866_rat"
+#' rat scRNA-seq sample data
+#'
+#' A sample dataset from rat lung to
+#' demonstrate CLIF
+#'
+#' @format Seurat object
+"rat_sample"

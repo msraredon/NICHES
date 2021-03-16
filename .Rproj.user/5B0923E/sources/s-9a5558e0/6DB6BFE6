@@ -1,0 +1,25 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1615835791578.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "6DB6BFE6",
+    "lastKnownWriteTime" : 1612647309,
+    "last_content_update" : 1612647309,
+    "path" : "/data/jyc/github_proj/dbit_seq/cell_paper/original_process.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "140,27",
+        "scrollLine" : "126"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 11,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
