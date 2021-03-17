@@ -2,7 +2,7 @@
 % Please edit documentation in R/RunCellToNeighborhood.R
 \name{RunCellToNeighborhood}
 \alias{RunCellToNeighborhood}
-\title{RunCellToNeighborhood #THIS IS UNFINISHED}
+\title{RunCellToNeighborhood}
 \usage{
 RunCellToNeighborhood(
   object,
@@ -11,7 +11,8 @@ RunCellToNeighborhood(
   assay = "RNA",
   min.cells.per.ident = 1,
   position.x,
-  position.y
+  position.y,
+  meta.data.to.map = NULL
 )
 }
 \arguments{
@@ -30,5 +31,5 @@ RunCellToNeighborhood(
 \item{position.y}{The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.}
 }
 \description{
-RunCellToNeighborhood #THIS IS UNFINISHED
+RunCellToNeighborhood
 }

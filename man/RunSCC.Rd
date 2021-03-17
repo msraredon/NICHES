@@ -45,5 +45,5 @@ RunSCC(
 Performs Single-Cell Connectivity (SCC) transformations on a Seurat object. 
 By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
 If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
-Output is a set of specialized Seurat objects (SCC objects) corresponding to input arguments.
+Output is a set of specialized Seurat objects (SCC objects) containing cell signaling information.
 }

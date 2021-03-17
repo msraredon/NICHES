@@ -16,7 +16,8 @@ RunCellToCellSpatial <- function(object,
                           assay = 'RNA',
                           min.cells.per.ident = 1,
                           position.x,
-                          position.y){
+                          position.y,
+                          meta.data.to.map = NULL){
   
   require(Seurat)
   require(dplyr)
@@ -113,13 +114,11 @@ RunCellToCellSpatial <- function(object,
   colnames(scc) <- paste(colnames(lig.data),colnames(rec.data),sep = '-')
   sending.cell.idents <- as.character(Idents(sys.small)[colnames(lig.data)])
   receiving.cell.idents <- as.character(Idents(sys.small)[colnames(rec.data)])
-  dim(scc)
   
   # Use this matrix to create a Seurat object:
   demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCellSpatial')
   
-  # Cool, but in order to interpret, we need the additional metadata of cell types so that we can color it 
-  # by sending cell type, receiving cell type, and overall celltype-to-celltype vector. 
+  # Add key metadata
   
   meta.data.to.add <- data.frame(SendingType = sending.cell.idents,
                                  ReceivingType = receiving.cell.idents)
@@ -131,6 +130,28 @@ RunCellToCellSpatial <- function(object,
   
   #Add metadata to the Seurat object
   demo <- AddMetaData(demo,metadata = meta.data.to.add)
+  
+  # Gather and assemble additional metadata
+  if (!is.null(meta.data.to.map)){
+    # Identify sending and receiving barcodes
+    sending.barcodes <- colnames(lig.data) 
+    receiving.barcodes <- colnames(rec.data) 
+    # Pull and format sending and receiving metadata
+    sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
+    receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
+    # Make joint metadata
+    datArray <- abind(sending.metadata,receiving.metadata,along=3)
+    joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
+    # Define column names
+    colnames(joint.metadata) <- paste(colnames(sending.metadata),'Joint',sep = '.')
+    colnames(sending.metadata) <- paste(colnames(sending.metadata),'Sending',sep='.')
+    colnames(receiving.metadata) <- paste(colnames(receiving.metadata),'Receiving',sep='.')
+    # Compile
+    meta.data.to.add.also <- cbind(sending.metadata,receiving.metadata,joint.metadata)
+    rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='-')
+    # Add additional metadata
+    demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+  }
   
   # How many vectors were captured by this sampling?
   message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Idents(sys.small)))^2,'total possible'))

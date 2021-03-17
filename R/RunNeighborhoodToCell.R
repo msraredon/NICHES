@@ -1,4 +1,4 @@
-#' RunCellToNeighborhood
+#' RunNeighborhoodToCell
 #' 
 #' @param object A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param LR.database Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.
@@ -10,14 +10,14 @@
 #'
 #' @export
 
-RunCellToNeighborhood <- function(object,
-                               LR.database = 'fantom5',
-                               species,
-                               assay = 'RNA',
-                               min.cells.per.ident = 1,
-                               position.x,
-                               position.y,
-                               meta.data.to.map = NULL){
+RunNeighborhoodToCell <- function(object,
+                                  LR.database = 'fantom5',
+                                  species,
+                                  assay = 'RNA',
+                                  min.cells.per.ident = 1,
+                                  position.x,
+                                  position.y,
+                                  meta.data.to.map = NULL){
   
   require(Seurat)
   require(dplyr)
@@ -111,29 +111,29 @@ RunCellToNeighborhood <- function(object,
   rownames(scc) <- paste(rownames(lig.data),rownames(rec.data),sep = '-')
   
   # Condense by column name
-  colnames(scc) <- colnames(lig.data) # Make colnames equal to sending cell
+  colnames(scc) <- colnames(rec.data) # Make colnames equal to receiving cell
   scc <- as.matrix(scc)
   scc <- t(rowsum(t(scc), colnames(scc)))
   
   # Label columns properly
   barcodes <- colnames(scc)
-  colnames(scc) <- paste(colnames(scc),'Neighborhood',sep = '-')
-
+  colnames(scc) <- paste('Neighborhood',colnames(scc),sep = '-')
+  
   # Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToNeighborhood')
+  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'NeighborhoodToCell')
   
   # Add metadata based on ident slot
-  demo <- AddMetaData(demo,metadata = barcodes,col.name = 'SendingCell')
-  demo <- AddMetaData(demo,metadata = Idents(sys.small)[barcodes],col.name = 'SendingType')
+  demo <- AddMetaData(demo,metadata = barcodes,col.name = 'ReceivingCell')
+  demo <- AddMetaData(demo,metadata = Idents(sys.small)[barcodes],col.name = 'ReceivingType')
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
     # Identify sending and receiving barcodes
-    sending.barcodes <- barcodes # Only sending cell metadata applies for this function
-    #receiving.barcodes <- colnames(rec.map) 
+    #sending.barcodes <- barcodes 
+    receiving.barcodes <- barcodes # Only receiving cell metadata applies for this function
     # Pull and format sending and receiving metadata
-    sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
-    #receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
+    #sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
+    receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
     # Make joint metadata
     #datArray <- abind(sending.metadata,receiving.metadata,along=3)
     #joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
@@ -142,14 +142,14 @@ RunCellToNeighborhood <- function(object,
     #colnames(sending.metadata) <- paste(colnames(sending.metadata),'Sending',sep='.')
     #colnames(receiving.metadata) <- paste(colnames(receiving.metadata),'Receiving',sep='.')
     # Compile
-    meta.data.to.add.also <- sending.metadata
-    rownames(meta.data.to.add.also) <- paste(sending.barcodes,'Neighborhood',sep='-')
+    meta.data.to.add.also <- receiving.metadata
+    rownames(meta.data.to.add.also) <- paste('Neighborhood',receiving.barcodes,sep='-')
     # Add additional metadata
     demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
   # How many vectors were captured by this sampling?
-  message(paste("\n",length(unique(demo$SendingCell)),'Cell-To-Neighborhood edges were computed, across',length(unique(demo$SendingType)),'cell types'))
+  message(paste("\n",length(unique(demo$ReceivingCell)),'Neighborhood-To-Cell edges were computed, across',length(unique(demo$ReceivingType)),'cell types'))
   
   return(demo)
 }
