@@ -9,7 +9,7 @@ RunCellToCell(
   LR.database = "fantom5",
   species,
   assay = "RNA",
-  min.cells.per.ident = 10,
+  min.cells.per.ident = 1,
   meta.data.to.map = NULL
 )
 }
@@ -22,7 +22,7 @@ RunCellToCell(
 
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
 
-\item{min.cells.per.ident}{Default 10. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
+\item{min.cells.per.ident}{Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the SCC objects}
 }

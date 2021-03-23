@@ -10,7 +10,8 @@ RunCellToSystem(
   species,
   assay = "RNA",
   min.cells.per.ident = 1,
-  blend = "sum"
+  blend = "sum",
+  meta.data.to.map = NULL
 )
 }
 \arguments{
@@ -27,11 +28,12 @@ RunCellToSystem(
 \item{blend}{Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"}
 }
 \description{
-Condenses all signaling edges coming from each cell within a Seurat object connecting to every other cell in the system, including itself. Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
-and the columns are each a single cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
+Condenses all signaling edges coming from each cell within a Seurat object connecting to every other cell in the system, treated as a single sink.
+Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
+and the columns are each a single sending cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
 all signaling edges coming from that particular cell, to every other cell in the system (including to itself.)
 This transformation allows rapid manipulation and dimensional reduction of how a cell is connected within the system.
 The default assay of this object is called "CellToSystem" to distinguish it from other Seurat objects.
 Meta.data slots by default contain "SendingType" information, which is the celltypes for each point, 
-and "SendingCell" which is the exact cell barcode present in the original Seurat object
+and "SendingCell" which is the exact cell barcode present in the original Seurat object.
 }
