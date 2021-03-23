@@ -23,10 +23,6 @@ RunCellToCell <- function(object,
                    min.cells.per.ident = 1,
                    meta.data.to.map = NULL){
 
-  require(Seurat)
-  require(dplyr)
-  require(abind)
-  
   # jc: wrapped the preprocessing steps
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)
   

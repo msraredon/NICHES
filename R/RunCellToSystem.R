@@ -27,9 +27,6 @@ RunCellToSystem <- function(object,
                       blend = 'sum',
                       meta.data.to.map = NULL){
   
-  require(Seurat)
-  require(dplyr)
-  
   # jc: wrapped the preprocessing steps
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)
   

@@ -20,9 +20,6 @@ RunCellToNeighborhood <- function(object,
                                position.x,
                                position.y){
   
-  require(Seurat)
-  require(dplyr)
-  
   # jc: wrapped the preprocessing steps
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)
   
