@@ -1,4 +1,13 @@
 
+#' Seurat input preprocessing
+#'
+#' @param object input Seurat object 
+#' @param assay which assay to use in object
+#' @param min.cells.per.ident minimum cells per ident
+#'
+#' @return a processed seurat object
+#' @export
+
 prepSeurat <- function(object,assay,min.cells.per.ident){
   # Set default assay (not necessary, but just in case)
   Seurat::DefaultAssay(object) <- assay
@@ -14,13 +23,21 @@ prepSeurat <- function(object,assay,min.cells.per.ident){
   }
   
   num.cells <- ncol(sys.small)
-  message(paste("\n",num.cells,'distinct cells from',length(names(table(Idents(sys.small)))),'celltypes to be analyzed'))
+  message(paste("\n",num.cells,'distinct cells from',length(names(table(Seurat::Idents(sys.small)))),'celltypes to be analyzed'))
   
   return(sys.small)
 }
 
 
-# load the L-R that corresponds to the row names of the input seurat
+#' load the Ligands and Receptors that corresponds to the row names of the input seurat
+#'
+#' @param LR.database database to use
+#' @param species 
+#' @param input_rownames the genes names to query
+#'
+#' @return a list of ligands and receptors
+#' @export
+
 lr_load <- function(LR.database,species,input_rownames){
   
   if(class(LR.database) == 'character'){
@@ -58,6 +75,13 @@ lr_load <- function(LR.database,species,input_rownames){
 }
 
 # better: check_celltypes: check whether the idents are cell types, yes to return the unique cell types, no to return an error
+#' return cell types
+#'
+#' @param seurat_object 
+#'
+#' @return unique cell types
+#' @export
+
 return_celltypes <- function(seurat_object){
   warning("Please make sure that Identity of the input seurat object corresponds to cell types")
   return(unique(Seurat::Idents(seurat_object)))
