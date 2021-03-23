@@ -1,3 +1,5 @@
+# TODO:sending.cell.idents maybe a bug
+
 #' RunCellToNeighborhood #THIS IS UNFINISHED
 #' 
 #' @param object A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.
