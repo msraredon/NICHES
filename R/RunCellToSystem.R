@@ -65,13 +65,13 @@ RunCellToSystem <- function(object,
   colnames(sc.connectome) <- paste(colnames(lig.map),"System",sep = '-')
   
   # Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'CellToSystem')
+  demo <- Seurat::CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'CellToSystem')
   
   # Add metadata to the Seurat object
   meta.data.to.add <- data.frame(as.character(colnames(lig.map)))
   rownames(meta.data.to.add) <- paste(colnames(lig.map),"System",sep = '-')
-  demo <- AddMetaData(demo,metadata = meta.data.to.add,col.name = 'SendingCell')
-  demo <- AddMetaData(demo,metadata = Idents(sys.small),col.name = 'SendingType')
+  demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add,col.name = 'SendingCell')
+  demo <- Seurat::AddMetaData(demo,metadata = Seurat::Idents(sys.small),col.name = 'SendingType')
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
@@ -92,7 +92,7 @@ RunCellToSystem <- function(object,
     meta.data.to.add.also <- sending.metadata
     rownames(meta.data.to.add.also) <- paste(sending.barcodes,'System',sep='-')
     # Add additional metadata
-    demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+    demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
 

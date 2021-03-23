@@ -7,7 +7,8 @@
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param position.x The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.
 #' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
-#'
+#' @importFrom rlang .data
+#' @importFrom dplyr %>%
 #' @export
 
 RunCellToCellSpatial <- function(object,
@@ -70,12 +71,12 @@ RunCellToCellSpatial <- function(object,
   scc <- lig.data*rec.data
   rownames(scc) <- paste(rownames(lig.data),rownames(rec.data),sep = '-')
   colnames(scc) <- paste(colnames(lig.data),colnames(rec.data),sep = '-')
-  sending.cell.idents <- as.character(Idents(sys.small)[colnames(lig.data)])
-  receiving.cell.idents <- as.character(Idents(sys.small)[colnames(rec.data)])
+  sending.cell.idents <- as.character(Seurat::Idents(sys.small)[colnames(lig.data)])
+  receiving.cell.idents <- as.character(Seurat::Idents(sys.small)[colnames(rec.data)])
   dim(scc)
   
   # Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCellSpatial')
+  demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCellSpatial')
   
   # Cool, but in order to interpret, we need the additional metadata of cell types so that we can color it 
   # by sending cell type, receiving cell type, and overall celltype-to-celltype vector. 
@@ -89,10 +90,10 @@ RunCellToCellSpatial <- function(object,
                                        sep = '-')
   
   #Add metadata to the Seurat object
-  demo <- AddMetaData(demo,metadata = meta.data.to.add)
+  demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add)
   
   # How many vectors were captured by this sampling?
-  message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Idents(sys.small)))^2,'total possible'))
+  message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Seurat::Idents(sys.small)))^2,'total possible'))
   
   return(demo)
 }

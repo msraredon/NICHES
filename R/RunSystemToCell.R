@@ -64,13 +64,13 @@ RunSystemToCell <- function(object,
   colnames(sc.connectome) <- paste("System",colnames(rec.map),sep = '-')
   
   #Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'SystemToCell')
+  demo <- Seurat::CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'SystemToCell')
   
   # Add metadata to the Seurat object
   meta.data.to.add <- data.frame(as.character(colnames(rec.map)))
   rownames(meta.data.to.add) <- paste("System",colnames(rec.map),sep = '-')
-  demo <- AddMetaData(demo,metadata = meta.data.to.add,col.name = 'ReceivingCell')
-  demo <- AddMetaData(demo,metadata = Idents(sys.small),col.name = 'ReceivingType')
+  demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add,col.name = 'ReceivingCell')
+  demo <- Seurat::AddMetaData(demo,metadata = Seurat::Idents(sys.small),col.name = 'ReceivingType')
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
@@ -91,7 +91,7 @@ RunSystemToCell <- function(object,
     meta.data.to.add.also <- receiving.metadata
     rownames(meta.data.to.add.also) <- paste('System',receiving.barcodes,sep='-')
     # Add additional metadata
-    demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+    demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
   # How many vectors were captured by this sampling?

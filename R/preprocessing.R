@@ -9,7 +9,7 @@ prepSeurat <- function(object,assay,min.cells.per.ident){
   # Limit object to cell populations larger than requested minimum
   if (!is.null(min.cells.per.ident)){
     message(paste("\n",'Subsetting to populations with greater than',min.cells.per.ident,'cells'))
-    idents.include <- names(table(Idents(sys.small)))[table(Idents(sys.small)) > min.cells.per.ident]
+    idents.include <- names(table(Seurat::Idents(sys.small)))[table(Seurat::Idents(sys.small)) > min.cells.per.ident]
     sys.small <- subset(sys.small,idents = idents.include)
   }
   
@@ -30,10 +30,10 @@ lr_load <- function(LR.database,species,input_rownames){
       # Load ground-truth database (FANTOM5, species-converted as appropriate, per methodlogy in Raredon et al 2019, DOI: 10.1126/sciadv.aaw3851)
       else{
         switch(species,
-               human = {fantom <- get(data(ncomms8866_human))},
-               mouse = {fantom <- get(data(ncomms8866_mouse))},
-               rat = {fantom <- get(data(ncomms8866_rat))},
-               pig = {fantom <- get(data(ncomms8866_pig))},
+               human = {fantom <- get(utils::data(ncomms8866_human))},
+               mouse = {fantom <- get(utils::data(ncomms8866_mouse))},
+               rat = {fantom <- get(utils::data(ncomms8866_rat))},
+               pig = {fantom <- get(utils::data(ncomms8866_pig))},
                stop("input species not recognized"))
       } 
     }
@@ -60,5 +60,5 @@ lr_load <- function(LR.database,species,input_rownames){
 # better: check_celltypes: check whether the idents are cell types, yes to return the unique cell types, no to return an error
 return_celltypes <- function(seurat_object){
   warning("Please make sure that Identity of the input seurat object corresponds to cell types")
-  return(unique(Idents(sys.small)))
+  return(unique(Seurat::Idents(seurat_object)))
 }

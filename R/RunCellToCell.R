@@ -11,7 +11,8 @@
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
-#'
+#' @importFrom rlang .data
+#' @importFrom dplyr %>%
 #' @export
 
 
@@ -42,14 +43,14 @@ RunCellToCell <- function(object,
   # Ligand dataset
   lig.list <- list()
   for (i in 1:length(celltypes)){
-    temp <- subset(sys.small,idents = celltypes[i])
+    temp <- Seurat::subset(sys.small,idents = celltypes[i])
     lig.list[[i]] <- temp@assays[[assay]]@data[ligands,]
   }
   
   # Receptor dataset
   rec.list <- list()
   for (i in 1:length(celltypes)){
-    temp <- subset(sys.small,idents = celltypes[i])
+    temp <- Seurat::subset(sys.small,idents = celltypes[i])
     rec.list[[i]] <- temp@assays[[assay]]@data[receptors,]
   }
   
@@ -64,11 +65,11 @@ RunCellToCell <- function(object,
   for (i in 1:length(celltypes)){
     
     # Define maximum number of comparisons for each pairing
-    num <- as.data.frame(table(Idents(sys.small)))
+    num <- as.data.frame(table(Seurat::Idents(sys.small)))
     num$sender.freq <- ncol(lig.list[[i]])
     rownames(num) <- num$Var1
     num <- num[,-1]
-    num <- num %>% rowwise() %>% mutate(max.possible = min(Freq, sender.freq))
+    num <- num %>% dplyr::rowwise() %>% dplyr::mutate(max.possible = min(.data$Freq, .data$sender.freq))
     
     # Craft the ligand side for a single sender to all other types
     lig.temp <- list()
@@ -90,8 +91,8 @@ RunCellToCell <- function(object,
     rownames(scc.data[[i]]) <- paste(rownames(lig.data[[i]]),rownames(rec.data[[i]]),sep = '-')
     colnames(scc.data[[i]]) <- paste(colnames(lig.data[[i]]),colnames(rec.data[[i]]),sep = '-')
     
-    sending.cell.idents[[i]] <- as.character(Idents(sys.small)[colnames(lig.data[[i]])])
-    receiving.cell.idents[[i]] <- as.character(Idents(sys.small)[colnames(rec.data[[i]])])
+    sending.cell.idents[[i]] <- as.character(Seurat::Idents(sys.small)[colnames(lig.data[[i]])])
+    receiving.cell.idents[[i]] <- as.character(Seurat::Idents(sys.small)[colnames(rec.data[[i]])])
     
   }
   
@@ -99,7 +100,7 @@ RunCellToCell <- function(object,
   scc <- do.call(cbind,scc.data)
   
   #Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
+  demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
   
   # Gather and assemble metadata based on "ident" slot
   sending.cell.idents.2 <- do.call(c,sending.cell.idents)
@@ -111,7 +112,7 @@ RunCellToCell <- function(object,
                                        meta.data.to.add$ReceivingType,
                                        sep = '-')
   #Add ident metadata
-  demo <- AddMetaData(demo,metadata = meta.data.to.add)
+  demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add)
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
@@ -122,7 +123,7 @@ RunCellToCell <- function(object,
   sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
   receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
   # Make joint metadata
-  datArray <- abind(sending.metadata,receiving.metadata,along=3)
+  datArray <- abind::abind(sending.metadata,receiving.metadata,along=3)
   joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
   # Define column names
   colnames(joint.metadata) <- paste(colnames(sending.metadata),'Joint',sep = '.')
@@ -132,11 +133,11 @@ RunCellToCell <- function(object,
   meta.data.to.add.also <- cbind(sending.metadata,receiving.metadata,joint.metadata)
   rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='-')
   # Add additional metadata
-  demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+  demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
   # How many vectors were captured by this sampling?
-  message(paste("\n",ncol(demo),'Cell-To-Cell edges computed, sampling',length(unique(demo$VectorType)),'distinct VectorTypes, out of',length(table(Idents(sys.small)))^2,'total possible'))
+  message(paste("\n",ncol(demo),'Cell-To-Cell edges computed, sampling',length(unique(demo$VectorType)),'distinct VectorTypes, out of',length(table(Seurat::Idents(sys.small)))^2,'total possible'))
   return(demo)
 }
 

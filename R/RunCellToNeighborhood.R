@@ -77,7 +77,7 @@ RunCellToNeighborhood <- function(object,
   #receiving.cell.idents <- as.character(Idents(sys.small)[colnames(rec.data)])
 
   # Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToNeighborhood')
+  demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToNeighborhood')
   
   # Add metadata based on ident slot
   
@@ -90,10 +90,10 @@ RunCellToNeighborhood <- function(object,
                                        sep = '-')
   
   #Add metadata to the Seurat object
-  demo <- AddMetaData(demo,metadata = meta.data.to.add)
+  demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add)
   
   # How many vectors were captured by this sampling?
-  message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Idents(sys.small)))^2,'total possible'))
+  message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Seurat::Idents(sys.small)))^2,'total possible'))
   
   return(demo)
 }
