@@ -1,15 +1,12 @@
-
+LoadOmniPath <- function(){
+  
 #OmniPath
 library(OmnipathR)
 library(dplyr)
 library(stringr)
 
 #Ligand-Receptor Network ----
-lr_Interactions_Omnipath <- import_ligrecextra_interactions() # %>%
-  #dplyr::select(source_genesymbol,target_genesymbol,sources) %>%
-  #dplyr::rename(from=source_genesymbol, to=target_genesymbol) %>% 
-  #dplyr::filter(from != to) %>% 
-  #dplyr::distinct()
+lr_Interactions_Omnipath <- import_ligrecextra_interactions()
 
 # Identify max number of ligand subunits and max number of receptor subunits
 source_sub_max <- max(str_count(lr_Interactions_Omnipath$source_genesymbol, "_"))
@@ -32,8 +29,14 @@ temp <- tidyr::separate(data = lr_Interactions_Omnipath,
                         sep = '_',
                         remove = F)
 temp <- tidyr::separate(data = temp,
-                        col = source_genesymbol, # Split Target genes
+                        col = target_genesymbol, # Split Target genes
                         into = target_col_names, # Uses initialized column names
                         sep = '_',
                         remove = F)
 
+# Export ligand subunit dataframe
+source_subunits <<- temp[,source_col_names]
+target_subunits <<- temp[,target_col_names]
+
+
+}
