@@ -27,58 +27,13 @@ RunSystemToCell <- function(object,
                    blend = 'sum',
                    meta.data.to.map = NULL){
   
-  require(Seurat)
-  require(dplyr)
+  # jc: wrapped the preprocessing steps
+  sys.small <- prepSeurat(object,assay,min.cells.per.ident)
   
-  # Check if setup is correct
-  if (class(LR.database) == 'character'){
-    if (LR.database == 'fantom5' & is.null(species)){stop("\nPlease select species for FANTOM5 mapping. Allows 'human','mouse','rat', or 'pig' ")}
-  }else{}
-  
-  # Set default assay (not necessary, but just in case)
-  DefaultAssay(object) <- assay
-  
-  # Stash object
-  sys.small <- object
-  
-  # Limit object to cell populations larger than requested minimum
-  if (!is.null(min.cells.per.ident)){
-    message(paste("\n",'Subsetting to populations with greater than',min.cells.per.ident,'cells'))
-    idents.include <- names(table(Idents(sys.small)))[table(Idents(sys.small)) > min.cells.per.ident]
-    sys.small <- subset(sys.small,idents = idents.include)
-  }
-  
-  num.cells <- ncol(sys.small)
-  message(paste("\n",num.cells,'distinct cells from',length(names(table(Idents(sys.small)))),'celltypes to be analyzed'))
-  
-  # Identify paired ligands and receptors in the dataset to map against
-  if(class(LR.database) == 'character'){
-    if (LR.database == 'fantom5'){
-      # Load ground-truth database (FANTOM5, species-converted as appropriate, per methodlogy in Raredon et al 2019, DOI: 10.1126/sciadv.aaw3851)
-      if (species == 'human'){
-        fantom <- Connectome::ncomms8866_human
-      }
-      if (species == 'mouse'){
-        fantom <- Connectome::ncomms8866_mouse
-      }
-      if (species == 'rat'){
-        fantom <- Connectome::ncomms8866_rat
-      }
-      if (species == 'pig'){
-        fantom <- Connectome::ncomms8866_pig
-      }}}else{
-        num.mechs <- nrow(LR.database)
-        message(paste("\n","Custom mapping requested. Mapping cells against",num.mechs,"mechanisms provided via LR.database argument"))
-        fantom <- data.frame(Ligand.ApprovedSymbol = as.character(LR.database[,1]),
-                             Receptor.ApprovedSymbol = as.character(LR.database[,2]))
-      }
-  
-  # Subset to only mechanisms present in the object
-  fantom.specific <- subset(fantom,
-                            Ligand.ApprovedSymbol %in% rownames(sys.small@assays[[assay]]) & Receptor.ApprovedSymbol %in% rownames(sys.small@assays[[assay]]))
-  ligands <- fantom.specific$Ligand.ApprovedSymbol
-  receptors <- fantom.specific$Receptor.ApprovedSymbol
-  
+  # jc: Load corresponding ligands and receptors
+  lrs <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
+  ligands <- lrs[['ligands']]
+  receptors <- lrs[['receptors']]
   ### CREATE MAPPING ###
   
   # Make SUMMED LIGAND INFO
@@ -106,13 +61,13 @@ RunSystemToCell <- function(object,
   colnames(sc.connectome) <- paste("System",colnames(rec.map),sep = '-')
   
   #Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'SystemToCell')
+  demo <- Seurat::CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'SystemToCell')
   
   # Add metadata to the Seurat object
   meta.data.to.add <- data.frame(as.character(colnames(rec.map)))
   rownames(meta.data.to.add) <- paste("System",colnames(rec.map),sep = '-')
-  demo <- AddMetaData(demo,metadata = meta.data.to.add,col.name = 'ReceivingCell')
-  demo <- AddMetaData(demo,metadata = Idents(sys.small),col.name = 'ReceivingType')
+  demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add,col.name = 'ReceivingCell')
+  demo <- Seurat::AddMetaData(demo,metadata = Seurat::Idents(sys.small),col.name = 'ReceivingType')
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
@@ -133,7 +88,7 @@ RunSystemToCell <- function(object,
     meta.data.to.add.also <- receiving.metadata
     rownames(meta.data.to.add.also) <- paste('System',receiving.barcodes,sep='-')
     # Add additional metadata
-    demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+    demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
   # How many vectors were captured by this sampling?

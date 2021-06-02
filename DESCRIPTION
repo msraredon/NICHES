@@ -7,27 +7,30 @@ Description: High Dimensional Mapping and Embedding of single cell connectomics
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.1.9000
 VignetteBuilder: knitr
 Imports:
-  dplyr,
-  ggrepel,
-  igraph,
-  plotrix,
-  RColorBrewer,
-  scales,
-  Seurat,
-  tibble,
-  data.table,
-  BisRNA,
-  ggplot2,
-  cowplot,
-  Matrix,
-  gtools,
-  permute,
-  circlize,
-  ComplexHeatmap,
-  Connectome
+    dplyr,
+    ggrepel,
+    igraph,
+    plotrix,
+    RColorBrewer,
+    scales,
+    Seurat,
+    tibble,
+    data.table,
+    BisRNA,
+    ggplot2,
+    cowplot,
+    Matrix,
+    gtools,
+    permute,
+    circlize,
+    ComplexHeatmap,
+    Connectome,
+    abind,
+    rlang,
+    utils
 Suggests:
   knitr,
   rmarkdown

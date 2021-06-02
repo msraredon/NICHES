@@ -11,7 +11,8 @@
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
-#'
+#' @importFrom rlang .data
+#' @importFrom dplyr %>%
 #' @export
 
 
@@ -22,75 +23,30 @@ RunCellToCell <- function(object,
                    min.cells.per.ident = 1,
                    meta.data.to.map = NULL){
 
-  require(Seurat)
-  require(dplyr)
-  require(abind)
+  # jc: wrapped the preprocessing steps
+  sys.small <- prepSeurat(object,assay,min.cells.per.ident)
   
-  # Check if setup is correct
-  if (class(LR.database) == 'character'){
-    if (LR.database == 'fantom5' & is.null(species)){stop("\nPlease select species for FANTOM5 mapping. Allows 'human','mouse','rat', or 'pig' ")}
-  }else{}
-  
-  # Set default assay (not necessary, but just in case)
-  DefaultAssay(object) <- assay
-  
-  # Stash object
-  sys.small <- object
-  
-  # Limit object to cell populations larger than requested minimum
-  if (!is.null(min.cells.per.ident)){
-    message(paste("\n",'Subsetting to populations with greater than',min.cells.per.ident,'cells'))
-    idents.include <- names(table(Idents(sys.small)))[table(Idents(sys.small)) > min.cells.per.ident]
-    sys.small <- subset(sys.small,idents = idents.include)
-  }
-  
-  num.cells <- ncol(sys.small)
-  message(paste("\n",num.cells,'distinct cells from',length(names(table(Idents(sys.small)))),'celltypes to be analyzed'))
-  
-  # Identify paired ligands and receptors in the dataset to map against
-  if(class(LR.database) == 'character'){
-  if (LR.database == 'fantom5'){
-    # Load ground-truth database (FANTOM5, species-converted as appropriate, per methodlogy in Raredon et al 2019, DOI: 10.1126/sciadv.aaw3851)
-    if (species == 'human'){
-      fantom <- Connectome::ncomms8866_human
-    }
-    if (species == 'mouse'){
-      fantom <- Connectome::ncomms8866_mouse
-    }
-    if (species == 'rat'){
-      fantom <- Connectome::ncomms8866_rat
-    }
-    if (species == 'pig'){
-      fantom <- Connectome::ncomms8866_pig
-    }}}else{
-      num.mechs <- nrow(LR.database)
-      message(paste("\n","Custom mapping requested. Mapping cells against",num.mechs,"mechanisms provided via LR.database argument"))
-      fantom <- data.frame(Ligand.ApprovedSymbol = as.character(LR.database[,1]),
-                           Receptor.ApprovedSymbol = as.character(LR.database[,2]))
-    }
-  
-  # Subset to only mechanisms present in the object
-  fantom.specific <- subset(fantom,
-                            Ligand.ApprovedSymbol %in% rownames(sys.small@assays[[assay]]) & Receptor.ApprovedSymbol %in% rownames(sys.small@assays[[assay]]))
-  ligands <- fantom.specific$Ligand.ApprovedSymbol
-  receptors <- fantom.specific$Receptor.ApprovedSymbol
+  # jc: Load corresponding ligands and receptors
+  lrs <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
+  ligands <- lrs[['ligands']]
+  receptors <- lrs[['receptors']]
   
   ### CREATE MAPPING ###
 
-  # Identify celltypes
-  celltypes <- names(table(Idents(sys.small)))
+  # jc: Identify celltypes:names(table(Idents(sys.small))). Better to run check_celltypes, but harder to check
+  celltypes <- return_celltypes(sys.small)
   
   # Ligand dataset
   lig.list <- list()
   for (i in 1:length(celltypes)){
-    temp <- subset(sys.small,idents = celltypes[i])
+    temp <- Seurat::subset(sys.small,idents = celltypes[i])
     lig.list[[i]] <- temp@assays[[assay]]@data[ligands,]
   }
   
   # Receptor dataset
   rec.list <- list()
   for (i in 1:length(celltypes)){
-    temp <- subset(sys.small,idents = celltypes[i])
+    temp <- Seurat::subset(sys.small,idents = celltypes[i])
     rec.list[[i]] <- temp@assays[[assay]]@data[receptors,]
   }
   
@@ -105,11 +61,11 @@ RunCellToCell <- function(object,
   for (i in 1:length(celltypes)){
     
     # Define maximum number of comparisons for each pairing
-    num <- as.data.frame(table(Idents(sys.small)))
+    num <- as.data.frame(table(Seurat::Idents(sys.small)))
     num$sender.freq <- ncol(lig.list[[i]])
     rownames(num) <- num$Var1
     num <- num[,-1]
-    num <- num %>% rowwise() %>% mutate(max.possible = min(Freq, sender.freq))
+    num <- num %>% dplyr::rowwise() %>% dplyr::mutate(max.possible = min(.data$Freq, .data$sender.freq))
     
     # Craft the ligand side for a single sender to all other types
     lig.temp <- list()
@@ -131,8 +87,8 @@ RunCellToCell <- function(object,
     rownames(scc.data[[i]]) <- paste(rownames(lig.data[[i]]),rownames(rec.data[[i]]),sep = '-')
     colnames(scc.data[[i]]) <- paste(colnames(lig.data[[i]]),colnames(rec.data[[i]]),sep = '-')
     
-    sending.cell.idents[[i]] <- as.character(Idents(sys.small)[colnames(lig.data[[i]])])
-    receiving.cell.idents[[i]] <- as.character(Idents(sys.small)[colnames(rec.data[[i]])])
+    sending.cell.idents[[i]] <- as.character(Seurat::Idents(sys.small)[colnames(lig.data[[i]])])
+    receiving.cell.idents[[i]] <- as.character(Seurat::Idents(sys.small)[colnames(rec.data[[i]])])
     
   }
   
@@ -140,7 +96,7 @@ RunCellToCell <- function(object,
   scc <- do.call(cbind,scc.data)
   
   #Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
+  demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
   
   # Gather and assemble metadata based on "ident" slot
   sending.cell.idents.2 <- do.call(c,sending.cell.idents)
@@ -152,7 +108,7 @@ RunCellToCell <- function(object,
                                        meta.data.to.add$ReceivingType,
                                        sep = '-')
   #Add ident metadata
-  demo <- AddMetaData(demo,metadata = meta.data.to.add)
+  demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add)
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
@@ -163,7 +119,7 @@ RunCellToCell <- function(object,
   sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
   receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
   # Make joint metadata
-  datArray <- abind(sending.metadata,receiving.metadata,along=3)
+  datArray <- abind::abind(sending.metadata,receiving.metadata,along=3)
   joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
   # Define column names
   colnames(joint.metadata) <- paste(colnames(sending.metadata),'Joint',sep = '.')
@@ -173,11 +129,11 @@ RunCellToCell <- function(object,
   meta.data.to.add.also <- cbind(sending.metadata,receiving.metadata,joint.metadata)
   rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='-')
   # Add additional metadata
-  demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+  demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
   # How many vectors were captured by this sampling?
-  message(paste("\n",ncol(demo),'Cell-To-Cell edges computed, sampling',length(unique(demo$VectorType)),'distinct VectorTypes, out of',length(table(Idents(sys.small)))^2,'total possible'))
+  message(paste("\n",ncol(demo),'Cell-To-Cell edges computed, sampling',length(unique(demo$VectorType)),'distinct VectorTypes, out of',length(table(Seurat::Idents(sys.small)))^2,'total possible'))
   return(demo)
 }
 

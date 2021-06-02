@@ -1,0 +1,43 @@
+library(SingleCellConnectome)
+spatial_data <- readRDS("/data/jyc/github_proj/dbit_seq/cell_paper/spatial_seurat_processed_sub.RDS")
+spatial_data@meta.data$position <- colnames(spatial_data)
+spatial_data@meta.data$cell_types <-spatial_data@meta.data$cell_label_dom
+spatial_data@meta.data$cluster <- spatial_data@meta.data$integrated_snn_res.0.8
+
+set.seed(34)
+DefaultAssay(spatial_data) <- "SCT"
+spatial_data <- RunALRA(spatial_data)
+
+#### taking a subset to test
+spatial_data_sub <- subset(spatial_data,cells = colnames(spatial_data)[spatial_data@meta.data$cell_types %in% c("Excitatory neuron","Ganglion neuron")],
+                           features = rownames(spatial_data@assays$integrated))
+saveRDS(spatial_data_sub,"/data/jyc/github_proj/dbit_seq/cell_paper/spatial_test_data.RDS")
+#metadata_lst=vector(mode="list")
+#metadata_lst[["position"]] <- spatial_data_sub@meta.data$position
+#metadata_lst[["cluster"]] <- spatial_data_sub@meta.data$cluster
+spatial_data_sub2 <- subset(spatial_data,features = rownames(spatial_data@assays$integrated))
+
+system.time({scc_tmp <- runSCC(seu_obj = spatial_data_sub2,organizations=c("pair_spatial"),
+                                 assay='alra',metadata = c("cell_types","position","cluster"),neighborhood_radius = 1,
+                                 species = "mouse",downsampling = FALSE,sample_size_n = 10,autocrine =TRUE,n_threads = 8)})
+scc_tmp <- FindVariableFeatures(scc_tmp, organization = "pair_spatial",selection.method = "vst")
+vargenes <- VariableFeatures(scc_tmp,organization = "pair_spatial")
+scc_tmp <- FindVariableFeatures(scc_tmp, organization = "pair_spatial",selection.method = "disp")
+vargenes1 <- VariableFeatures(scc_tmp,organization = "pair_spatial")
+length(vargenes)
+length(vargenes1)
+length(intersect(vargenes,vargenes1))
+
+scc_tmp <- ScaleData(scc_tmp, organization = "pair_spatial")
+scc_tmp <- RunPCA(scc_tmp, organization = "pair_spatial",features = VariableFeatures(object = scc_tmp,organization = "pair_spatial"),seed.use = 34)
+scc_tmp <- RunTSNE(object=scc_tmp,organization = "pair_spatial",reduction = "pca",dims= 1:20,seed.use=as.integer(34))
+DimPlot(object=scc_tmp,organization = "pair_spatial",reduction = "tsne",group.by="cp_types")
+
+### TODO:how to make the following funcion work
+#Idents(scc_tmp,organization = "pair_spatial") <- scc_tmp@organizations$pair_spatial@meta.data$cp_types
+Seurat::Idents(scc_tmp@organizations$pair_spatial) <- scc_tmp@organizations$pair_spatial@meta.data$cp_types
+
+#tmp_markers <- FindAllMarkers(scc_tmp,organization = "pair_spatial", only.pos = TRUE,random.seed = 34)
+FeaturePlot(object=scc_tmp,organization = "pair_spatial",features=c("Adam10-Epha3","Adam12-Itga9","Adam9-Itga6"))
+
+DotPlot(object=scc_tmp,organization = "pair_spatial",features=c("Adam10-Epha3","Adam12-Itga9","Adam9-Itga6"))

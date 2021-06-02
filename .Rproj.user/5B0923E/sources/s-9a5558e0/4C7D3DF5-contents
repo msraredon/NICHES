@@ -1,0 +1,289 @@
+#' Run CLIF
+#'
+#' Cell-Level Interaction Framework (CLIF) is a framework
+#' that builds cell-cell ligand-receptor interactoin profiles
+#' based on single-cell RNA-seq data.
+#'
+#' @param exp_mat scRNA-seq expression matrix
+#' @param species character, default: "human"
+#' the species of the input scRNA-seq data
+#' @param cell_types_vec character vector, optional, default: NULL
+#' cell type annotations for each cell in the expressoin matrix
+#' @param downsampling logical, optional, default: TRUE
+#' whether to do dowsampling on the cells
+#' @param sample_size_n integer, optional, default: 1000
+#' the number of sampled cells if do downsampling
+#' @param autocrine logical,optional, default:TRUE
+#' whether to consider cell interactions within one cell type
+#' (including interact with themselves),always TRUE is no
+#' cell_types_vec provided
+#' @param n_threads integer,optional, default:8
+#' the number of threads to use when constructing the matrix
+#'
+#' @return a Seurat object containing the clif matrix is returned
+#'
+#' @examples
+#'
+#'
+#'
+#'
+#' @export
+#'
+#'
+####to get the same result: set seed before runCLIF
+####highly suggest to run ALRA for the exp_mat before
+clif <- function(exp_mat,...){
+  UseMethod("clif", exp_mat)
+}
+
+#' @export
+#'
+####the cell_types_vec is not necessary
+####should I input the matrix or a seurat object?
+####note:autocrine allows the same cell-type communication (including same cells)
+clif.default <- function(exp_mat,species="human",cell_types_vec=NULL,metadata_lst=NULL,downsampling = TRUE,sample_size_n=1000,autocrine=TRUE,n_threads=8){
+  ####load the ligands receptors of the specified species
+  fantom5 <- load_lr_anno(species)
+  ####sometimes I have to use matrix instead of dgcMatrix
+  exp_mat.x <- as.matrix(exp_mat)
+  ####check whether the rownames of exp_mat compatible with the anno
+  lit.put <- fantom5[fantom5$Pair.Evidence %in% c("literature supported","putative"),]
+  ligands <- as.character(lit.put[,2]) #Determines the ligand list to use
+  recepts <- as.character(lit.put[,4]) #Determines the receptor list to use
+
+  ####ligands.use and recepts.use are the same for both ctrl and stim
+  ligands.use <- intersect(ligands,rownames(exp_mat))
+  recepts.use <- intersect(recepts,rownames(exp_mat))
+  if(length(ligands.use)<10|length(recepts.use)<10)
+    warning("There are very few ligands and receptors found in this dataset, please check the gene naming convention")
+
+  ####check whether cell_type_vec has the right dimension,sample_size whether too large
+  if(!is.null(cell_types_vec)& (length(cell_types_vec) != ncol(exp_mat)))
+    stop("Error: The dimension of cell type vector isn't consistent with the dimension of the expression matrix")
+
+  ####geosketch downsampling
+  if(downsampling){
+    if(sample_size_n > ncol(exp_mat)) stop("Error: sample size is bigger than the number of all cells")
+    ####pass a matrix instead of a dgcmatrix
+    sketch.indices <- geo_downsample(exp_mat.x,sample_size_n)
+    exp_mat <- exp_mat[,sketch.indices]
+    if(!is.null(cell_types_vec)) cell_types_vec <- cell_types_vec[sketch.indices]
+    if(!is.null(metadata_lst)){
+      for(i in 1:length(metadata_lst)) metadata_lst[[i]] <- metadata_lst[[i]][sketch.indices]
+    }
+  }
+  ####create the l-r pairs, indices,ligand_cell_list,receptor_cell_list
+  possi_pairs <- vector(mode="list")
+  #stime <- system.time({sapply(1:length(ligands.use), function(i) sapply(1:length(recepts.use), function(j) possi_pairs[[j+(i-1)*length(recepts.use)]] <- paste(ligands.use[i],recepts.use[j],sep = "_")))})
+  for(i in 1:length(ligands.use)){
+    for(j in 1:length(recepts.use)){
+      possi_pairs[[j+(i-1)*length(recepts.use)]] <- paste(ligands.use[i],recepts.use[j],sep = "_")
+    }
+  }
+
+  possi_pairs <- unlist(possi_pairs,use.names = FALSE)
+  fantom5_pairs <- paste0(fantom5$Ligand.ApprovedSymbol,'_',fantom5$Receptor.ApprovedSymbol)
+  real_pairs <- intersect(possi_pairs,fantom5_pairs)
+  ligands_all <- vector(mode="list")
+  recepts_all <- vector(mode="list")
+  for(i in 1:length(real_pairs)){
+    ligands_all[[i]] <- unlist(strsplit(real_pairs[i],split = "_"))[1]
+    recepts_all[[i]] <- unlist(strsplit(real_pairs[i],split = "_"))[2]
+  }
+  ligands_all <- unique(unlist(ligands_all,use.names = FALSE))
+  recepts_all <- unique(unlist(recepts_all,use.names = FALSE))
+
+  ####create some indices
+  cell_names <- colnames(exp_mat)
+  cell_name_index <- c(1:length(cell_names))
+  names(cell_name_index) <- cell_names
+
+  gene_names <- rownames(exp_mat)
+  gene_name_index <- c(1:length(gene_names))
+  names(gene_name_index) <- gene_names
+
+  ligand_index <- c(1:length(ligands_all))
+  names(ligand_index) <- ligands_all
+  recepts_index <- c(1:length(recepts_all))
+  names(recepts_index) <- recepts_all
+
+  ####create ligand_cell_list,receptor_cell_list
+  ligand_cell_list<- vector(mode="list",length = length(ligands_all))
+  for(i in 1:length(ligands_all)){
+    if(max(exp_mat[gene_name_index[ligands_all[i]],])>0){
+      ligand_cell_list[[i]] <- cell_name_index[names(which(exp_mat[gene_name_index[ligands_all[i]],] > 0))]
+    }
+  }
+
+  receptor_cell_list <- vector(mode="list",length=length(recepts_all))
+  for(i in 1:length(recepts_all)){
+    if(max(exp_mat[gene_name_index[recepts_all[i]],])>0){
+      receptor_cell_list[[i]] <- cell_name_index[names(which(exp_mat[gene_name_index[recepts_all[i]],] > 0))]
+    }
+  }
+
+  ####matrix creation
+  #dir.create(file.path(mat_path), showWarnings = FALSE)
+  #### not to save this matrix
+  cell_pair_exp_matrix <- bigstatsr::FBM(nrow=length(real_pairs),ncol = length(cell_names)*length(cell_names))#,backingfile = "./temp/FBM_bcking")$save()
+  #if(!cell_pair_exp_matrix$is_saved) warning("The cell-cell Interaction matrix isn't saved")
+
+
+  message("Generating CLIF matrix ...")
+  stime <- system.time({bigstatsr::big_apply(X=cell_pair_exp_matrix,real_pairs=real_pairs,exp_data=exp_mat.x,ligand_cell_list=ligand_cell_list,
+                                  ligand_index=ligand_index,recepts_index=recepts_index,receptor_cell_list=receptor_cell_list,gene_name_index=gene_name_index,ind = c(1:length(real_pairs)),
+                                  new_builder_vec = coldirec_builder_vec,cal_pos_coldirection_vec=cal_pos_coldirection_vec,cell_names=cell_names,
+                                  a.FUN = function(X,ind,real_pairs,exp_data,ligand_cell_list,ligand_index,recepts_index,receptor_cell_list,gene_name_index,new_builder_vec,cal_pos_coldirection_vec,cell_names)
+                                  {new_builder_vec(X,ind,real_pairs,exp_data,ligand_cell_list,ligand_index,recepts_index,receptor_cell_list,gene_name_index,cal_pos_coldirection_vec,cell_names)}
+                                  ,a.combine = 'c',ncores =n_threads)})
+  message(paste0("CLIF matrix generated. Run time: "),stime[3])
+
+  ####matrix cleaning
+  sparse_mat <- as(cell_pair_exp_matrix[1:nrow(cell_pair_exp_matrix),1:ncol(cell_pair_exp_matrix)],"dgCMatrix")
+
+  if(!autocrine){
+    ####delete the positions where the cell pairs are composed of the same cells
+    del_cps <- cal_pos_coldirection_vec(x=c(1:length(cell_names)),y=c(1:length(cell_names)),n=length(cell_names))
+    sparse_mat <- sparse_mat[,-del_cps]
+    ####create some meta data: cell-pair names, cell-pair types
+    ####important: instead of using cell names in the cell pairs, using index
+    cp_names <- gtools::permutations(n=length(cell_name_index),r=2,v=cell_name_index)
+  }
+  else{
+    ####allow cell1-cell1
+    cp_names <- gtools::permutations(n=length(cell_name_index),r=2,v=cell_name_index,repeats.allowed = TRUE)
+  }
+  cp_names <- paste(cp_names[,1],cp_names[,2],sep = "_")
+  ###because some cell types have '_' and '-', here I name the cell pair types with '|'
+  if(!is.null(cell_types_vec)){
+    cp_types <- sapply(strsplit(cp_names,split='_'),function(x) paste(cell_types_vec[as.integer(x[1])],cell_types_vec[as.integer(x[2])],sep = "|"))
+    cell_types_unique <- as.character(unique(cell_types_vec))
+  }
+  ####aggregate other metadata:how to use permutation without the order sorted
+  ####One solution:just like cp_types, map the metadata to cp_names
+  if(!is.null(metadata_lst)){
+    metadata_aggre_lst <-vector(mode = "list",length=length(metadata_lst))
+    for(i in 1:length(metadata_lst)){
+      names(metadata_lst[[i]]) <-cell_name_index
+      metadata_aggre_lst[[i]] <- sapply(strsplit(cp_names,split='_'),function(x) paste(metadata_lst[[i]][as.integer(x[1])],metadata_lst[[i]][as.integer(x[2])],sep = "|"))
+      names(metadata_aggre_lst[[i]]) <- cp_names
+      names(metadata_aggre_lst)[i] <-paste0(names(metadata_lst)[i],"_aggregate")
+    }
+  }
+
+  colnames(sparse_mat) <- cp_names
+  rownames(sparse_mat) <- c(real_pairs)
+  ####create seurat obj and return
+  ####note: haven't remove null columns in this version
+  cp_obj <- Seurat::CreateSeuratObject(counts = sparse_mat)
+  #########how to handle null cell_types_vec
+  #### set can only be autocrine
+  if(is.null(cell_types_vec)) {
+    message("Because no cell_types_vec provided, the system is autocrine.")
+    return(cp_obj)
+  }
+  else{
+    if(!autocrine){
+      cp_obj@meta.data$cp_types <- cp_types
+      #cp_obj <- mapply(function(x) cp_obj <- AddMetaData(cp_obj,paste0(x,"_aggregate"),col.name=paste0(x,"_aggregate")),x=metadata_names)
+      if(!is.null(metadata_lst)) {
+        for(i in 1:length(metadata_lst)){
+          cp_obj <- Seurat::AddMetaData(cp_obj,metadata_aggre_lst[[i]],col.name=names(metadata_aggre_lst)[i])
+        }
+      }
+      cp_index_reduce_token <- rep(TRUE,length(cp_types))
+      for(i in 1:length(cp_types)){
+        cp_type <- unlist(strsplit(cp_types[i],split = "\\|"))
+        if(cp_type[1] == cp_type[2]) cp_index_reduce_token[i] <- FALSE
+      }
+      cp_list_keep <- colnames(cp_obj@assays$RNA@data)[cp_index_reduce_token]
+      cp_obj_subset <- subset(cp_obj,cells=cp_list_keep)
+
+      ####save some meta data:cp_types,sender_type,receiver_type,sender_cell,receiver_cell
+      cp_obj_subset@meta.data$sender_type <- sapply(strsplit(cp_obj_subset@meta.data$cp_types,split="\\|"),function(x) x[1])
+      cp_obj_subset@meta.data$receiver_type <- sapply(strsplit(cp_obj_subset@meta.data$cp_types,split="\\|"),function(x) x[2])
+      cp_obj_subset@meta.data$sender_cell <- sapply(strsplit(colnames(cp_obj_subset@assays$RNA),split="_"),function(x) names(cell_name_index[as.integer(x[1])]))
+      cp_obj_subset@meta.data$receiver_cell <- sapply(strsplit(colnames(cp_obj_subset@assays$RNA),split="_"),function(x) names(cell_name_index[as.integer(x[2])]))
+
+      cp_obj_subset@meta.data$sender_type <- factor(cp_obj_subset@meta.data$sender_type,levels=cell_types_unique)
+      cp_obj_subset@meta.data$receiver_type <- factor(cp_obj_subset@meta.data$receiver_type,levels=cell_types_unique)
+
+      cp_permutations <- gtools::permutations(n=length(cell_types_unique),r=2,v=cell_types_unique)
+      cp_levels <- paste(cp_permutations[,1],cp_permutations[,2],sep = "|")
+
+      cp_obj_subset@meta.data$cp_types <- factor(cp_obj_subset@meta.data$cp_types,levels=cp_levels)
+      return(cp_obj_subset)
+    }
+    else{
+      cp_obj@meta.data$cp_types <- cp_types
+      #cp_obj <-mapply(function(x) cp_obj <- AddMetaData(cp_obj,paste0(x,"_aggregate"),col.name=paste0(x,"_aggregate")),x=metadata_names)
+      if(!is.null(metadata_lst)) {
+          for(i in 1:length(metadata_lst)){
+            cp_obj <- Seurat::AddMetaData(cp_obj,metadata_aggre_lst[[i]],col.name=names(metadata_aggre_lst)[i])
+          }
+      }
+      cp_obj@meta.data$sender_type <- sapply(strsplit(cp_obj@meta.data$cp_types,split="\\|"),function(x) x[1])
+      cp_obj@meta.data$receiver_type <- sapply(strsplit(cp_obj@meta.data$cp_types,split="\\|"),function(x) x[2])
+      cp_obj@meta.data$sender_cell <- sapply(strsplit(colnames(cp_obj@assays$RNA),split="_"),function(x) names(cell_name_index[as.integer(x[1])]))
+      cp_obj@meta.data$receiver_cell <- sapply(strsplit(colnames(cp_obj@assays$RNA),split="_"),function(x) names(cell_name_index[as.integer(x[2])]))
+
+      cp_obj@meta.data$sender_type <- factor(cp_obj@meta.data$sender_type,levels=cell_types_unique)
+      cp_obj@meta.data$receiver_type <- factor(cp_obj@meta.data$receiver_type,levels=cell_types_unique)
+
+      cp_permutations <- gtools::permutations(n=length(cell_types_unique),r=2,v=cell_types_unique,repeats.allowed = TRUE)
+      cp_levels <- paste(cp_permutations[,1],cp_permutations[,2],sep = "|")
+
+      cp_obj@meta.data$cp_types <- factor(cp_obj@meta.data$cp_types,levels=cp_levels)
+      return(cp_obj)
+    }
+  }
+
+}
+
+
+####metadata: a list of metadata to aggregate to the output (a vector of names)
+####if cell_types want to be aggregated, it must be present inside metadata
+####for now, it has to be called as cell_types inside
+clif.Seurat <- function(
+  seu_obj,
+  assay=NULL,
+  metadata,
+  species="human",
+  downsampling = TRUE,
+  sample_size_n=1000,
+  autocrine=TRUE,
+  n_threads=8
+){
+  if (is.null(x = assay)) {
+    assay <- Seurat::DefaultAssay(object = seu_obj)
+  }
+
+  ##get metadata from seurat and transform into a list of vectors
+  if(c("cell_types") %in% metadata){
+    cell_types_vec <-seu_obj@meta.data$cell_types
+    metadata <- metadata[-which("cell_types" == metadata)]
+  } else{cell_types_vec <- NULL}
+
+
+  if(is.null(metadata)) {
+    metadata_lst <- NULL
+  }else{
+    metadata_lst=vector(mode="list")
+    for(md in metadata){
+      index <-which(md == names(seu_obj@meta.data))
+      metadata_lst[[md]] <- seu_obj@meta.data[[index]]
+    }
+  }
+
+
+  #if(!is.null(seu_obj@meta.data$cell_types)) cell_types_vec =
+  result <- clif(exp_mat=Seurat::GetAssayData(object = seu_obj, slot = 'data', assay = assay),
+                 species=species,
+                 cell_types_vec=cell_types_vec,
+                 metadata_lst = metadata_lst,
+                 downsampling = downsampling,
+                 sample_size_n=sample_size_n,
+                 autocrine=autocrine,
+                 n_threads=n_threads)
+  return(result)
+}

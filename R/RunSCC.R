@@ -33,11 +33,7 @@ RunSCC <- function(object,
                         CellToNeighborhood = F,
                         NeighborhoodToCell = T,
                         ...){
-  
-  require(Seurat)
-  require(dplyr)
-  
-  # Initialize output structure
+   # Initialize output structure
   output <- list()
   
   # Calculate SCC organizations without spatial restrictions

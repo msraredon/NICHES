@@ -1,0 +1,251 @@
+library(Seurat)
+library(ggplot2)
+library(patchwork)
+library(dplyr)
+library(rhdf5)
+library(Matrix)
+library(sctransform)
+library(plyr)
+library(gridExtra)
+library(magrittr)
+library(tidyr)
+library(raster)
+library(OpenImageR)
+library(ggpubr)
+library(grid)
+library(wesanderson)
+library(SingleR)
+library("monocle")
+library(cowplot)
+library(SummarizedExperiment)
+dir <- "/data/jyc/github_proj/dbit_seq/cell_paper/"
+setwd(dir)
+
+#change filename1 to name of txt file you want to load
+data1 <- read.table("GSM4096261_10t.tsv", header = TRUE, sep = "\t", row.names = 1)
+data2 <- t(data1)
+sample1.name <- "FFPE-1"
+matrix1.data <- Matrix(as.matrix(data2), sparse = TRUE)
+FFPE1 <- CreateSeuratObject(matrix1.data, min.cells = 10, project = sample1.name)
+FFPE1$tech <-"10um"
+
+
+#read ref data from RDS file
+
+fData(data)
+pData(data)
+data = readRDS("/data/jyc/github_proj/dbit_seq/scRNAdata/cds_cleaned_sampled_100k.RDS")
+df = data.frame(gene = fData(data)$gene_short_name)
+idname = names(table(pData(data)$id))
+sc = data.frame(pData(data)$id, pData(data)$day)
+sc <- unique(sc)
+sc
+
+s1 = row.names(subset(pData(data), id == 4))
+s1 = data[,s1]
+x <- exprs(s1)
+row.names(x) <- fData(s1)$gene_short_name
+
+s2 = row.names(subset(pData(data), id == 5))
+s2 = data[,s2]
+y <- exprs(s2)
+row.names(y) <- fData(s2)$gene_short_name
+z = cbind2(x,y)
+row.names(z) <- fData(s2)$gene_short_name
+
+
+ref <- SummarizedExperiment(
+  list(counts=z),
+  colData=DataFrame(label.main=c(s1@phenoData@data$Main_trajectory,s2@phenoData@data$Main_trajectory),
+                    label.sub=c(s1@phenoData@data$Sub_trajectory_name,s2@phenoData@data$Sub_trajectory_name) )
+)
+ref <- scater::logNormCounts(ref)
+
+idname = c("6",
+           "44",
+           "24",
+           "5",
+           "60",
+           "59",
+           "4",
+           "43",
+           "26",
+           "25"
+)
+temp = c()
+name1_10 = c()
+name2 = c()
+for (i in idname){
+  s1 = row.names(subset(pData(data), id == i))
+  s1 = data[,s1]
+  x <- exprs(s1)
+  temp = cbind2(temp,x)
+  name1_10 = c(name1_10, s1@phenoData@data$Main_trajectory)
+  name2 = c(name2, s1@phenoData@data$Sub_trajectory_name)
+}
+
+row.names(temp) <- fData(s2)$gene_short_name
+
+#change filename1 to name of txt file you want to load
+sample1.name <- "E10.5"
+matrix1.data <- Matrix(temp, sparse = TRUE)
+E10 <- CreateSeuratObject(matrix1.data, min.cells = 10, project = sample1.name)
+E10$tech <-"E10.5"
+
+idname = c("40",
+           "63",
+           "22",
+           "58",
+           "3",
+           "1",
+           "39",
+           "42",
+           "55",
+           "20",
+           "57",
+           "21",
+           "56",
+           "19",
+           "41"
+
+)
+temp = c()
+name1_9 = c()
+name3 = c()
+for (i in idname){
+  s1 = row.names(subset(pData(data), id == i))
+  s1 = data[,s1]
+  x <- exprs(s1)
+  temp = cbind2(temp,x)
+  name1_9 = c(name1_9, s1@phenoData@data$Main_trajectory)
+  name3 = c(name3, s1@phenoData@data$Sub_trajectory_name)
+}
+
+row.names(temp) <- fData(s2)$gene_short_name
+na1 = rep("E10 Eye", 2500)
+names = c(name3,name2)
+names = c(na1,names)
+#### my modification
+name_main <- c(na1,name1_9,name1_10)
+#change filename1 to name of txt file you want to load
+sample1.name <- "E9.5"
+matrix1.data <- Matrix(temp, sparse = TRUE)
+E9 <- CreateSeuratObject(matrix1.data, min.cells = 10, project = sample1.name)
+E9$tech <-"E9.5"
+
+
+
+
+pancreas.list <- list(FFPE1,E9,E10)
+for (i in 1:length(pancreas.list)) {
+  pancreas.list[[i]] <- SCTransform(pancreas.list[[i]], verbose = FALSE)
+}
+
+pancreas.features <- SelectIntegrationFeatures(object.list = pancreas.list, nfeatures = 3000)
+options(future.globals.maxSize= 2791289600)
+#pancreas.features_old <- pancreas.features
+pancreas.list <- PrepSCTIntegration(object.list = pancreas.list, anchor.features = pancreas.features,
+                                    verbose = FALSE)
+
+pancreas.anchors <- FindIntegrationAnchors(object.list = pancreas.list, normalization.method = "SCT",
+                                           anchor.features = pancreas.features, verbose = FALSE)
+
+
+immune.combined <- IntegrateData(anchorset = pancreas.anchors, normalization.method = "SCT",
+                                 verbose = FALSE)
+
+
+
+immune.combined <- RunPCA(immune.combined, npcs = 30, verbose = FALSE)
+# t-SNE and Clustering
+immune.combined <- RunUMAP(immune.combined, reduction = "pca", dims = 1:20)
+immune.combined <- FindNeighbors(immune.combined, reduction = "pca", dims = 1:20)
+immune.combined <- FindClusters(immune.combined, resolution = 0.8)
+
+
+p3 <- DimPlot(immune.combined, reduction = "umap",group.by = "tech", order = c("10um","E9.5","E10.5") ,pt.size = 0.01,cols = c("lightblue", "pink", "red"))
+p3
+p4
+p4 <- DimPlot(immune.combined, reduction = "umap", label = TRUE,,pt.size = 0.01)
+plot_grid(p3,p4)
+
+p3 <- DimPlot(immune.combined, reduction = "umap",group.by = "tech")
+p3
+p4 <- DimPlot(immune.combined, reduction = "umap", label = TRUE)
+plot_grid(p3,p4)
+
+Idents(immune.combined) <- names
+DimPlot(immune.combined, reduction = "umap")
+Idents(immune.combined) <- name_main
+DimPlot(immune.combined, reduction = "umap")
+
+
+####1. annotate the spatial data: by main cell types
+immune.combined@meta.data$annotation_main <- name_main
+Idents(immune.combined) <- immune.combined@meta.data$tech
+ref.seurat <- subset(immune.combined,idents = c("E9.5","E10.5"))
+Idents(ref.seurat) <- ref.seurat@meta.data$annotation_main
+table(Idents(ref.seurat))
+
+ref_label_df <- as.data.frame(Idents(ref.seurat))
+as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
+ref_label_df$cluster <- as.numeric.factor(ref.seurat@meta.data$integrated_snn_res.0.8)
+names(ref_label_df) <- c("cell_type","cluster_label")
+
+library(dplyr)
+ref_counter <- dplyr::count(ref_label_df,cluster_label,cell_type)
+ref_counter_sorted <- ref_counter[with(ref_counter, order(cluster_label, -n)), ]
+ref_counter_summary <- ref_counter_sorted[!duplicated(ref_counter_sorted$cluster_label),]
+cluster_conversion <- gsub(" trajectory","",ref_counter_summary$cell_type)
+names(cluster_conversion) <- c(0:25)
+
+immune.combined@meta.data$cell_label_dom <- cluster_conversion[immune.combined@meta.data$integrated_snn_res.0.8]
+####take out the spatial cells
+spatial_data <- subset(immune.combined,idents=c("10um"))
+colnames(spatial_data@assays$RNA)
+
+#### this one is annotated with main cell types
+saveRDS(spatial_data,file="./spatial_seurat_processed_main.RDS")
+
+
+####2. annotate the spatial data: by sub cell types
+immune.combined@meta.data$annotation_sub <- names
+Idents(immune.combined) <- immune.combined@meta.data$tech
+ref.seurat <- subset(immune.combined,idents = c("E9.5","E10.5"))
+Idents(ref.seurat) <- ref.seurat@meta.data$annotation_sub
+table(Idents(ref.seurat))
+
+ref_label_df <- as.data.frame(Idents(ref.seurat))
+as.numeric.factor <- function(x) {as.numeric(levels(x))[x]}
+ref_label_df$cluster <- as.numeric.factor(ref.seurat@meta.data$integrated_snn_res.0.8)
+names(ref_label_df) <- c("cell_type","cluster_label")
+
+
+library(dplyr)
+ref_counter <- dplyr::count(ref_label_df,cluster_label,cell_type)
+ref_counter_sorted <- ref_counter[with(ref_counter, order(cluster_label, -n)), ]
+ref_counter_summary <- ref_counter_sorted[!duplicated(ref_counter_sorted$cluster_label),]
+cluster_conversion <- gsub(" trajectory","",ref_counter_summary$cell_type)
+names(cluster_conversion) <- c(0:26)
+
+immune.combined@meta.data$cell_label_dom <- cluster_conversion[immune.combined@meta.data$integrated_snn_res.0.8]
+####take out the spatial cells
+
+spatial_data <- subset(immune.combined,idents=c("10um"))
+colnames(spatial_data@assays$RNA)
+unique(spatial_data@meta.data$cell_label_dom)
+#### this one is annotated with main cell types
+saveRDS(spatial_data,file="./spatial_seurat_processed_sub.RDS")
+
+
+### My modification: save some of the processed matrices to csv files
+
+#### reference dataset
+reference_raw_mat <- immune.combined@assays$RNA@counts[,Idents(immune.combined) %in% c("E9.5","E10.5")]
+immune.combined@meta.data$annotation_sub <- names
+reference_meta <- as.data.frame(immune.combined@meta.data$tech[Idents(immune.combined) %in% c("E9.5","E10.5")])
+colnames(reference_meta) <- c("TimePoint")
+reference_meta$cell_types <-  immune.combined@meta.data$annotation_sub[Idents(immune.combined) %in% c("E9.5","E10.5")]
+rownames(reference_meta) <-colnames(immune.combined)[Idents(immune.combined) %in% c("E9.5","E10.5")]
+
+write.csv(t(reference_raw_mat),file = "./processed_csv_mats/raw_counts_matrix.csv",quote = F,row.names = T,col.names = T)
