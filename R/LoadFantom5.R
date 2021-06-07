@@ -14,9 +14,15 @@ LoadFantom5 <- function(species){
            rat = {fantom <- get(utils::data(ncomms8866_rat))},
            pig = {fantom <- get(utils::data(ncomms8866_pig))},
            stop("input species not recognized"))
-  } 
-  source.subunits <- data.frame(source_1 = fantom$Ligand.ApprovedSymbol)
-  target.subunits <- data.frame(target_1 = fantom$Receptor.ApprovedSymbol)
+  }
+  
+  fantom$mechanism <- paste(fantom$Ligand.ApprovedSymbol,fantom$Receptor.ApprovedSymbol,sep = '-')
+  source.subunits <- as.matrix(data.frame(source_1 = fantom$Ligand.ApprovedSymbol)) #allows duplicate rownames
+  rownames(source.subunits) <- temp$Ligand.ApprovedSymbol
+  target.subunits <- as.matrix(data.frame(target_1 = fantom$Receptor.ApprovedSymbol)) #allows duplicate rownames
+  rownames(target.subunits) <- temp$Receptor.ApprovedSymbol
+  
   ground.truth <- list('source.subunits' = source.subunits,
                        'target.subunits' = target.subunits)
+  return(ground.truth)
 }

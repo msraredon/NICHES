@@ -6,7 +6,7 @@
 \usage{
 RunCellToCell(
   object,
-  LR.database = "fantom5",
+  LR.database = "omnipath",
   species,
   assay = "RNA",
   min.cells.per.ident = 1,

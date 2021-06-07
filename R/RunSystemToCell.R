@@ -36,10 +36,16 @@ RunSystemToCell <- function(object,
   receptors <- lrs[['receptors']]
   ### CREATE MAPPING ###
   
-  # Make SUMMED LIGAND INFO
-  lig.map <- sys.small@assays[[assay]]@data[ligands,]
-  dim(lig.map)
-  if (blend == 'sum'){
+  # Ligand data
+  subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
+  for (s in 1:ncol(ground.truth$source.subunits)){
+    subunit.list[[s]] <- sys.small@assays[[assay]]@data[ground.truth$source.subunits[,s],] 
+  }
+  lig.map <- Reduce('*',subunit.list)
+  rm(subunit.list)
+  
+  # Make COMBINED-ACROSS-SYSTEM LIGAND INFO
+    if (blend == 'sum'){
     lig.map2 <- Matrix::rowSums(lig.map,dims = 1)
   }
   if (blend == 'mean'){
@@ -47,9 +53,13 @@ RunSystemToCell <- function(object,
   }
   lig.map2 <- do.call(cbind, replicate(ncol(lig.map), lig.map2, simplify=FALSE))
   
-  # Receptor Map from imputed slot
-  rec.map <- sys.small@assays[[assay]]@data[receptors,]
-
+  # Receptor data
+  subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
+  for (t in 1:ncol(ground.truth$target.subunits)){
+    subunit.list[[t]] <- sys.small@assays[[assay]]@data[ground.truth$target.subunits[,t],] 
+  }
+  rec.map <- Reduce('*',subunit.list)
+  rm(subunit.list)
   
   # Merged map (can be done with any operator, here is multiplication (RECOMMENDED: preserves zeroes and is quantitative))
   sc.connectome <- lig.map2*rec.map

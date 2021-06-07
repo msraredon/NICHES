@@ -4,7 +4,7 @@
 \alias{LoadOmniPath}
 \title{Load OmniPath as ground truth}
 \usage{
-LoadOmniPath()
+LoadOmniPath(species)
 }
 \description{
 Load OmniPath as ground truth

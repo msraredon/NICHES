@@ -40,8 +40,7 @@ prepSeurat <- function(object,assay,min.cells.per.ident){
 
 lr_load <- function(LR.database,species,input_rownames){
   if (LR.database == 'omnipath'){
-    warning("OmniPath is currently only compatible with human gene symbols. Please check that rows of base Seurat object are in human gene symbols.")
-    ground.truth <- LoadOmniPath()
+    ground.truth <- LoadOmniPath(species = species)
   }else if (LR.database == 'fantom5'){
     ground.truth <- LoadFantom5(species = species)
   }else if (LR.database == 'custom'){
@@ -66,6 +65,6 @@ lr_load <- function(LR.database,species,input_rownames){
 #' @export
 
 return_celltypes <- function(seurat_object){
-  warning("Please make sure that Identity of the input seurat object corresponds to cell types")
+  message('\n For sampling purposes, please make sure that the active Identity of the input seurat object corresponds to cell types')
   return(unique(Seurat::Idents(seurat_object)))
 }

@@ -17,7 +17,7 @@
 
 
 RunCellToCell <- function(object,
-                   LR.database = 'fantom5',
+                   LR.database = 'omnipath',
                    species,
                    assay = 'RNA',
                    min.cells.per.ident = 1,
@@ -28,30 +28,47 @@ RunCellToCell <- function(object,
   
   # jc: Load corresponding ligands and receptors
   ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
-  ligands <- ground.truth[['source.subunits']]
-  receptors <- ground.truth[['target.subunits']]
   
   ### CREATE MAPPING ###
 
   # jc: Identify celltypes:names(table(Idents(sys.small))). Better to run check_celltypes, but harder to check
   celltypes <- return_celltypes(sys.small)
   
-  # Ligand dataset
+  # Ligand dataset (listwise, for each celltype)
   lig.list <- list()
   for (i in 1:length(celltypes)){
     temp <- subset(sys.small,idents = celltypes[i])
-    lig.list[[i]] <- temp@assays[[assay]]@data[ligands,]
+    subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
+    for (s in 1:ncol(ground.truth$source.subunits)){ #For each subunit column...
+      subunit.list[[s]] <- matrix(data = NA_real_,nrow = nrow(ground.truth$source.subunits),ncol = ncol(temp)) #initialize a mechanism x barcode matrix of all NAs
+      colnames(subunit.list[[s]]) <- colnames(temp)
+      rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
+      non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
+      subunit.list[[s]][non.na.indices,] <- as.matrix(temp@assays[[assay]]@data[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    }
+    lig.list[[i]] <- Reduce('*',subunit.list)
+    rm(subunit.list)
   }
   
-  # Receptor dataset
+  # Receptor dataset (listwise, for each celltype)
   rec.list <- list()
   for (i in 1:length(celltypes)){
     temp <- subset(sys.small,idents = celltypes[i])
-    rec.list[[i]] <- temp@assays[[assay]]@data[receptors,]
+    subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
+    for (t in 1:ncol(ground.truth$target.subunits)){
+      subunit.list[[s]] <- matrix(data = NA_real_,nrow = nrow(ground.truth$target.subunits),ncol = ncol(temp)) #initialize a mechanism x barcode matrix of all NAs
+      colnames(subunit.list[[s]]) <- colnames(temp)
+      rownames(subunit.list[[s]]) <- rownames(ground.truth$target.subunits)
+      non.na.indices <- !is.na(ground.truth$target.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
+      subunit.list[[s]][non.na.indices,] <- as.matrix(temp@assays[[assay]]@data[ground.truth$target.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    }
+    rec.list[[i]] <- Reduce('*',subunit.list)
+    rm(subunit.list)
   }
   
-  # For each celltype, create all the outgoing edges 
-  # (to all celltypes -- this covers autocrine AND bi-directional signaling)
+  # For each sending celltype, create all the outgoing edges 
+  # to all receiving celltypes -- this covers autocrine AND bi-directional signaling -- 
+  # sampled to be representative of all crosses and manageable in size
   lig.data <- list()
   rec.data <- list()
   scc.data <- list()

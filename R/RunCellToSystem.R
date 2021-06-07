@@ -20,7 +20,7 @@
 
 
 RunCellToSystem <- function(object,
-                      LR.database = 'fantom5',
+                      LR.database,
                       species,
                       assay = 'RNA',
                       min.cells.per.ident = 1,
@@ -31,15 +31,20 @@ RunCellToSystem <- function(object,
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)
   
   # jc: Load corresponding ligands and receptors
-  lrs <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
-  ligands <- lrs[['ligands']]
-  receptors <- lrs[['receptors']]
+  ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
+
   
   ### CREATE MAPPING ###
   
-  # Make SUMMED RECEPTOR INFO
-  rec.map <- sys.small@assays[[assay]]@data[receptors,]
- 
+  # Receptor data
+  subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
+  for (t in 1:ncol(ground.truth$target.subunits)){
+    subunit.list[[t]] <- sys.small@assays[[assay]]@data[ground.truth$target.subunits[,t],] 
+  }
+  rec.map <- Reduce('*',subunit.list)
+  rm(subunit.list)
+  
+  # Make COMBINED-ACROSS-SYSTEM RECEPTOR INFO
   if (blend == 'sum'){
     rec.map2 <- Matrix::rowSums(rec.map,dims = 1)
   }
@@ -48,8 +53,13 @@ RunCellToSystem <- function(object,
   }
   rec.map2 <- do.call(cbind, replicate(ncol(rec.map), rec.map2, simplify=FALSE))
   
-  # Ligand Map from imputed slot
-  lig.map <- sys.small@assays[[assay]]@data[ligands,]
+  # Ligand data
+  subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
+  for (s in 1:ncol(ground.truth$source.subunits)){
+    subunit.list[[s]] <- sys.small@assays[[assay]]@data[ground.truth$source.subunits[,s],] 
+  }
+  lig.map <- Reduce('*',subunit.list)
+  rm(subunit.list)
 
   
   # Merged map (can be done with any operator, here is multiplication (RECOMMENDED: preserves zeroes and is quantitative))

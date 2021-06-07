@@ -19,8 +19,8 @@ FFPE2$x <- temp$X1
 FFPE2$y <- temp$X2
 
 # Testing runs
-test <- RunSCC(FFPE2,species = 'mouse',position.x = 'x',position.y = 'y',
-               CellToCell = T,CellToSystem = F,SystemToCell = F,
+test <- RunSCC(object = FFPE2,LR.database = 'omnipath',species = 'mouse',position.x = 'x',position.y = 'y',
+               CellToCell = T,CellToSystem = T,SystemToCell = F,
                CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
 
 # Experiment to see if neighbors have enrichment
