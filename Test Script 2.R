@@ -21,7 +21,7 @@ FFPE2$y <- temp$X2
 # Testing runs
 test <- RunSCC(FFPE2,species = 'mouse',position.x = 'x',position.y = 'y',
                CellToCell = T,CellToSystem = F,SystemToCell = F,
-               CellToCellSpatial = T,CellToNeighborhood = F,NeighborhoodToCell = F,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
+               CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
 
 # Experiment to see if neighbors have enrichment
 Idents(test[[1]]) <- 'VectorType'

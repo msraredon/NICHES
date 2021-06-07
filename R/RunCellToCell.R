@@ -27,9 +27,9 @@ RunCellToCell <- function(object,
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)
   
   # jc: Load corresponding ligands and receptors
-  lrs <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
-  ligands <- lrs[['ligands']]
-  receptors <- lrs[['receptors']]
+  ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
+  ligands <- ground.truth[['source.subunits']]
+  receptors <- ground.truth[['target.subunits']]
   
   ### CREATE MAPPING ###
 
@@ -39,14 +39,14 @@ RunCellToCell <- function(object,
   # Ligand dataset
   lig.list <- list()
   for (i in 1:length(celltypes)){
-    temp <- Seurat::subset(sys.small,idents = celltypes[i])
+    temp <- subset(sys.small,idents = celltypes[i])
     lig.list[[i]] <- temp@assays[[assay]]@data[ligands,]
   }
   
   # Receptor dataset
   rec.list <- list()
   for (i in 1:length(celltypes)){
-    temp <- Seurat::subset(sys.small,idents = celltypes[i])
+    temp <- subset(sys.small,idents = celltypes[i])
     rec.list[[i]] <- temp@assays[[assay]]@data[receptors,]
   }
   

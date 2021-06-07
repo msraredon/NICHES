@@ -39,39 +39,22 @@ prepSeurat <- function(object,assay,min.cells.per.ident){
 #' @export
 
 lr_load <- function(LR.database,species,input_rownames){
-  
-  if(class(LR.database) == 'character'){
-    if (LR.database == 'fantom5'){
-      if(is.null(species)){
-        stop("\nPlease select species for FANTOM5 mapping. Allows 'human','mouse','rat', or 'pig' ")}
-      # Load ground-truth database (FANTOM5, species-converted as appropriate, per methodlogy in Raredon et al 2019, DOI: 10.1126/sciadv.aaw3851)
-      else{
-        switch(species,
-               human = {fantom <- get(utils::data(ncomms8866_human))},
-               mouse = {fantom <- get(utils::data(ncomms8866_mouse))},
-               rat = {fantom <- get(utils::data(ncomms8866_rat))},
-               pig = {fantom <- get(utils::data(ncomms8866_pig))},
-               stop("input species not recognized"))
-      } 
-    }
-  }
-  else{
-    num.mechs <- nrow(LR.database)
-    message(paste("\n","Custom mapping requested. Mapping cells against",
-                  num.mechs,"mechanisms provided via LR.database argument"))
-    fantom <- data.frame(Ligand.ApprovedSymbol = as.character(LR.database[,1]),
-                         Receptor.ApprovedSymbol = as.character(LR.database[,2]))
+  if (LR.database == 'omnipath'){
+    warning("OmniPath is currently only compatible with human gene symbols. Please check that rows of base Seurat object are in human gene symbols.")
+    ground.truth <- LoadOmniPath()
+  }else if (LR.database == 'fantom5'){
+    ground.truth <- LoadFantom5(species = species)
+  }else if (LR.database == 'custom'){
+    
+  }else {
+    stop('\n LR.receptor argument not recognized. Only accepts "omnipath","fantom5" or "custom".')
   }
   
+  # Subset to only map against mechanisms present in the base Seurat object
+  ground.truth <- FilterGroundTruth(ground.truth,
+                                    input_rownames = input_rownames)
   
-  # Subset to only mechanisms present in the object
-  fantom.specific <- subset(fantom,
-                            fantom$Ligand.ApprovedSymbol %in% input_rownames 
-                            & fantom$Receptor.ApprovedSymbol %in% input_rownames)
-  ligands <- fantom.specific$Ligand.ApprovedSymbol
-  receptors <- fantom.specific$Receptor.ApprovedSymbol
-  
-  return(list("ligands" = ligands, "receptors" = receptors))
+  return(ground.truth)
 }
 
 # better: check_celltypes: check whether the idents are cell types, yes to return the unique cell types, no to return an error

@@ -1,3 +1,7 @@
+#' Load OmniPath as ground truth
+#'
+#' @export
+
 LoadOmniPath <- function(){
   
 #OmniPath
@@ -34,9 +38,10 @@ temp <- tidyr::separate(data = temp,
                         sep = '_',
                         remove = F)
 
-# Export ligand subunit dataframe
-source_subunits <<- temp[,source_col_names]
-target_subunits <<- temp[,target_col_names]
-
-
+# Export subunit dataframe
+source.subunits <- temp[,source_col_names]
+target.subunits <- temp[,target_col_names]
+ground.truth <- list('source.subunits' = source.subunits,
+                     'target.subunits' = target.subunits)
+return(ground.truth)
 }
