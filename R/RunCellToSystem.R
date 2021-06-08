@@ -39,10 +39,15 @@ RunCellToSystem <- function(object,
   # Receptor data
   subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
   for (t in 1:ncol(ground.truth$target.subunits)){
-    subunit.list[[t]] <- sys.small@assays[[assay]]@data[ground.truth$target.subunits[,t],] 
+    subunit.list[[s]] <- matrix(data = NA_real_,nrow = nrow(ground.truth$target.subunits),ncol = ncol(sys.small)) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[s]]) <- colnames(sys.small)
+    rownames(subunit.list[[s]]) <- rownames(ground.truth$target.subunits)
+    non.na.indices <- !is.na(ground.truth$target.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
+    subunit.list[[s]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$target.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
   }
   rec.map <- Reduce('*',subunit.list)
   rm(subunit.list)
+  
   
   # Make COMBINED-ACROSS-SYSTEM RECEPTOR INFO
   if (blend == 'sum'){
@@ -55,12 +60,16 @@ RunCellToSystem <- function(object,
   
   # Ligand data
   subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
-  for (s in 1:ncol(ground.truth$source.subunits)){
-    subunit.list[[s]] <- sys.small@assays[[assay]]@data[ground.truth$source.subunits[,s],] 
+  for (s in 1:ncol(ground.truth$source.subunits)){ #For each subunit column...
+    subunit.list[[s]] <- matrix(data = NA_real_,nrow = nrow(ground.truth$source.subunits),ncol = ncol(sys.small)) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[s]]) <- colnames(sys.small)
+    rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
+    non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
+    subunit.list[[s]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
   }
   lig.map <- Reduce('*',subunit.list)
   rm(subunit.list)
-
+  
   
   # Merged map (can be done with any operator, here is multiplication (RECOMMENDED: preserves zeroes and is quantitative))
   sc.connectome <- lig.map*rec.map2
