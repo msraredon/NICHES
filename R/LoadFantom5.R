@@ -18,9 +18,9 @@ LoadFantom5 <- function(species){
   
   fantom$mechanism <- paste(fantom$Ligand.ApprovedSymbol,fantom$Receptor.ApprovedSymbol,sep = '-')
   source.subunits <- as.matrix(data.frame(source_1 = fantom$Ligand.ApprovedSymbol)) #allows duplicate rownames
-  rownames(source.subunits) <- temp$Ligand.ApprovedSymbol
+  rownames(source.subunits) <- fantom$Ligand.ApprovedSymbol
   target.subunits <- as.matrix(data.frame(target_1 = fantom$Receptor.ApprovedSymbol)) #allows duplicate rownames
-  rownames(target.subunits) <- temp$Receptor.ApprovedSymbol
+  rownames(target.subunits) <- fantom$Receptor.ApprovedSymbol
   
   ground.truth <- list('source.subunits' = source.subunits,
                        'target.subunits' = target.subunits)

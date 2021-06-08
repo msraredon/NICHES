@@ -20,12 +20,19 @@ FFPE2$y <- temp$X2
 
 # Testing runs
 test <- RunSCC(object = FFPE2,LR.database = 'omnipath',species = 'mouse',position.x = 'x',position.y = 'y',
-               CellToCell = T,CellToSystem = T,SystemToCell = F,
+               CellToCell = T,CellToSystem = T,SystemToCell = T,
                CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
+# Cluster
+Idents(test[[1]]) <- 'VectorType'
+Idents(test[[2]]) <- 'SendingType'
+Idents(test[[3]]) <- 'ReceivingType'
+
+test[[1]] <- FindVariableFeatures(test[[1]])
+test[[1]] <- ScaleData(test[[1]])
+test[[1]] <- RunPCA(test[[1]])
+PCHeatmap(test[[1]],dims = 1:9,balanced = T,cells = 100)
 
 # Experiment to see if neighbors have enrichment
-Idents(test[[1]]) <- 'VectorType'
-Idents(test[[2]]) <- 'VectorType'
 
 table(Idents(test[[1]]))
 table(Idents(test[[2]]))

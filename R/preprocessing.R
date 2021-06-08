@@ -66,5 +66,5 @@ lr_load <- function(LR.database,species,input_rownames){
 
 return_celltypes <- function(seurat_object){
   message('\n For sampling purposes, please make sure that the active Identity of the input seurat object corresponds to cell types')
-  return(unique(Seurat::Idents(seurat_object)))
+  return(names(table(Seurat::Idents(seurat_object)))) # ms: other steps are depdent on the exact format of this output
 }
