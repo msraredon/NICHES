@@ -11,7 +11,7 @@
 #' @export
 
 RunNeighborhoodToCell <- function(object,
-                                  LR.database = 'fantom5',
+                                  LR.database,
                                   species,
                                   assay = 'RNA',
                                   min.cells.per.ident = 1,
@@ -19,59 +19,11 @@ RunNeighborhoodToCell <- function(object,
                                   position.y,
                                   meta.data.to.map = NULL){
   
-  require(Seurat)
-  require(dplyr)
-  require(data.table)
+  # jc: wrapped the preprocessing steps
+  sys.small <- prepSeurat(object,assay,min.cells.per.ident)
   
-  # Check if setup is correct
-  if (class(LR.database) == 'character'){
-    if (LR.database == 'fantom5' & is.null(species)){stop("\nPlease select species for FANTOM5 mapping. Allows 'human','mouse','rat', or 'pig' ")}
-  }else{}
-  
-  # Set default assay (not necessary, but just in case)
-  DefaultAssay(object) <- assay
-  
-  # Stash object
-  sys.small <- object
-  
-  # Limit object to cell populations larger than requested minimum
-  if (!is.null(min.cells.per.ident)){
-    message(paste("\n",'Subsetting to populations with greater than',min.cells.per.ident,'cells'))
-    idents.include <- names(table(Idents(sys.small)))[table(Idents(sys.small)) > min.cells.per.ident]
-    sys.small <- subset(sys.small,idents = idents.include)
-  }
-  
-  num.cells <- ncol(sys.small)
-  message(paste("\n",num.cells,'distinct cells from',length(names(table(Idents(sys.small)))),'celltypes to be analyzed'))
-  
-  # Identify paired ligands and receptors in the dataset to map against
-  if(class(LR.database) == 'character'){
-    if (LR.database == 'fantom5'){
-      # Load ground-truth database (FANTOM5, species-converted as appropriate, per methodlogy in Raredon et al 2019, DOI: 10.1126/sciadv.aaw3851)
-      if (species == 'human'){
-        fantom <- Connectome::ncomms8866_human
-      }
-      if (species == 'mouse'){
-        fantom <- Connectome::ncomms8866_mouse
-      }
-      if (species == 'rat'){
-        fantom <- Connectome::ncomms8866_rat
-      }
-      if (species == 'pig'){
-        fantom <- Connectome::ncomms8866_pig
-      }}}else{
-        num.mechs <- nrow(LR.database)
-        message(paste("\n","Custom mapping requested. Mapping cells against",num.mechs,"mechanisms provided via LR.database argument"))
-        fantom <- data.frame(Ligand.ApprovedSymbol = as.character(LR.database[,1]),
-                             Receptor.ApprovedSymbol = as.character(LR.database[,2]))
-      }
-  
-  # Subset to only mechanisms present in the object
-  fantom.specific <- subset(fantom,
-                            Ligand.ApprovedSymbol %in% rownames(sys.small@assays[[assay]]) & Receptor.ApprovedSymbol %in% rownames(sys.small@assays[[assay]]))
-  ligands <- fantom.specific$Ligand.ApprovedSymbol
-  receptors <- fantom.specific$Receptor.ApprovedSymbol
-  
+  # jc: Load corresponding ligands and receptors
+  ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
   
   ### CREATE MAPPING ###
   
@@ -101,10 +53,33 @@ RunNeighborhoodToCell <- function(object,
   edgelist <- igraph::get.data.frame(edgelist)
   
   # Make ligand matrix
-  lig.data <- sys.small@assays[[assay]]@data[ligands,edgelist$from]
+  #lig.data <- sys.small@assays[[assay]]@data[ligands,edgelist$from]
+  
+  subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
+  for (s in 1:ncol(ground.truth$source.subunits)){ #For each subunit column...
+    subunit.list[[s]] <- matrix(data = NA_real_,nrow = nrow(ground.truth$source.subunits),ncol = ncol(sys.small@assays[[assay]]@data[,edgelist$from])) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[s]]) <- colnames(sys.small)
+    rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
+    non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
+    subunit.list[[s]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+  }
+  lig.data <- Reduce('*',subunit.list)
+  rm(subunit.list)
   
   # Make receptor matrix
-  rec.data <- sys.small@assays[[assay]]@data[receptors,edgelist$to]
+  
+  #rec.data <- sys.small@assays[[assay]]@data[receptors,edgelist$to]
+  
+  subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
+  for (t in 1:ncol(ground.truth$target.subunits)){
+    subunit.list[[t]] <- matrix(data = NA_real_,nrow = nrow(ground.truth$target.subunits),ncol = ncol(sys.small@assays[[assay]]@data[,edgelist$to])) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[t]]) <- colnames(sys.small)
+    rownames(subunit.list[[t]]) <- rownames(ground.truth$target.subunits)
+    non.na.indices <- !is.na(ground.truth$target.subunits[,t]) #Identify rows in the t-th column of the ground truth which are not NA
+    subunit.list[[t]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$target.subunits[non.na.indices,t],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+  }
+  rec.data <- Reduce('*',subunit.list)
+  rm(subunit.list)
   
   # Make SCC matrix
   scc <- lig.data*rec.data

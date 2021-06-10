@@ -11,7 +11,7 @@
 #' @export
 
 RunCellToNeighborhood <- function(object,
-                               LR.database = 'fantom5',
+                               LR.database,
                                species,
                                assay = 'RNA',
                                min.cells.per.ident = 1,
@@ -23,9 +23,7 @@ RunCellToNeighborhood <- function(object,
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)
 
   # jc: Load corresponding ligands and receptors
-  lrs <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
-  ligands <- lrs[['ligands']]
-  receptors <- lrs[['receptors']]
+  ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
 
   ### CREATE MAPPING ###
 
@@ -55,11 +53,35 @@ RunCellToNeighborhood <- function(object,
   edgelist <- igraph::get.data.frame(edgelist)
 
   # Make ligand matrix
-  lig.data <- sys.small@assays[[assay]]@data[ligands,edgelist$from]
-
+  
+  #lig.data <- sys.small@assays[[assay]]@data[ligands,edgelist$from]
+  
+  subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
+  for (s in 1:ncol(ground.truth$source.subunits)){ #For each subunit column...
+    subunit.list[[s]] <- matrix(data = NA_real_,nrow = nrow(ground.truth$source.subunits),ncol = ncol(sys.small@assays[[assay]]@data[,edgelist$from])) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[s]]) <- colnames(sys.small)
+    rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
+    non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
+    subunit.list[[s]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+  }
+  lig.data <- Reduce('*',subunit.list)
+  rm(subunit.list)
+  
   # Make receptor matrix
-  rec.data <- sys.small@assays[[assay]]@data[receptors,edgelist$to]
+  
+  #rec.data <- sys.small@assays[[assay]]@data[receptors,edgelist$to]
 
+  subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
+  for (t in 1:ncol(ground.truth$target.subunits)){
+    subunit.list[[t]] <- matrix(data = NA_real_,nrow = nrow(ground.truth$target.subunits),ncol = ncol(sys.small@assays[[assay]]@data[,edgelist$to])) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[t]]) <- colnames(sys.small)
+    rownames(subunit.list[[t]]) <- rownames(ground.truth$target.subunits)
+    non.na.indices <- !is.na(ground.truth$target.subunits[,t]) #Identify rows in the t-th column of the ground truth which are not NA
+    subunit.list[[t]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$target.subunits[non.na.indices,t],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+  }
+  rec.data <- Reduce('*',subunit.list)
+  rm(subunit.list)
+  
   # Make SCC matrix
   scc <- lig.data*rec.data
   rownames(scc) <- paste(rownames(lig.data),rownames(rec.data),sep = '-')
