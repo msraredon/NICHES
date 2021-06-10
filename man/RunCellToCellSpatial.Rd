@@ -6,7 +6,7 @@
 \usage{
 RunCellToCellSpatial(
   object,
-  LR.database = "fantom5",
+  LR.database,
   species,
   assay = "RNA",
   min.cells.per.ident = 1,

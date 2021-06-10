@@ -21,7 +21,7 @@ FFPE2$y <- temp$X2
 # Testing runs
 test <- RunSCC(object = FFPE2,LR.database = 'omnipath',species = 'mouse',position.x = 'x',position.y = 'y',
                CellToCell = T,CellToSystem = T,SystemToCell = T,
-               CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
+               CellToCellSpatial = T,CellToNeighborhood = T,NeighborhoodToCell = T,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
 # Cluster
 Idents(test[[1]]) <- 'VectorType'
 Idents(test[[2]]) <- 'SendingType'
