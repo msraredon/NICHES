@@ -17,11 +17,11 @@
 
 
 RunCellToCell <- function(object,
-                   LR.database = 'omnipath',
+                   LR.database,
                    species,
-                   assay = 'RNA',
-                   min.cells.per.ident = 1,
-                   meta.data.to.map = NULL){
+                   assay,
+                   min.cells.per.ident,
+                   meta.data.to.map,...){
 
   # jc: wrapped the preprocessing steps
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)

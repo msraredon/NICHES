@@ -6,12 +6,13 @@
 \usage{
 RunSystemToCell(
   object,
-  LR.database = "fantom5",
+  LR.database,
   species,
-  assay = "RNA",
-  min.cells.per.ident = 1,
+  assay,
+  min.cells.per.ident,
   blend = "sum",
-  meta.data.to.map = NULL
+  meta.data.to.map,
+  ...
 )
 }
 \arguments{

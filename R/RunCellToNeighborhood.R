@@ -13,11 +13,12 @@
 RunCellToNeighborhood <- function(object,
                                LR.database,
                                species,
-                               assay = 'RNA',
-                               min.cells.per.ident = 1,
+                               assay,
+                               min.cells.per.ident,
                                position.x,
                                position.y,
-                               meta.data.to.map = NULL){
+                               rad.set,
+                               meta.data.to.map,...){
 
   # jc: wrapped the preprocessing steps
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)
@@ -40,7 +41,7 @@ RunCellToNeighborhood <- function(object,
 
   # Make adj matrix
   # Within a circle of radius "rad" around each coordinate (Set rad = 1 for only direct neighbors)
-  rad = 1
+  rad = rad.set
   result <- apply(df, 1, function(pt)
     (sqrt(abs(pt["x"] - df$x)^2 + abs(pt["y"] - df$y)^2) <= rad)
   )

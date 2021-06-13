@@ -6,19 +6,20 @@
 \usage{
 RunSCC(
   object,
-  LR.database = "fantom5",
+  LR.database,
   species,
-  assay = "RNA",
-  min.cells.per.ident = 10,
+  assay,
+  min.cells.per.ident = 1,
   meta.data.to.map = NULL,
   position.x = NULL,
   position.y = NULL,
+  rad.set = 1,
   CellToCell = T,
   CellToSystem = F,
-  SystemToCell = T,
-  CellToCellSpatial = T,
+  SystemToCell = F,
+  CellToCellSpatial = F,
   CellToNeighborhood = F,
-  NeighborhoodToCell = T,
+  NeighborhoodToCell = F,
   ...
 )
 }

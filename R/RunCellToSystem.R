@@ -22,10 +22,10 @@
 RunCellToSystem <- function(object,
                       LR.database,
                       species,
-                      assay = 'RNA',
-                      min.cells.per.ident = 1,
+                      assay,
+                      min.cells.per.ident,
                       blend = 'sum',
-                      meta.data.to.map = NULL){
+                      meta.data.to.map,...){
   
   # jc: wrapped the preprocessing steps
   sys.small <- prepSeurat(object,assay,min.cells.per.ident)

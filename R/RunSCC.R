@@ -19,28 +19,29 @@
 
 
 RunSCC <- function(object,
-                        LR.database = 'fantom5',
+                        LR.database,
                         species,
-                        assay = 'RNA',
-                        min.cells.per.ident = 10,
+                        assay,
+                        min.cells.per.ident = 1,
                         meta.data.to.map = NULL,
                         position.x = NULL,
                         position.y = NULL,
+                        rad.set = 1,
                         CellToCell = T,
                         CellToSystem = F,
-                        SystemToCell = T,
-                        CellToCellSpatial = T,
+                        SystemToCell = F,
+                        CellToCellSpatial = F,
                         CellToNeighborhood = F,
-                        NeighborhoodToCell = T,
+                        NeighborhoodToCell = F,
                         ...){
    # Initialize output structure
   output <- list()
   
   # Calculate SCC organizations without spatial restrictions
   
-  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(object,LR.database,species = species,meta.data.to.map = meta.data.to.map,...)}
-  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(object,LR.database,species = species,meta.data.to.map = meta.data.to.map,...)}
-  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(object,LR.database,species = species,meta.data.to.map = meta.data.to.map,...)}
+  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(object,LR.database,assay = assay,species = species,meta.data.to.map = meta.data.to.map,min.cells.per.ident = min.cells.per.ident,...)}
+  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(object,LR.database,assay = assay,species = species,meta.data.to.map = meta.data.to.map,min.cells.per.ident = min.cells.per.ident,...)}
+  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(object,LR.database,assay = assay,species = species,meta.data.to.map = meta.data.to.map,min.cells.per.ident = min.cells.per.ident,...)}
   
   # If requested, additionally calculate spatially-limited SCC organizations
   
@@ -52,9 +53,9 @@ RunSCC <- function(object,
   
   }
   
-  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(object,LR.database,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Cell-Cell vectors
-  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,LR.database,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Cell-Neighborhood vectors
-  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,LR.database,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
+  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(object,LR.database,assay = assay,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,rad.set = rad.set,min.cells.per.ident = min.cells.per.ident,...)} #Spatially-limited Cell-Cell vectors
+  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,LR.database,assay = assay,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,rad.set = rad.set,min.cells.per.ident = min.cells.per.ident,...)} #Spatially-limited Cell-Neighborhood vectors
+  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,LR.database,assay = assay,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,rad.set = rad.set,min.cells.per.ident = min.cells.per.ident,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
 
   # Compile objects for output
   return(output)

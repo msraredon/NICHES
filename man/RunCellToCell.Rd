@@ -6,11 +6,12 @@
 \usage{
 RunCellToCell(
   object,
-  LR.database = "omnipath",
+  LR.database,
   species,
-  assay = "RNA",
-  min.cells.per.ident = 1,
-  meta.data.to.map = NULL
+  assay,
+  min.cells.per.ident,
+  meta.data.to.map,
+  ...
 )
 }
 \arguments{

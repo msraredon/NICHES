@@ -8,11 +8,13 @@ RunNeighborhoodToCell(
   object,
   LR.database,
   species,
-  assay = "RNA",
-  min.cells.per.ident = 1,
+  assay,
+  min.cells.per.ident,
   position.x,
   position.y,
-  meta.data.to.map = NULL
+  rad.set,
+  meta.data.to.map,
+  ...
 )
 }
 \arguments{
