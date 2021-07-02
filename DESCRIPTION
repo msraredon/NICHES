@@ -9,7 +9,11 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1.9000
 VignetteBuilder: knitr
+Depends:
+    R (>= 4.0)
+biocViews:
 Imports:
+    OmnipathR,
     dplyr,
     ggrepel,
     igraph,
@@ -26,11 +30,9 @@ Imports:
     gtools,
     permute,
     circlize,
-    ComplexHeatmap,
-    Connectome,
     abind,
     rlang,
-    utils
+    utils,
 Suggests:
   knitr,
   rmarkdown
