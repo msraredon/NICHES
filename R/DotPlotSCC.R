@@ -1,14 +1,15 @@
+#' @importFrom rlang %||%
 DotPlotSCC <- function (object, assay = NULL, features, cols = c("lightgrey", 
                                                    "blue"), col.min = -2.5, col.max = 2.5, dot.min = 0, dot.scale = 6, 
           idents = NULL, group.by = NULL, split.by = NULL, cluster.idents = FALSE, 
           scale = TRUE, scale.by = "radius", scale.min = NA, scale.max = NA) 
 {
-  assay <- assay %||% DefaultAssay(object = object)
-  DefaultAssay(object = object) <- assay
+  assay <- assay %||% Seurat::DefaultAssay(object = object)
+  Seurat::DefaultAssay(object = object) <- assay
   split.colors <- !is.null(x = split.by) && !any(cols %in% 
-                                                   rownames(x = brewer.pal.info))
-  scale.func <- switch(EXPR = scale.by, size = scale_size, 
-                       radius = scale_radius, stop("'scale.by' must be either 'size' or 'radius'"))
+                                                   rownames(x = RColorBrewer::brewer.pal.info))
+  scale.func <- switch(EXPR = scale.by, size = ggplot2::scale_size, 
+                       radius = ggplot2::scale_radius, stop("'scale.by' must be either 'size' or 'radius'"))
   feature.groups <- NULL
   if (is.list(features) | any(!is.na(names(features)))) {
     feature.groups <- unlist(x = sapply(X = 1:length(features), 
@@ -22,11 +23,11 @@ DotPlotSCC <- function (object, assay = NULL, features, cols = c("lightgrey",
     features <- unlist(x = features)
     names(x = feature.groups) <- features
   }
-  cells <- unlist(x = CellsByIdentities(object = object, idents = idents))
-  data.features <- FetchData(object = object, vars = features, 
+  cells <- unlist(x = Seurat::CellsByIdentities(object = object, idents = idents))
+  data.features <- Seurat::FetchData(object = object, vars = features, 
                              cells = cells)
   data.features$id <- if (is.null(x = group.by)) {
-    Idents(object = object)[cells, drop = TRUE]
+    Seurat::Idents(object = object)[cells, drop = TRUE]
   }
   else {
     object[[group.by, drop = TRUE]][cells, drop = TRUE]
@@ -66,7 +67,7 @@ DotPlotSCC <- function (object, assay = NULL, features, cols = c("lightgrey",
     mat <- do.call(what = rbind, args = lapply(X = data.plot, 
                                                FUN = unlist))
     mat <- scale(x = mat)
-    id.levels <- id.levels[hclust(d = dist(x = mat))$order]
+    id.levels <- id.levels[stats::hclust(d = stats::dist(x = mat))$order]
   }
   data.plot <- lapply(X = names(x = data.plot), FUN = function(x) {
     data.use <- as.data.frame(x = data.plot[[x]])
@@ -89,7 +90,7 @@ DotPlotSCC <- function (object, assay = NULL, features, cols = c("lightgrey",
                                                      x, "avg.exp"]
                              if (scale) {
                                data.use <- scale(x = data.use)
-                               data.use <- MinMax(data = data.use, min = col.min, 
+                               data.use <- Seurat::MinMax(data = data.use, min = col.min, 
                                                   max = col.max)
                              }
                              else {
@@ -128,29 +129,31 @@ DotPlotSCC <- function (object, assay = NULL, features, cols = c("lightgrey",
     data.plot$feature.groups <- factor(x = feature.groups[data.plot$features.plot], 
                                        levels = unique(x = feature.groups))
   }
-  plot <- ggplot(data = data.plot, mapping = aes_string(x = "features.plot", 
-                                                        y = "id")) + geom_point(mapping = aes_string(size = "pct.exp", 
-                                                                                                     color = color.by)) + scale.func(range = c(0, dot.scale), 
-                                                                                                                                     limits = c(scale.min, scale.max)) + theme(axis.title.x = element_blank(), 
-                                                                                                                                                                               axis.title.y = element_blank()) + guides(size = guide_legend(title = "Percent Expressed")) + 
-    labs(x = "Features", y = ifelse(test = is.null(x = split.by), 
-                                    yes = "Identity", no = "Split Identity")) + theme_cowplot()
+  plot <- ggplot2::ggplot(data = data.plot, mapping = ggplot2::aes_string(x = "features.plot", 
+                                                        y = "id")) + 
+    ggplot2::geom_point(mapping = aes_string(size = "pct.exp", color = color.by)) + 
+    scale.func(range = c(0, dot.scale), limits = c(scale.min, scale.max)) + 
+    ggplot2::theme(axis.title.x = ggplot2::element_blank(),axis.title.y = element_blank()) + 
+    ggplot2::guides(size = guide_legend(title = "Percent Expressed")) + 
+    ggplot2::labs(x = "Features", y = ifelse(test = is.null(x = split.by), 
+                                    yes = "Identity", no = "Split Identity")) + 
+    cowplot::theme_cowplot()
   if (!is.null(x = feature.groups)) {
-    plot <- plot + facet_grid(facets = ~feature.groups, scales = "free_x", 
-                              space = "free_x", switch = "y") + theme(panel.spacing = unit(x = 1, 
-                                                                                           units = "lines"), strip.background = element_blank())
+    plot <- plot + ggplot2::facet_grid(facets = ~feature.groups, scales = "free_x", 
+                              space = "free_x", switch = "y") + 
+      ggplot2::theme(panel.spacing = ggplot2::unit(x = 1,units = "lines"), strip.background = element_blank())
   }
   if (split.colors) {
-    plot <- plot + scale_color_identity()
+    plot <- plot + ggplot2::scale_color_identity()
   }
   else if (length(x = cols) == 1) {
-    plot <- plot + scale_color_distiller(palette = cols)
+    plot <- plot + ggplot2::scale_color_distiller(palette = cols)
   }
   else {
-    plot <- plot + scale_color_gradient(low = cols[1], high = cols[2])
+    plot <- plot + ggplot2::scale_color_gradient(low = cols[1], high = cols[2])
   }
   if (!split.colors) {
-    plot <- plot + guides(color = guide_colorbar(title = "Average Expression"))
+    plot <- plot + ggplot2::guides(color = ggplot2::guide_colorbar(title = "Average Expression"))
   }
   return(plot)
 }
