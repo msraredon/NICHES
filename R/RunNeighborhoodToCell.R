@@ -98,11 +98,11 @@ RunNeighborhoodToCell <- function(object,
   colnames(scc) <- paste('Neighborhood',colnames(scc),sep = '-')
   
   # Use this matrix to create a Seurat object:
-  demo <- CreateSeuratObject(counts = as.matrix(scc),assay = 'NeighborhoodToCell')
+  demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'NeighborhoodToCell')
   
   # Add metadata based on ident slot
-  demo <- AddMetaData(demo,metadata = barcodes,col.name = 'ReceivingCell')
-  demo <- AddMetaData(demo,metadata = Idents(sys.small)[barcodes],col.name = 'ReceivingType')
+  demo <- Seurat::AddMetaData(demo,metadata = barcodes,col.name = 'ReceivingCell')
+  demo <- Seurat::AddMetaData(demo,metadata = Seurat::Idents(sys.small)[barcodes],col.name = 'ReceivingType')
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
@@ -123,7 +123,7 @@ RunNeighborhoodToCell <- function(object,
     meta.data.to.add.also <- receiving.metadata
     rownames(meta.data.to.add.also) <- paste('Neighborhood',receiving.barcodes,sep='-')
     # Add additional metadata
-    demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+    demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
   # How many vectors were captured by this sampling?

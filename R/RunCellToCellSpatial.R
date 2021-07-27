@@ -128,7 +128,7 @@ RunCellToCellSpatial <- function(object,
     meta.data.to.add.also <- cbind(sending.metadata,receiving.metadata,joint.metadata)
     rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='-')
     # Add additional metadata
-    demo <- AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
+    demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
 
   # How many vectors were captured by this sampling?
