@@ -5,9 +5,9 @@
 LoadOmniPath <- function(species){
   
 #OmniPath
-library(OmnipathR)
-library(dplyr)
-library(stringr)
+#library(OmnipathR)
+#library(dplyr)
+#library(stringr)
   
 # Setup species call
   if (species == 'human'){
@@ -21,7 +21,7 @@ library(stringr)
         }
 
 #Ligand-Receptor Network ----
-lr_Interactions_Omnipath <- import_ligrecextra_interactions(organism = organism) %>%
+lr_Interactions_Omnipath <- OmnipathR::import_ligrecextra_interactions(organism = organism) %>%
   dplyr::select(source_genesymbol,target_genesymbol) %>%
   dplyr::distinct()
 
@@ -29,8 +29,8 @@ lr_Interactions_Omnipath <- import_ligrecextra_interactions(organism = organism)
 lr_Interactions_Omnipath$mechanism <- paste(lr_Interactions_Omnipath$source_genesymbol,lr_Interactions_Omnipath$target_genesymbol,sep = '-')
 
 # Identify max number of ligand subunits and max number of receptor subunits (based on "_" as a separator, used in current OmniPath iteration as of 2021-06-07)
-source_sub_max <- max(str_count(lr_Interactions_Omnipath$source_genesymbol, "_"))
-target_sub_max <- max(str_count(lr_Interactions_Omnipath$target_genesymbol, "_"))
+source_sub_max <- max(stringr::str_count(lr_Interactions_Omnipath$source_genesymbol, "_"))
+target_sub_max <- max(stringr::str_count(lr_Interactions_Omnipath$target_genesymbol, "_"))
 
 # Initialize column names based on how many subunits are in initial database
 source_col_names <- c()
