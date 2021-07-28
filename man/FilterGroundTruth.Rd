@@ -6,6 +6,11 @@
 \usage{
 FilterGroundTruth(ground.truth, input_rownames)
 }
+\arguments{
+\item{ground.truth}{}
+
+\item{input_rownames}{}
+}
 \description{
 Filter the ground truth to only include mechanisms in the base object
 }

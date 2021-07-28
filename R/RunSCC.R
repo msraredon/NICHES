@@ -14,6 +14,13 @@
 #' @param position.x The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.
 #' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
 #' @param ... Additional parameters to pass to RunCellToCell, RunSystemToCell, RunCellToSystem, or spatial equivalents
+#' @param rad.set 
+#' @param CellToCell 
+#' @param CellToSystem 
+#' @param SystemToCell 
+#' @param CellToCellSpatial 
+#' @param CellToNeighborhood 
+#' @param NeighborhoodToCell 
 #'
 #' @export
 

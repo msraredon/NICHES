@@ -1,5 +1,7 @@
 #' Load OmniPath as ground truth
 #'
+#' @param species 
+#'
 #' @export
 
 LoadOmniPath <- function(species){

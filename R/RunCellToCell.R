@@ -10,7 +10,9 @@
 #' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
+#' @param ... 
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
+#'
 #' @importFrom rlang .data
 #' @importFrom dplyr %>%
 #' @export

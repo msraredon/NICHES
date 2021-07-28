@@ -1,5 +1,8 @@
 #' Filter the ground truth to only include mechanisms in the base object
 #'
+#' @param ground.truth 
+#' @param input_rownames 
+#'
 #' @export
 
 FilterGroundTruth <- function(ground.truth,input_rownames){

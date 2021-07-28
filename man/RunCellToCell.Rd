@@ -26,6 +26,8 @@ RunCellToCell(
 \item{min.cells.per.ident}{Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the SCC objects}
+
+\item{...}{}
 }
 \description{
 Performs cell-cell transformation on a Seurat object, with structural downsampling to avoid data-inflation. Outputs another Seurat object, but where the columns of the matrix are 

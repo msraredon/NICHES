@@ -7,6 +7,9 @@
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param position.x The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.
 #' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
+#' @param rad.set 
+#' @param meta.data.to.map 
+#' @param ... 
 #'
 #' @export
 

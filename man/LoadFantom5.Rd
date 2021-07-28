@@ -6,6 +6,9 @@
 \usage{
 LoadFantom5(species)
 }
+\arguments{
+\item{species}{}
+}
 \description{
 Load FANTOM5 as ground truth
 }

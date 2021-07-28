@@ -1,5 +1,7 @@
 #' Load FANTOM5 as ground truth
 #'
+#' @param species 
+#'
 #' @export
 
 LoadFantom5 <- function(species){

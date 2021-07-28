@@ -31,6 +31,12 @@ RunCellToCellSpatial(
 \item{position.x}{The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.}
 
 \item{position.y}{The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.}
+
+\item{rad.set}{}
+
+\item{meta.data.to.map}{}
+
+\item{...}{}
 }
 \description{
 RunCellToCellSpatial

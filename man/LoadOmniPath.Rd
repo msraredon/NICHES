@@ -6,6 +6,9 @@
 \usage{
 LoadOmniPath(species)
 }
+\arguments{
+\item{species}{}
+}
 \description{
 Load OmniPath as ground truth
 }

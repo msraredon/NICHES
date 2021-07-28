@@ -15,6 +15,8 @@
 #' @param assay The assay to run the SystemCell transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param blend Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"
+#' @param meta.data.to.map 
+#' @param ... 
 #'
 #' @export
 

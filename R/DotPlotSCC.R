@@ -131,10 +131,10 @@ DotPlotSCC <- function (object, assay = NULL, features, cols = c("lightgrey",
   }
   plot <- ggplot2::ggplot(data = data.plot, mapping = ggplot2::aes_string(x = "features.plot", 
                                                         y = "id")) + 
-    ggplot2::geom_point(mapping = aes_string(size = "pct.exp", color = color.by)) + 
+    ggplot2::geom_point(mapping = ggplot2::aes_string(size = "pct.exp", color = color.by)) + 
     scale.func(range = c(0, dot.scale), limits = c(scale.min, scale.max)) + 
-    ggplot2::theme(axis.title.x = ggplot2::element_blank(),axis.title.y = element_blank()) + 
-    ggplot2::guides(size = guide_legend(title = "Percent Expressed")) + 
+    ggplot2::theme(axis.title.x = ggplot2::element_blank(),axis.title.y = ggplot2::element_blank()) + 
+    ggplot2::guides(size = ggplot2::guide_legend(title = "Percent Expressed")) + 
     ggplot2::labs(x = "Features", y = ifelse(test = is.null(x = split.by), 
                                     yes = "Identity", no = "Split Identity")) + 
     cowplot::theme_cowplot()

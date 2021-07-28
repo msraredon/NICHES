@@ -1,9 +1,14 @@
-require(SCC)
-require(Seurat)
-require(ggplot2)
 
+#require(SCC)
+#require(Seurat)
+#require(ggplot2)
+devtools::document()
+devtools::check()
+devtools::install()
+library(SCC)
+library(Seurat)
 # Load Data
-emb <- readRDS("~/Box Sync/Kluger_Lab/Spatial SCC/spatial_seurat_processed_main.rds")
+emb <- readRDS("~/Box/SCC_myend/spatial_seurat_processed_main.rds")
 
 #Pull out one slide only
 FFPE2 <- subset(emb,idents=c("E10.5 tail"))
@@ -19,15 +24,25 @@ FFPE2$x <- temp$X1
 FFPE2$y <- temp$X2
 
 # Testing runs
-test <- RunSCC(object = FFPE2,LR.database = 'omnipath',species = 'mouse',position.x = 'x',position.y = 'y',
+test <- RunSCC(object = FFPE2,assay = "SCT",LR.database = 'fantom5',species = 'mouse',position.x = 'x',position.y = 'y',
                CellToCell = T,CellToSystem = T,SystemToCell = T,
                CellToCellSpatial = T,CellToNeighborhood = T,NeighborhoodToCell = T,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
 # Cluster
 Idents(test[[1]]) <- 'VectorType'
 Idents(test[[2]]) <- 'SendingType'
 Idents(test[[3]]) <- 'ReceivingType'
+Idents(test[[4]]) <- 'VectorType'
 
-test[[1]] <- FindVariableFeatures(test[[1]])
+test[[1]] <- FindVariableFeatures(test[[1]],selection.method = "disp")
+my_find_top2k_vargenes <- function(mat){
+  vars_for_genes <- apply(mat,1,function(x) var(x))
+  top2k_var_genes <- names(sort(vars_for_genes,decreasing = T)[1:728])
+  return(top2k_var_genes)
+}
+my_var_feats <- my_find_top2k_vargenes(test[[1]]@assays$CellToCell@data)
+# the same
+#vst_var_feats <- test[[1]]@assays$CellToCell@var.features
+disp_var_feats <- test[[1]]@assays$CellToCell@var.features
 test[[1]] <- ScaleData(test[[1]])
 test[[1]] <- RunPCA(test[[1]])
 PCHeatmap(test[[1]],dims = 1:9,balanced = T,cells = 100)
