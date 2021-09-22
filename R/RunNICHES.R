@@ -6,7 +6,7 @@
 #' Output is a set of specialized NICHES objects which allow fine analysis of cell-cell interactions.
 #' 
 #' @param object A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.
-#' @param LR.database Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.
+#' @param LR.database Currently accepts 'fantom5' or 'omnipath' 
 #' @param species The species of the object that is being processed. Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
 #' @param assay The assay to run the NICHES transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 10. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
@@ -14,7 +14,7 @@
 #' @param position.x The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.
 #' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
 #' @param ... Additional parameters to pass to RunCellToCell, RunSystemToCell, RunCellToSystem, or spatial equivalents
-#' @param rad.set 
+#' @param rad.set Default 1. The radius in Euclidean space to consider local neighbors.
 #' @param CellToCell Default TRUE. Whether to analyze cell-cell interactions without considering spatial coordinates.
 #' @param CellToSystem Default FALSE. Whether to analyze summed signaling output to total system coming from each cell. Does not consider Euclidean coordinates.
 #' @param SystemToCell Default FALSE. Whether to analyze summed signaling input from total system landing on each cell (cellular microenvironment/niche). Does not consider Euclidean coordinates. 

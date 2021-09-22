@@ -6,12 +6,12 @@
 #' Meta.data slots by default contain "SendingType" "ReceivingType" and "VectorType" information.
 #' 
 #' @param object A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.
-#' @param LR.database Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.
+#' @param LR.database Currently accepts 'fantom5' or 'omnipath' 
 #' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
-#' @param ... 
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
+#' @param ...
 #'
 #' @importFrom rlang .data
 #' @importFrom dplyr %>%
