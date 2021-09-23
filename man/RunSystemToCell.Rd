@@ -18,17 +18,17 @@ RunSystemToCell(
 \arguments{
 \item{object}{A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.}
 
-\item{LR.database}{Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.}
+\item{LR.database}{Currently accepts 'fantom5' or 'omnipath'}
 
 \item{species}{The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
 
-\item{assay}{The assay to run the SystemCell transformation on. Defaults to "RNA."}
+\item{assay}{The assay to run the SystemToCell transformation on. Defaults to "RNA."}
 
 \item{min.cells.per.ident}{Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
 
 \item{blend}{Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"}
 
-\item{meta.data.to.map}{}
+\item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
 
 \item{...}{}
 }

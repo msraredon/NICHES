@@ -17,7 +17,7 @@ RunCellToCell(
 \arguments{
 \item{object}{A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.}
 
-\item{LR.database}{Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.}
+\item{LR.database}{Currently accepts 'fantom5' or 'omnipath'}
 
 \item{species}{The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
 

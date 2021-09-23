@@ -20,7 +20,7 @@ RunCellToNeighborhood(
 \arguments{
 \item{object}{A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.}
 
-\item{LR.database}{Accepts either 'fantom5' or a custom data.frame with the first column equal to ligands, second column equal to associated receptors.}
+\item{LR.database}{Currently accepts 'fantom5' or 'omnipath'}
 
 \item{species}{The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
 
@@ -32,9 +32,9 @@ RunCellToNeighborhood(
 
 \item{position.y}{The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.}
 
-\item{rad.set}{}
+\item{rad.set}{The radius in Euclidean space to consider local neighbors.}
 
-\item{meta.data.to.map}{}
+\item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
 
 \item{...}{}
 }
