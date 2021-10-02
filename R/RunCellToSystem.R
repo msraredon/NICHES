@@ -112,7 +112,7 @@ RunCellToSystem <- function(object,
     # Add additional metadata
     demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
-  
+  Idents(demo) <- demo$SendingType
 
   # How many vectors were captured by this sampling?
   

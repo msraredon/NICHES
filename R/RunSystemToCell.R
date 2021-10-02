@@ -110,6 +110,9 @@ RunSystemToCell <- function(object,
     demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   
+  # Define initial identity
+  Idents(demo) <- demo$ReceivingType
+  
   # How many vectors were captured by this sampling?
   
   message(paste("\n",length(unique(demo$ReceivingCell)),'System-To-Cell edges were computed, across',length(unique(demo$ReceivingType)),'cell types'))
