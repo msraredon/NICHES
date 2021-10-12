@@ -10,6 +10,7 @@ RunCellToCell(
   species,
   assay,
   min.cells.per.ident,
+  min.cells.per.gene,
   meta.data.to.map,
   ...
 )
@@ -23,7 +24,9 @@ RunCellToCell(
 
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
 
-\item{min.cells.per.ident}{Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
+\item{min.cells.per.ident}{A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
+
+\item{min.cells.per.gene}{Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the SCC objects}
 

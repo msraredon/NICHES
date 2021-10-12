@@ -4,7 +4,7 @@
 \alias{prepSeurat}
 \title{Seurat input preprocessing}
 \usage{
-prepSeurat(object, assay, min.cells.per.ident)
+prepSeurat(object, assay, min.cells.per.ident, min.cells.per.gene)
 }
 \arguments{
 \item{object}{input Seurat object}
@@ -12,6 +12,8 @@ prepSeurat(object, assay, min.cells.per.ident)
 \item{assay}{which assay to use in object}
 
 \item{min.cells.per.ident}{minimum cells per ident}
+
+\item{min.cells.per.gene}{minimum cells which must express a gene for it to be considered in connectomics}
 }
 \value{
 a processed seurat object

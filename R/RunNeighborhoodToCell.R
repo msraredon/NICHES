@@ -4,7 +4,8 @@
 #' @param LR.database Currently accepts 'fantom5' or 'omnipath' 
 #' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
-#' @param min.cells.per.ident Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
+#' @param min.cells.per.ident A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
+#' @param min.cells.per.gene Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
 #' @param position.x The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.
 #' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
 #' @param rad.set The radius in Euclidean space to consider local neighbors.
@@ -18,13 +19,14 @@ RunNeighborhoodToCell <- function(object,
                                   species,
                                   assay,
                                   min.cells.per.ident,
+                                  min.cells.per.gene,
                                   position.x,
                                   position.y,
                                   rad.set,
                                   meta.data.to.map,...){
   
   # jc: wrapped the preprocessing steps
-  sys.small <- prepSeurat(object,assay,min.cells.per.ident)
+  sys.small <- prepSeurat(object,assay,min.cells.per.ident,min.cells.per.gene)
   
   # jc: Load corresponding ligands and receptors
   ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))

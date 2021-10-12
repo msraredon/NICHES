@@ -10,10 +10,12 @@ RunNICHES(
   species,
   assay,
   min.cells.per.ident = 1,
+  min.cells.per.gene = 10,
   meta.data.to.map = NULL,
   position.x = NULL,
   position.y = NULL,
   rad.set = 1,
+  blend = "sum",
   CellToCell = T,
   CellToSystem = F,
   SystemToCell = F,
@@ -32,7 +34,9 @@ RunNICHES(
 
 \item{assay}{The assay to run the NICHES transformation on. Defaults to "RNA."}
 
-\item{min.cells.per.ident}{Default 10. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
+\item{min.cells.per.ident}{Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
+
+\item{min.cells.per.gene}{Default 10. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
 
@@ -41,6 +45,8 @@ RunNICHES(
 \item{position.y}{The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.}
 
 \item{rad.set}{Default 1. The radius in Euclidean space to consider local neighbors.}
+
+\item{blend}{Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "sum", also accepts "mean".}
 
 \item{CellToCell}{Default TRUE. Whether to analyze cell-cell interactions without considering spatial coordinates.}
 
