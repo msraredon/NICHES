@@ -6,11 +6,6 @@
 
 LoadOmniPath <- function(species){
   
-#OmniPath
-#library(OmnipathR)
-#library(dplyr)
-#library(stringr)
-  
 # Setup species call
   if (species == 'human'){
     organism = 9606

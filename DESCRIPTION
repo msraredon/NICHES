@@ -33,6 +33,8 @@ Imports:
     abind,
     rlang,
     utils,
+    stringr,
+    tidyr
 Suggests:
   knitr,
   rmarkdown
