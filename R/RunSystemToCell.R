@@ -113,7 +113,7 @@ RunSystemToCell <- function(object,
   }
   
   # Define initial identity
-  Idents(demo) <- demo$ReceivingType
+  Seurat::Idents(demo) <- demo$ReceivingType
   
   # How many vectors were captured by this sampling?
   

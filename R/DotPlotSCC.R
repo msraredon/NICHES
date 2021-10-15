@@ -115,7 +115,7 @@ DotPlotSCC <- function (object, assay = NULL, features, cols = c("lightgrey",
                                                                                                 collapse = "|"), ")_)"), replacement = "", 
                          USE.NAMES = FALSE)
     data.plot$colors <- mapply(FUN = function(color, value) {
-      return(colorRampPalette(colors = c("grey", color))(20)[value])
+      return(grDevices::colorRampPalette(colors = c("grey", color))(20)[value])
     }, color = cols[splits.use], value = avg.exp.scaled)
   }
   color.by <- ifelse(test = split.colors, yes = "colors", no = "avg.exp.scaled")
@@ -141,7 +141,7 @@ DotPlotSCC <- function (object, assay = NULL, features, cols = c("lightgrey",
   if (!is.null(x = feature.groups)) {
     plot <- plot + ggplot2::facet_grid(facets = ~feature.groups, scales = "free_x", 
                               space = "free_x", switch = "y") + 
-      ggplot2::theme(panel.spacing = ggplot2::unit(x = 1,units = "lines"), strip.background = element_blank())
+      ggplot2::theme(panel.spacing = ggplot2::unit(x = 1,units = "lines"), strip.background = ggplot2::element_blank())
   }
   if (split.colors) {
     plot <- plot + ggplot2::scale_color_identity()

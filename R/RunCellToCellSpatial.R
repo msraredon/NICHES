@@ -137,7 +137,7 @@ RunCellToCellSpatial <- function(object,
     demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   # Set initial identity
-  Idents(demo) <- demo$VectorType
+  Seurat::Idents(demo) <- demo$VectorType
   
   # How many vectors were captured by this sampling?
   message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Seurat::Idents(sys.small)))^2,'total possible'))

@@ -131,7 +131,7 @@ RunCellToNeighborhood <- function(object,
     demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   # Set initial identity
-  Idents(demo) <- demo$SendingType
+  Seurat::Idents(demo) <- demo$SendingType
   # How many vectors were captured by this sampling?
   message(paste("\n",length(unique(demo$SendingCell)),'Cell-To-Neighborhood edges were computed, across',length(unique(demo$SendingType)),'cell types'))
 
