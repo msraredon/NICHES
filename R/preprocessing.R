@@ -26,6 +26,10 @@ prepSeurat <- function(object,assay,min.cells.per.ident,min.cells.per.gene){
   # Limit analysis to interaction involving genes expressed above minimum threshold number of cells in the system
   if (!is.null(min.cells.per.gene)){
     message(paste("\n",'Subsetting to genes expressed in greater than',min.cells.per.gene,'cells'))
+    
+    # jc: return an error if the count matrix in the given assay is empty
+    if(!length(sys.small@assays[[assay]]@counts)) stop("Unable to subset: the count matrix in the given assay is empty.")
+    
     cells.per.gene <- data.frame(non.zero.cells = Matrix::rowSums(sys.small@assays[[assay]]@counts>0))
     GOI <- subset(cells.per.gene,non.zero.cells > min.cells.per.gene)
     sys.small <- sys.small[rownames(GOI),]
