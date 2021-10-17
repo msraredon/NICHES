@@ -45,8 +45,12 @@ RunNICHES <- function(object,
                         CellToNeighborhood = F,
                         NeighborhoodToCell = F,
                         ...){
-   # Initialize output structure
+  # Initialize output structure
   output <- list()
+  
+  # jc: Add organization names to the list
+  org_names_indicator <- c(CellToCell,CellToSystem,SystemToCell,CellToCellSpatial,CellToNeighborhood,NeighborhoodToCell)
+  names(org_names_indicator) <- c("CellToCell","CellToSystem","SystemToCell","CellToCellSpatial","CellToNeighborhood","NeighborhoodToCell")
   
   # Calculate NICHES organizations without spatial restrictions
   
@@ -68,6 +72,9 @@ RunNICHES <- function(object,
   if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,LR.database,assay = assay,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,rad.set = rad.set,min.cells.per.ident = min.cells.per.ident,min.cells.per.gene = min.cells.per.gene,...)} #Spatially-limited Cell-Neighborhood vectors
   if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,LR.database,assay = assay,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,rad.set = rad.set,min.cells.per.ident = min.cells.per.ident,min.cells.per.gene = min.cells.per.gene,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
 
+  # jc: Add organization names to the list
+  names(output) <- names(org_names_indicator)[org_names_indicator]
+  
   # Compile objects for output
   return(output)
 }
