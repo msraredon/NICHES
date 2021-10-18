@@ -6,7 +6,7 @@ Authors@R: person("Micha Sam", "Brickman Raredon", email = "michasam.raredon@yal
 Description: Cell-cell Interactions at Single-Cell Resolution
 License: GPL-3
 Encoding: UTF-8
-LazyData: true
+LazyData: yes
 RoxygenNote: 7.1.1.9000
 VignetteBuilder: knitr
 Depends:

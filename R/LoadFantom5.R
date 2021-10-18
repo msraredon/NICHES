@@ -1,11 +1,11 @@
 #' Load FANTOM5 as ground truth
 #'
 #' @param species species reference in the fantom 5 database
-#'
 #' @export
 
 LoadFantom5 <- function(species){
-  
+  # jc: to get rid of the global variable check
+  #utils::globalVariables(c("ncomms8866_human", "ncomms8866_mouse", "ncomms8866_rat","ncomms8866_pig"))
   if(is.null(species)){
     stop("\nPlease select species for FANTOM5 mapping. Allows 'human','mouse','rat', or 'pig' ")}
   # Load ground-truth database (FANTOM5, species-converted as appropriate, per methodlogy in Raredon et al 2019, DOI: 10.1126/sciadv.aaw3851)

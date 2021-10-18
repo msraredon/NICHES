@@ -1,0 +1,1 @@
+utils::globalVariables(c("ncomms8866_human", "ncomms8866_mouse", "ncomms8866_rat","ncomms8866_pig","source_genesymbol","target_genesymbol","non.zero.cells"))
