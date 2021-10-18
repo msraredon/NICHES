@@ -5,12 +5,9 @@
 \title{RunCellToNeighborhood}
 \usage{
 RunCellToNeighborhood(
-  object,
-  LR.database,
-  species,
+  sys.small,
+  ground.truth,
   assay,
-  min.cells.per.ident,
-  min.cells.per.gene,
   position.x,
   position.y,
   rad.set,
@@ -19,17 +16,11 @@ RunCellToNeighborhood(
 )
 }
 \arguments{
-\item{object}{A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.}
+\item{sys.small}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
 
-\item{LR.database}{Currently accepts 'fantom5' or 'omnipath'}
-
-\item{species}{The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
+\item{ground.truth}{Ground truth signaling mechanisms present in sys.small.}
 
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
-
-\item{min.cells.per.ident}{A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
-
-\item{min.cells.per.gene}{Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
 \item{position.x}{The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.}
 

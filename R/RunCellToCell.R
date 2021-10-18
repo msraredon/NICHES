@@ -5,12 +5,9 @@
 #' The default assay of this object is called "CellToCell" to distinguish it from normal Seurat objects.
 #' Meta.data slots by default contain "SendingType" "ReceivingType" and "VectorType" information.
 #' 
-#' @param object A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.
-#' @param LR.database Currently accepts 'fantom5' or 'omnipath' 
-#' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
+#' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings. 
+#' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
-#' @param min.cells.per.ident A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
-#' @param min.cells.per.gene Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
 #' @param ...
 #'
@@ -19,19 +16,11 @@
 #' @export
 
 
-RunCellToCell <- function(object,
-                   LR.database,
-                   species,
-                   assay,
-                   min.cells.per.ident,
-                   min.cells.per.gene,
-                   meta.data.to.map,...){
+RunCellToCell <- function(sys.small,
+                          ground.truth,
+                          assay,
+                          meta.data.to.map,...){
 
-  # jc: wrapped the preprocessing steps
-  sys.small <- prepSeurat(object,assay,min.cells.per.ident,min.cells.per.gene)
-  
-  # jc: Load corresponding ligands and receptors
-  ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
   
   ### CREATE MAPPING ###
 
@@ -136,9 +125,9 @@ RunCellToCell <- function(object,
   # Identify sending and receiving barcodes
   sending.barcodes <- colnames(do.call(cbind,lig.data)) #This can be simplified if the above SCC construction is simplified
   receiving.barcodes <- colnames(do.call(cbind,rec.data)) #This can be simplified if the above SCC construction is simplified
-  # Pull and format sending and receiving metadata
-  sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
-  receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
+  # Pull and format sending and receiving metadata    jc: possible bug, change object to sys.small
+  sending.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map][sending.barcodes,])
+  receiving.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map][receiving.barcodes,])
   # Make joint metadata
   datArray <- abind::abind(sending.metadata,receiving.metadata,along=3)
   joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))

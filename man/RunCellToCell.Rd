@@ -4,29 +4,14 @@
 \alias{RunCellToCell}
 \title{RunCellToCell}
 \usage{
-RunCellToCell(
-  object,
-  LR.database,
-  species,
-  assay,
-  min.cells.per.ident,
-  min.cells.per.gene,
-  meta.data.to.map,
-  ...
-)
+RunCellToCell(sys.small, ground.truth, assay, meta.data.to.map, ...)
 }
 \arguments{
-\item{object}{A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.}
+\item{sys.small}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
 
-\item{LR.database}{Currently accepts 'fantom5' or 'omnipath'}
-
-\item{species}{The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
+\item{ground.truth}{Ground truth signaling mechanisms present in sys.small.}
 
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
-
-\item{min.cells.per.ident}{A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
-
-\item{min.cells.per.gene}{Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the SCC objects}
 

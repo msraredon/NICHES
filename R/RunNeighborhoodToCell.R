@@ -1,11 +1,8 @@
 #' RunNeighborhoodToCell
 #' 
-#' @param object A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.
-#' @param LR.database Currently accepts 'fantom5' or 'omnipath' 
-#' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
+#' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
+#' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
-#' @param min.cells.per.ident A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
-#' @param min.cells.per.gene Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
 #' @param position.x The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.
 #' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
 #' @param rad.set The radius in Euclidean space to consider local neighbors.
@@ -14,29 +11,22 @@
 #'
 #' @export
 
-RunNeighborhoodToCell <- function(object,
-                                  LR.database,
-                                  species,
+RunNeighborhoodToCell <- function(sys.small,
+                                  ground.truth,
                                   assay,
-                                  min.cells.per.ident,
-                                  min.cells.per.gene,
                                   position.x,
                                   position.y,
                                   rad.set,
-                                  meta.data.to.map,...){
-  
-  # jc: wrapped the preprocessing steps
-  sys.small <- prepSeurat(object,assay,min.cells.per.ident,min.cells.per.gene)
-  
-  # jc: Load corresponding ligands and receptors
-  ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
+                                  meta.data.to.map,
+                                  ...){
   
   ### CREATE MAPPING ###
   
   # Create adjacency matrix
   # Adapted from :: https://stackoverflow.com/questions/16075232/how-to-create-adjacency-matrix-from-grid-coordinates-in-r
   # Setup numbering and labeling
-  df <- data.frame(x = object[[position.x]], y = object[[position.y]])
+  # jc: possible bug, change object to sys.small
+  df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
   df$barcode <- rownames(df)
   df$x <- as.character(df$x)
   df$y <- as.character(df$y)
@@ -116,7 +106,8 @@ RunNeighborhoodToCell <- function(object,
     receiving.barcodes <- barcodes # Only receiving cell metadata applies for this function
     # Pull and format sending and receiving metadata
     #sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
-    receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
+    # jc: possible bug, change object to sys.small
+    receiving.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map][receiving.barcodes,])
     # Make joint metadata
     #datArray <- abind(sending.metadata,receiving.metadata,along=3)
     #joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))

@@ -5,29 +5,20 @@
 \title{RunCellToSystem}
 \usage{
 RunCellToSystem(
-  object,
-  LR.database,
-  species,
+  sys.small,
+  ground.truth,
   assay,
-  min.cells.per.ident,
-  min.cells.per.gene,
   blend = "sum",
   meta.data.to.map,
   ...
 )
 }
 \arguments{
-\item{object}{A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.}
+\item{sys.small}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
 
-\item{LR.database}{Currently accepts 'fantom5' or 'omnipath'}
-
-\item{species}{The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
+\item{ground.truth}{Ground truth signaling mechanisms present in sys.small.}
 
 \item{assay}{The assay to run the CellToSystem transformation on. Defaults to "RNA."}
-
-\item{min.cells.per.ident}{A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
-
-\item{min.cells.per.gene}{Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
 \item{blend}{Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"}
 

@@ -52,11 +52,29 @@ RunNICHES <- function(object,
   org_names_indicator <- c(CellToCell,CellToSystem,SystemToCell,CellToCellSpatial,CellToNeighborhood,NeighborhoodToCell)
   names(org_names_indicator) <- c("CellToCell","CellToSystem","SystemToCell","CellToCellSpatial","CellToNeighborhood","NeighborhoodToCell")
   
-  # Calculate NICHES organizations without spatial restrictions
+  # jc: move the shared preprocessing steps here to avoid redundancy and reduce the number of parameters to be passed to other functions
+  sys.small <- prepSeurat(object,assay,min.cells.per.ident,min.cells.per.gene)
+  ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
   
-  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(object,LR.database,assay = assay,species = species,meta.data.to.map = meta.data.to.map,min.cells.per.ident = min.cells.per.ident,min.cells.per.gene = min.cells.per.gene,...)}
-  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(object,LR.database,assay = assay,species = species,meta.data.to.map = meta.data.to.map,min.cells.per.ident = min.cells.per.ident,min.cells.per.gene = min.cells.per.gene,blend = blend,...)}
-  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(object,LR.database,assay = assay,species = species,meta.data.to.map = meta.data.to.map,min.cells.per.ident = min.cells.per.ident,min.cells.per.gene = min.cells.per.gene,blend = blend,...)}
+  # Calculate NICHES organizations without spatial restrictions
+  # jc: only pass the processed data to each function
+  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(sys.small=sys.small,
+                                                                   ground.truth=ground.truth,
+                                                                   assay = assay,
+                                                                   meta.data.to.map = meta.data.to.map,
+                                                                   ...)}
+  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(sys.small=sys.small,
+                                                                       ground.truth=ground.truth,
+                                                                       assay = assay,
+                                                                       meta.data.to.map = meta.data.to.map,
+                                                                       blend = blend,
+                                                                       ...)}
+  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(sys.small=sys.small,
+                                                                       ground.truth=ground.truth,
+                                                                       assay = assay,
+                                                                       meta.data.to.map = meta.data.to.map,
+                                                                       blend = blend,
+                                                                       ...)}
   
   # If requested, additionally calculate spatially-limited NICHES organizations
   
@@ -68,9 +86,30 @@ RunNICHES <- function(object,
   
   }
   
-  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(object,LR.database,assay = assay,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,rad.set = rad.set,min.cells.per.ident = min.cells.per.ident,min.cells.per.gene = min.cells.per.gene,...)} #Spatially-limited Cell-Cell vectors
-  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(object,LR.database,assay = assay,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,rad.set = rad.set,min.cells.per.ident = min.cells.per.ident,min.cells.per.gene = min.cells.per.gene,...)} #Spatially-limited Cell-Neighborhood vectors
-  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(object,LR.database,assay = assay,species = species,position.x = position.x,position.y = position.y,meta.data.to.map = meta.data.to.map,rad.set = rad.set,min.cells.per.ident = min.cells.per.ident,min.cells.per.gene = min.cells.per.gene,...)} #Spatially-limited Neighborhood-Cell vectors (niches)
+  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(sys.small=sys.small,
+                                                                                 ground.truth=ground.truth,
+                                                                                 assay = assay,
+                                                                                 position.x = position.x,
+                                                                                 position.y = position.y,
+                                                                                 meta.data.to.map = meta.data.to.map,
+                                                                                 rad.set = rad.set,
+                                                                                 ...)} #Spatially-limited Cell-Cell vectors
+  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(sys.small=sys.small,
+                                                                                   ground.truth=ground.truth,
+                                                                                   assay = assay,
+                                                                                   position.x = position.x,
+                                                                                   position.y = position.y,
+                                                                                   meta.data.to.map = meta.data.to.map,
+                                                                                   rad.set = rad.set,
+                                                                                   ...)} #Spatially-limited Cell-Neighborhood vectors
+  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(sys.small=sys.small,
+                                                                                   ground.truth=ground.truth,
+                                                                                   assay = assay,
+                                                                                   position.x = position.x,
+                                                                                   position.y = position.y,
+                                                                                   meta.data.to.map = meta.data.to.map,
+                                                                                   rad.set = rad.set,
+                                                                                   ...)} #Spatially-limited Neighborhood-Cell vectors (niches)
 
   # jc: Add organization names to the list
   names(output) <- names(org_names_indicator)[org_names_indicator]

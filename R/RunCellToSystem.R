@@ -9,12 +9,9 @@
 #' Meta.data slots by default contain "SendingType" information, which is the celltypes for each point, 
 #' and "SendingCell" which is the exact cell barcode present in the original Seurat object.
 #' 
-#' @param object A Seurat 3.0 object.  The active identity meta.data will be used to define populations for connectomic sampling and crossings.
-#' @param LR.database Currently accepts 'fantom5' or 'omnipath' 
-#' @param species The species of the object that is being processed.  Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'
+#' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
+#' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the CellToSystem transformation on. Defaults to "RNA."
-#' @param min.cells.per.ident A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
-#' @param min.cells.per.gene Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
 #' @param blend Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
 #' @param ...
@@ -22,21 +19,13 @@
 #' @export
 
 
-RunCellToSystem <- function(object,
-                      LR.database,
-                      species,
-                      assay,
-                      min.cells.per.ident,
-                      min.cells.per.gene,
-                      blend = 'sum',
-                      meta.data.to.map,...){
+RunCellToSystem <- function(sys.small,
+                            ground.truth,
+                            assay,
+                            blend = 'sum',
+                            meta.data.to.map,
+                            ...){
   
-  # jc: wrapped the preprocessing steps
-  sys.small <- prepSeurat(object,assay,min.cells.per.ident,min.cells.per.gene)
-  
-  # jc: Load corresponding ligands and receptors
-  ground.truth <- lr_load(LR.database,species,rownames(sys.small@assays[[assay]]))
-
   
   ### CREATE MAPPING ###
   
@@ -99,7 +88,8 @@ RunCellToSystem <- function(object,
     sending.barcodes <- colnames(lig.map) # Only sending cell metadata applies for this function
     #receiving.barcodes <- colnames(rec.map) 
     # Pull and format sending and receiving metadata
-    sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
+    # jc: possible bug, change object to sys.small
+    sending.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map][sending.barcodes,])
     #receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
     # Make joint metadata
     #datArray <- abind(sending.metadata,receiving.metadata,along=3)

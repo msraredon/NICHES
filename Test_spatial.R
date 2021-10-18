@@ -17,6 +17,8 @@ library(SeuratWrappers)
 install.packages("viridis")
 library(viridis)
 
+library("NICHES")
+
 InstallData("stxBrain")
 brain <- LoadData("stxBrain", type = "anterior1")
 
@@ -92,7 +94,7 @@ get_legend(SpatialDimPlot(cortex, crop = TRUE, label = F,pt.size.factor = 10,col
                         +guides(fill = guide_legend(title="Cell types",ncol = 1,override.aes = list(size = 4))))
 
 
-
+cortex@assays$alra@counts <- cortex@assays$Spatial@counts
 niche_obj <- RunNICHES(object = cortex,LR.database = "fantom5",species = "mouse",assay = "alra",
                        position.x = 'x', 
                        position.y = 'y',

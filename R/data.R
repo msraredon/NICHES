@@ -32,4 +32,11 @@
 #' @format dataframe
 #' @source fantom 5 database
 "ncomms8866_rat"
-
+#' fantom5
+#'
+#' Ligand-Receptor annotions from
+#' fantom 5 database
+#' 
+#' @format dataframe
+#' @source fantom 5 database
+"ncomms8866"
