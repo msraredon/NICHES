@@ -7,7 +7,7 @@
 LoadOmniPath(species)
 }
 \arguments{
-\item{species}{}
+\item{species}{Species reference in the Ominipath database}
 }
 \description{
 Load OmniPath as ground truth

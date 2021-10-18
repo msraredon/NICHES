@@ -46,7 +46,7 @@ prepSeurat <- function(object,assay,min.cells.per.ident,min.cells.per.gene){
 #' load the Ligands and Receptors that corresponds to the row names of the input seurat
 #'
 #' @param LR.database database to use
-#' @param species 
+#' @param species species in the database to use
 #' @param input_rownames the genes names to query
 #'
 #' @return a list of ligands and receptors
@@ -73,7 +73,7 @@ lr_load <- function(LR.database,species,input_rownames){
 # better: check_celltypes: check whether the idents are cell types, yes to return the unique cell types, no to return an error
 #' return cell types
 #'
-#' @param seurat_object 
+#' @param seurat_object Input seurat object
 #'
 #' @return unique cell types
 #' @export

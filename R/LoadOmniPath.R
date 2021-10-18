@@ -1,6 +1,6 @@
 #' Load OmniPath as ground truth
 #'
-#' @param species 
+#' @param species Species reference in the Ominipath database
 #'
 #' @export
 

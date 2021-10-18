@@ -1,6 +1,6 @@
 #' Load FANTOM5 as ground truth
 #'
-#' @param species 
+#' @param species species reference in the fantom 5 database
 #'
 #' @export
 

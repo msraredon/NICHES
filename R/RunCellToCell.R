@@ -9,7 +9,6 @@
 #' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
-#' @param ...
 #'
 #' @importFrom rlang .data
 #' @importFrom dplyr %>%
@@ -19,7 +18,7 @@
 RunCellToCell <- function(sys.small,
                           ground.truth,
                           assay,
-                          meta.data.to.map,...){
+                          meta.data.to.map){
 
   
   ### CREATE MAPPING ###

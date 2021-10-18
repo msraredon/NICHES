@@ -7,7 +7,7 @@
 LoadFantom5(species)
 }
 \arguments{
-\item{species}{}
+\item{species}{species reference in the fantom 5 database}
 }
 \description{
 Load FANTOM5 as ground truth

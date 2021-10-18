@@ -7,7 +7,6 @@
 #' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
 #' @param rad.set The radius in Euclidean space to consider local neighbors.
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
-#' @param ...
 #'
 #' @export
 
@@ -17,8 +16,8 @@ RunNeighborhoodToCell <- function(sys.small,
                                   position.x,
                                   position.y,
                                   rad.set,
-                                  meta.data.to.map,
-                                  ...){
+                                  meta.data.to.map
+                                  ){
   
   ### CREATE MAPPING ###
   

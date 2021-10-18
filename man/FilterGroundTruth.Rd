@@ -7,9 +7,12 @@
 FilterGroundTruth(ground.truth, input_rownames)
 }
 \arguments{
-\item{ground.truth}{}
+\item{ground.truth}{Unfiltered LR mechanisms from the database}
 
-\item{input_rownames}{}
+\item{input_rownames}{Gene names of the filtered seurat object}
+}
+\value{
+Filtered ground truth signaling mechanisms.
 }
 \description{
 Filter the ground truth to only include mechanisms in the base object

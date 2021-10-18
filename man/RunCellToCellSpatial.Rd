@@ -11,8 +11,7 @@ RunCellToCellSpatial(
   position.x,
   position.y,
   rad.set,
-  meta.data.to.map,
-  ...
+  meta.data.to.map
 )
 }
 \arguments{
@@ -29,8 +28,6 @@ RunCellToCellSpatial(
 \item{rad.set}{The radius in Euclidean space to consider local neighbors.}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
-
-\item{...}{}
 }
 \description{
 RunCellToCellSpatial

@@ -1,8 +1,9 @@
 #' Filter the ground truth to only include mechanisms in the base object
 #'
-#' @param ground.truth 
-#' @param input_rownames 
+#' @param ground.truth Unfiltered LR mechanisms from the database
+#' @param input_rownames Gene names of the filtered seurat object 
 #'
+#' @return Filtered ground truth signaling mechanisms.
 #' @export
 
 FilterGroundTruth <- function(ground.truth,input_rownames){

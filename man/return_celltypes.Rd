@@ -7,7 +7,7 @@
 return_celltypes(seurat_object)
 }
 \arguments{
-\item{seurat_object}{}
+\item{seurat_object}{Input seurat object}
 }
 \value{
 unique cell types

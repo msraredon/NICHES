@@ -14,7 +14,6 @@
 #' @param assay The assay to run the SystemToCell transformation on. Defaults to "RNA."
 #' @param blend Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
-#' @param ... 
 #'
 #' @export
 
@@ -23,8 +22,8 @@ RunSystemToCell <- function(sys.small,
                             ground.truth,
                             assay,
                             blend = 'sum',
-                            meta.data.to.map,
-                            ...){
+                            meta.data.to.map
+                            ){
   
 
   ### CREATE MAPPING ###

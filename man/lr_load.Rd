@@ -9,7 +9,7 @@ lr_load(LR.database, species, input_rownames)
 \arguments{
 \item{LR.database}{database to use}
 
-\item{species}{}
+\item{species}{species in the database to use}
 
 \item{input_rownames}{the genes names to query}
 }
