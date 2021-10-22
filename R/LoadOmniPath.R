@@ -30,14 +30,8 @@ source_sub_max <- max(sapply(lr_Interactions_Omnipath$source_genesymbol,function
 target_sub_max <- max(sapply(lr_Interactions_Omnipath$target_genesymbol,function(x) length(strsplit(x,split="_")[[1]])))
 
 # Initialize column names based on how many subunits are in initial database
-source_col_names <- c()
-for (i in 1:length(c(1:source_sub_max))){
-  source_col_names[i] <- paste('source_',c(1:source_sub_max)[i],sep='')
-}
-target_col_names <- c()
-for (i in 1:length(c(1:target_sub_max))){
-  target_col_names[i] <- paste('target_',c(1:target_sub_max)[i],sep='')
-}
+source_col_names <- paste0("source_",c(1:source_sub_max))
+target_col_names <- paste0("target_",c(1:target_sub_max))
 
 # Split into individual columns
 temp <- tidyr::separate(data = lr_Interactions_Omnipath,
