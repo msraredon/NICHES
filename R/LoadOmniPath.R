@@ -26,8 +26,8 @@ lr_Interactions_Omnipath <- OmnipathR::import_ligrecextra_interactions(organism 
 lr_Interactions_Omnipath$mechanism <- paste(lr_Interactions_Omnipath$source_genesymbol,lr_Interactions_Omnipath$target_genesymbol,sep = '-')
 
 # Identify max number of ligand subunits and max number of receptor subunits (based on "_" as a separator, used in current OmniPath iteration as of 2021-06-07)
-source_sub_max <- max(stringr::str_count(lr_Interactions_Omnipath$source_genesymbol, "_"))
-target_sub_max <- max(stringr::str_count(lr_Interactions_Omnipath$target_genesymbol, "_"))
+source_sub_max <- max(sapply(lr_Interactions_Omnipath$source_genesymbol,function(x) length(strsplit(x,split="_")[[1]])))
+target_sub_max <- max(sapply(lr_Interactions_Omnipath$target_genesymbol,function(x) length(strsplit(x,split="_")[[1]])))
 
 # Initialize column names based on how many subunits are in initial database
 source_col_names <- c()
