@@ -5,7 +5,7 @@
 #' @export
 
 LoadOmniPath <- function(species){
-  
+  require(OmnipathR)
 # Setup species call
   if (species == 'human'){
     organism = 9606
