@@ -15,7 +15,8 @@
 #' @param position.x string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.
 #' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
 #' @param custom_LR_database data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').
-#' @param rad.set integer. Default 1. The radius in Euclidean space to consider local neighbors.
+#' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
+#' @param rad.set numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.
 #' @param blend string. Default: "sum". Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "sum", also accepts "mean".
 #' @param CellToCell logical. Default: TRUE. Whether to analyze cell-cell interactions without considering spatial coordinates.
 #' @param CellToSystem logical. Default: FALSE. Whether to analyze summed signaling output to total system coming from each cell. Does not consider Euclidean coordinates.
@@ -37,7 +38,8 @@ RunNICHES <- function(object,
                         position.x = NULL,
                         position.y = NULL,
                         custom_LR_database = NULL,
-                        rad.set = 1,
+                        k = 4,
+                        rad.set = NULL,
                         blend = 'sum',
                         CellToCell = T,
                         CellToSystem = F,
@@ -109,16 +111,14 @@ RunNICHES <- function(object,
   names(org_names_indicator) <- c("CellToCell","CellToSystem","SystemToCell","CellToCellSpatial","CellToNeighborhood","NeighborhoodToCell")
   
   
-  # TODO: check rad.set with the spatial indicators, Enable a k-nearest-neighbor parameter as an alternative
   # If requested, additionally calculate spatially-limited NICHES organizations
   if (org_names_indicator["CellToCellSpatial"] == T | org_names_indicator["CellToNeighborhood"] == T | org_names_indicator["NeighborhoodToCell"] == T){
     
     if (is.null(position.x) | is.null(position.y)){stop("\n Position information not provided. Please specify metadata columns containing x- and y-axis spatial coordinates.")}
-    
-    ## Define distance between cells here (?), to use for radius calculations. Pass to the below three functions. This will generalize the function to any spatial dataset (?)
-    ## TODO: compute some cell distance statistics as a reference to set rad.set?
-    
+    if(!is.null(k)) k <- as.integer(k)
+    if(!is.null(rad.set)) rad.set <- as.numeric(rad.set)
   }
+  
   if((!is.null(position.x) | !is.null(position.y)) & org_names_indicator["CellToCellSpatial"] == F & org_names_indicator["CellToNeighborhood"] == F & org_names_indicator["NeighborhoodToCell"] == T)
     warning("Spatial positions are provided but the spatial organization functions: 'CellToCellSpatial','CellToNeighborhood', and 'NeighborhoodToCell' are set to FALSE.")
     
@@ -133,6 +133,12 @@ RunNICHES <- function(object,
   # jc: move the shared preprocessing steps here to avoid redundancy and reduce the number of parameters to be passed to other functions
   sys.small <- prepSeurat(object,assay,min.cells.per.ident,min.cells.per.gene)
   ground.truth <- lr_load(LR.database,custom_LR_database,species,rownames(sys.small@assays[[assay]]))
+  if (org_names_indicator["CellToCellSpatial"] == T | org_names_indicator["CellToNeighborhood"] == T | org_names_indicator["NeighborhoodToCell"] == T){
+    ## 1. Move the neighbor graph construction here
+    ## 2. Enable a k-nearest-neighbor parameter as an alternative
+    edgelist <- compute_edgelist(sys.small,position.x,position.y,k,rad.set)
+  }
+  
   
   # Calculate NICHES organizations without spatial restrictions
   # jc: only pass the processed data to each function
@@ -158,26 +164,20 @@ RunNICHES <- function(object,
   if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(sys.small=sys.small,
                                                                                  ground.truth=ground.truth,
                                                                                  assay = assay,
-                                                                                 position.x = position.x,
-                                                                                 position.y = position.y,
                                                                                  meta.data.to.map = meta.data.to.map,
-                                                                                 rad.set = rad.set
+                                                                                 edgelist = edgelist
                                                                                  )} #Spatially-limited Cell-Cell vectors
   if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(sys.small=sys.small,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = assay,
-                                                                                   position.x = position.x,
-                                                                                   position.y = position.y,
                                                                                    meta.data.to.map = meta.data.to.map,
-                                                                                   rad.set = rad.set
+                                                                                   edgelist = edgelist
                                                                                    )} #Spatially-limited Cell-Neighborhood vectors
   if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(sys.small=sys.small,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = assay,
-                                                                                   position.x = position.x,
-                                                                                   position.y = position.y,
                                                                                    meta.data.to.map = meta.data.to.map,
-                                                                                   rad.set = rad.set
+                                                                                   edgelist = edgelist
                                                                                    )} #Spatially-limited Neighborhood-Cell vectors (niches)
 
   # jc: Add organization names to the list

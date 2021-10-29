@@ -83,3 +83,76 @@ return_celltypes <- function(seurat_object){
   message('\n For sampling purposes, please make sure that the active Identity of the input seurat object corresponds to cell types')
   return(names(table(Seurat::Idents(seurat_object)))) # ms: other steps are depdent on the exact format of this output
 }
+
+
+#' Compute an edgelist based on the spatial coordinates
+#'
+#' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
+#' @param position.x string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.
+#' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
+#' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
+#' @param rad.set numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.
+#'
+#' @export
+#'
+compute_edgelist <- function(sys.small,
+                             position.x,
+                             position.y,
+                             k=4,
+                             rad.set=NULL
+                             ){
+  
+  ### CREATE MAPPING ###
+  
+  # Create adjacency matrix
+  # Adapted from :: https://stackoverflow.com/questions/16075232/how-to-create-adjacency-matrix-from-grid-coordinates-in-r
+  # Setup numbering and labeling
+  # jc: possible bug, change object to sys.small
+  df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
+  df$barcode <- rownames(df)
+  df$x <- as.character(df$x)
+  df$y <- as.character(df$y)
+  df$x <- as.numeric(df$x)
+  df$y <- as.numeric(df$y)
+  df <- df[,c('x','y')]
+  
+  # Compute the euclidean distance matrix
+  distance_mat <- apply(df, 1, function(pt)
+    (sqrt(abs(pt["x"] - df$x)^2 + abs(pt["y"] - df$y)^2))
+  )
+  # keep the cell names
+  rownames(distance_mat) <- colnames(distance_mat)
+  
+  if(!is.null(k)){
+    message("Compute edgelist based on mutual nearest neighbors.")
+    if(!is.null(rad.set))warning("'k' is not NULL. Parameter 'rad.set' will be ignored.")
+    # neighbor_mat: the indices of k nearest neighbors  
+    neighbor_mat <- apply(distance_mat,1,function(dis_vec){
+      order(dis_vec)[1:(k+1)]
+    })
+    
+    # k nearest neighbor adjacency matrix
+    adj_mat <- matrix(data=0,nrow=nrow(distance_mat),ncol = ncol(distance_mat))
+    rownames(adj_mat) <- rownames(distance_mat)
+    colnames(adj_mat) <- colnames(distance_mat)
+    for(cell in colnames(neighbor_mat)) adj_mat[cell,neighbor_mat[,cell]] <- 1
+    # mutual nearest neighbor adjacency matrix
+    adj_mat_final <- 1*(adj_mat & t(adj_mat))
+    
+  }
+  else if(!is.null(rad.set)){
+    message("\n Compute edgelist based on spatial radius threshold.")
+    # Alternatively the adjacency matrix is defined by the absolute radius
+    adj_mat_final <- 1*(distance_mat <= rad.set)
+  }
+  else{
+    stop("Both k and rad.set are NULL.")
+  }
+  
+  # Convert adj matrix to edgelist
+  edgelist <- igraph::graph.adjacency(adj_mat_final)
+  edgelist <- igraph::get.data.frame(edgelist)
+  
+  return(edgelist)
+  
+}

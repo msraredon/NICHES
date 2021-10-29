@@ -20,9 +20,10 @@ FFPE2$x <- temp$X1
 FFPE2$y <- temp$X2
 
 # Testing runs
-test <- RunNICHES(object = FFPE2,assay = "SCT",LR.database = 'fantom5',species = 'mouse',position.x = 'x',position.y = 'y',
+test <- RunNICHES(object = FFPE2,assay = "SCT",LR.database = 'fantom5',species = 'mouse',position.x = 'x',position.y = 'y',rad.set = 1,k=NULL,
                CellToCell = T,CellToSystem = T,SystemToCell = T,
                CellToCellSpatial = T,CellToNeighborhood = T,NeighborhoodToCell = T,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
+
 # Cluster
 Idents(test[[1]]) <- 'VectorType'
 Idents(test[[2]]) <- 'SendingType'

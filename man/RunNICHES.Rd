@@ -15,7 +15,8 @@ RunNICHES(
   position.x = NULL,
   position.y = NULL,
   custom_LR_database = NULL,
-  rad.set = 1,
+  k = 4,
+  rad.set = NULL,
   blend = "sum",
   CellToCell = T,
   CellToSystem = F,
@@ -46,7 +47,9 @@ RunNICHES(
 
 \item{custom_LR_database}{data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').}
 
-\item{rad.set}{integer. Default 1. The radius in Euclidean space to consider local neighbors.}
+\item{k}{integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.}
+
+\item{rad.set}{numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.}
 
 \item{blend}{string. Default: "sum". Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "sum", also accepts "mean".}
 

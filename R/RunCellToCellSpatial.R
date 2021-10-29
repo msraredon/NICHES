@@ -3,10 +3,8 @@
 #' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
-#' @param position.x The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.
-#' @param rad.set The radius in Euclidean space to consider local neighbors.
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
-#' @param position.y The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.
+#' @param edgelist data.frame. Each row is an directional edge between two spatially connected cells
 #' 
 #' @importFrom rlang .data
 #' @importFrom dplyr %>%
@@ -15,41 +13,12 @@
 RunCellToCellSpatial <- function(sys.small,
                                  ground.truth,
                                  assay,
-                                 position.x,
-                                 position.y,
-                                 rad.set,
-                                 meta.data.to.map
+                                 meta.data.to.map,
+                                 edgelist
                                  ){
 
-  ### CREATE MAPPING ###
-
-  # Create adjacency matrix
-  # Adapted from :: https://stackoverflow.com/questions/16075232/how-to-create-adjacency-matrix-from-grid-coordinates-in-r
-  # Setup numbering and labeling
-  # jc: possible bug, change object to sys.small
-  df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
-  df$barcode <- rownames(df)
-  df$x <- as.character(df$x)
-  df$y <- as.character(df$y)
-  df$x <- as.numeric(df$x)
-  df$y <- as.numeric(df$y)
-  df <- df[,c('x','y')]
-
-  # Make adj matrix
-  # Within a circle of radius "rad" around each coordinate (Set rad = 1 for only direct neighbors)
-  rad = rad.set
-  result <- apply(df, 1, function(pt)
-    (sqrt(abs(pt["x"] - df$x)^2 + abs(pt["y"] - df$y)^2) <= rad)
-  )
-
-  diag(result) <- 1
-  rownames(result) <- colnames(result)
-
-  # Convert adj matrix to edgelist
-  edgelist <- igraph::graph.adjacency(result)
-  edgelist <- igraph::get.data.frame(edgelist)
-
-  # Make ligand matrix
+  
+    # Make ligand matrix
 
     #lig.data <- sys.small@assays[[assay]]@data[ligands,edgelist$from]
 

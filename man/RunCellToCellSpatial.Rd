@@ -8,10 +8,8 @@ RunCellToCellSpatial(
   sys.small,
   ground.truth,
   assay,
-  position.x,
-  position.y,
-  rad.set,
-  meta.data.to.map
+  meta.data.to.map,
+  edgelist
 )
 }
 \arguments{
@@ -21,13 +19,9 @@ RunCellToCellSpatial(
 
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
 
-\item{position.x}{The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.}
-
-\item{position.y}{The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.}
-
-\item{rad.set}{The radius in Euclidean space to consider local neighbors.}
-
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
+
+\item{edgelist}{data.frame. Each row is an directional edge between two spatially connected cells}
 }
 \description{
 RunCellToCellSpatial
