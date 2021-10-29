@@ -4,12 +4,14 @@
 \alias{lr_load}
 \title{load the Ligands and Receptors that corresponds to the row names of the input seurat}
 \usage{
-lr_load(LR.database, species, input_rownames)
+lr_load(LR.database, custom_LR_database = NULL, species, input_rownames)
 }
 \arguments{
 \item{LR.database}{database to use}
 
-\item{species}{species in the database to use}
+\item{custom_LR_database}{data.frame. Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').}
+
+\item{species}{species in the database (fantom5 or omnipath) to use}
 
 \item{input_rownames}{the genes names to query}
 }

@@ -1,6 +1,7 @@
-#devtools::document()
-#devtools::check()
-#devtools::install()
+# devtools::document()
+# devtools::check()
+# devtools::install()
+
 library(NICHES)
 
 # Use Seurat data as examples
@@ -27,12 +28,30 @@ DimPlot(pbmc, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 
 
 Idents(pbmc) <- pbmc@meta.data$seurat_clusters
-niche_obj <- RunNICHES(object = pbmc,LR.database = "fantom5",species = "human",assay = "RNA",
+niche_obj <- RunNICHES(object = pbmc,assay = "RNA",LR.database = "fantom5",species = "human",
                        min.cells.per.ident = 20, 
                        min.cells.per.gene = 100,
                        meta.data.to.map = NULL,
                        CellToCell = T,CellToSystem = T,SystemToCell = T,
                        CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
+custom_db <- data.frame("L" = ncomms8866_human$Ligand.ApprovedSymbol[1:100],"R" = ncomms8866_human$Receptor.ApprovedSymbol[1:100])
+
+niche_obj2 <- RunNICHES(object = pbmc,assay = "RNA",LR.database = "custom",species = "human",custom_LR_database=custom_db,
+                       min.cells.per.ident = 20, 
+                       min.cells.per.gene = 100,
+                       meta.data.to.map = NULL,
+                       CellToCell = T,CellToSystem = T,SystemToCell = T,
+                       CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
+custom_db3 <- data.frame("L" = ncomms8866_human$Pair.Name,"R" = ncomms8866_human$Receptor.ApprovedSymbol)
+
+niche_obj3 <- RunNICHES(object = pbmc,assay = "RNA",LR.database = "custom",species = "human",custom_LR_database=custom_db3,
+                        min.cells.per.ident = 20, 
+                        min.cells.per.gene = 100,
+                        meta.data.to.map = NULL,
+                        CellToCell = T,CellToSystem = T,SystemToCell = T,
+                        CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
 
 
 # Visualize it

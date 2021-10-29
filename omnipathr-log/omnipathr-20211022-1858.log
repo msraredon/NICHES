@@ -1,0 +1,5 @@
+[2021-10-22 18:58:44] [INFO]    [OmnipathR] Initialized cache: `/home/rstudio/.cache/OmnipathR`.
+[2021-10-22 18:58:44] [INFO]    [OmnipathR] Welcome to OmnipathR!
+[2021-10-22 19:29:03] [TRACE]   [OmnipathR] Loaded data from RDS `/home/rstudio/.cache/OmnipathR/0fbfb4de77ad3ee1c1676ccf1db67b570530f02f-1.rds`.
+[2021-10-22 19:29:03] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=ligrecextra&organisms=9606&fields=sources,references,curation_effort&license=academic`
+[2021-10-22 19:29:03] [SUCCESS] [OmnipathR] Loaded 6456 interactions from cache.

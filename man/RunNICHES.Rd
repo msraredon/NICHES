@@ -6,14 +6,15 @@
 \usage{
 RunNICHES(
   object,
-  LR.database,
+  assay = "RNA",
+  LR.database = "fantom5",
   species,
-  assay,
   min.cells.per.ident = 1,
   min.cells.per.gene = 10,
   meta.data.to.map = NULL,
   position.x = NULL,
   position.y = NULL,
+  custom_LR_database = NULL,
   rad.set = 1,
   blend = "sum",
   CellToCell = T,
@@ -21,46 +22,45 @@ RunNICHES(
   SystemToCell = F,
   CellToCellSpatial = F,
   CellToNeighborhood = F,
-  NeighborhoodToCell = F,
-  ...
+  NeighborhoodToCell = F
 )
 }
 \arguments{
-\item{object}{A Seurat 4.0 object. The active identity will be used to define populations for connectomic sampling and crossings.}
+\item{object}{Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
 
-\item{LR.database}{Currently accepts 'fantom5' or 'omnipath'}
+\item{assay}{string. Default: "RNA". The assay to run the NICHES transformation on.}
 
-\item{species}{The species of the object that is being processed. Only required if LR.database = 'fantom5', and allows 'human','mouse','rat', or 'pig'}
+\item{LR.database}{string. Default: "fantom5". Currently accepts "fantom5","omnipath", or "custom"}
 
-\item{assay}{The assay to run the NICHES transformation on. Defaults to "RNA."}
+\item{species}{string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'}
 
-\item{min.cells.per.ident}{Default 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
+\item{min.cells.per.ident}{integer. Default: 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
 
-\item{min.cells.per.gene}{Default 10. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
+\item{min.cells.per.gene}{integer. Default: 10. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
-\item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
+\item{meta.data.to.map}{character vector. Optional. Default: NULL. A vector of metadata names present in the original object which will be carried to the NICHES objects}
 
-\item{position.x}{The name of the meta.data column specifying location on the spatial x-axis. Only relevant for spatial omics data.}
+\item{position.x}{string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.}
 
-\item{position.y}{The name of the meta.data column specifying location on the spatial y-axis. Only relevant for spatial omics data.}
+\item{position.y}{string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.}
 
-\item{rad.set}{Default 1. The radius in Euclidean space to consider local neighbors.}
+\item{custom_LR_database}{data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').}
 
-\item{blend}{Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "sum", also accepts "mean".}
+\item{rad.set}{integer. Default 1. The radius in Euclidean space to consider local neighbors.}
 
-\item{CellToCell}{Default TRUE. Whether to analyze cell-cell interactions without considering spatial coordinates.}
+\item{blend}{string. Default: "sum". Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "sum", also accepts "mean".}
 
-\item{CellToSystem}{Default FALSE. Whether to analyze summed signaling output to total system coming from each cell. Does not consider Euclidean coordinates.}
+\item{CellToCell}{logical. Default: TRUE. Whether to analyze cell-cell interactions without considering spatial coordinates.}
 
-\item{SystemToCell}{Default FALSE. Whether to analyze summed signaling input from total system landing on each cell (cellular microenvironment/niche). Does not consider Euclidean coordinates.}
+\item{CellToSystem}{logical. Default: FALSE. Whether to analyze summed signaling output to total system coming from each cell. Does not consider Euclidean coordinates.}
 
-\item{CellToCellSpatial}{Default FALSE. Whether to analyze cell-cell interactions between Euclidean neighbors. Only applicable in spatial datasets.}
+\item{SystemToCell}{logical. Default: FALSE. Whether to analyze summed signaling input from total system landing on each cell (cellular microenvironment/niche). Does not consider Euclidean coordinates.}
 
-\item{CellToNeighborhood}{Default FALSE. Whether to analyze summed signaling output to Euclidean neighbors. Only applicable in spatial datasets.}
+\item{CellToCellSpatial}{logical. Default: FALSE. Whether to analyze cell-cell interactions between Euclidean neighbors. Only applicable in spatial datasets.}
 
-\item{NeighborhoodToCell}{Default FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.}
+\item{CellToNeighborhood}{logical. Default: FALSE. Whether to analyze summed signaling output to Euclidean neighbors. Only applicable in spatial datasets.}
 
-\item{...}{Additional parameters to pass to RunCellToCell, RunSystemToCell, RunCellToSystem, or spatial equivalents}
+\item{NeighborhoodToCell}{logical. Default: FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.}
 }
 \description{
 Performs user-selected NICHES transformations on a Seurat object. 
