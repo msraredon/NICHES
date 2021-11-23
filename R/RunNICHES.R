@@ -89,8 +89,9 @@ RunNICHES <- function(object,
     warning("custom_LR_database is provided but LR.databse is not specified as 'custom'")
 
   # TODO: check min.cells.per.ident and min.cells.per.gene (only integers)?
-  min.cells.per.ident <- as.integer(min.cells.per.ident)
-  min.cells.per.gene <- as.integer(min.cells.per.gene)
+  ## MSBR:: THIS CAUSES A BUG -- needs to accept NULL as well for if-logic in prepSeurat
+  #min.cells.per.ident <- as.integer(min.cells.per.ident)
+  #min.cells.per.gene <- as.integer(min.cells.per.gene)
   
   # check meta.data.to.map
   if(!is.null(meta.data.to.map)){
