@@ -60,18 +60,18 @@ brain <- NormalizeData(brain)
 ```{r message=F, warning=F}
 brain <- SeuratWrappers::RunALRA(brain)
 
-NICHES_output <- NICHES::RunNICHES(object = brain,
-                             LR.database = "fantom5",
-                             species = "mouse",
-                             assay = "alra",
-                       position.x = 'x', 
-                       position.y = 'y',
-                       rad.set = 2, # Geometry dependent
-                       min.cells.per.ident = 0,
-                       min.cells.per.gene =  NULL,
-                       meta.data.to.map = c('orig.ident','cell_type'),
-                       CellToCell = F,CellToSystem = F,SystemToCell = F,
-                       CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = T)
+NICHES_output <- RunNICHES(object = brain,
+                           LR.database = "fantom5",
+                           species = "mouse",
+                           assay = "alra",
+                           position.x = 'x',
+                           position.y = 'y',
+                           rad.set = 2, # Geometry dependent
+                           min.cells.per.ident = 0,
+                           min.cells.per.gene = NULL,
+                           meta.data.to.map = c('orig.ident','cell_type'),
+                           CellToCell = F,CellToSystem = F,SystemToCell = F,
+                           CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = T)
 
 set.seed(31)
 

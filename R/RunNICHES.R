@@ -32,8 +32,8 @@ RunNICHES <- function(object,
                         assay="RNA",
                         LR.database="fantom5",
                         species,
-                        min.cells.per.ident = 1,
-                        min.cells.per.gene = 10,
+                        min.cells.per.ident = NULL,
+                        min.cells.per.gene = NULL,
                         meta.data.to.map = NULL,
                         position.x = NULL,
                         position.y = NULL,
@@ -82,12 +82,11 @@ RunNICHES <- function(object,
       }
       if(ncol(custom_LR_database) < 2) stop("Custom database provided contains less than 2 columns.")
     }
-  }
-  else stop('\n LR.receptor argument not recognized. Only accepts "omnipath","fantom5" or "custom".')
+  }else stop('\n LR.receptor argument not recognized. Only accepts "omnipath","fantom5" or "custom".')
   
-  if(!is.null(custom_LR_database) & LR.database!="custom") 
+  if(!is.null(custom_LR_database) & LR.database!="custom"){ 
     warning("custom_LR_database is provided but LR.databse is not specified as 'custom'")
-
+}
   # TODO: check min.cells.per.ident and min.cells.per.gene (only integers)?
   ## MSBR:: THIS CAUSES A BUG -- needs to accept NULL as well for if-logic in prepSeurat
   #min.cells.per.ident <- as.integer(min.cells.per.ident)
