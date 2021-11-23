@@ -1,0 +1,153 @@
+---
+title: "Using NICHES with Spatial Datasets"
+author: "Micha Sam Brickman Raredon & Junchen Yang"
+date: "`r Sys.Date()`"
+
+vignette: >
+  %\VignetteIndexEntry{Using NICHES with Spatial Datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+NICHES is a toolset which transforms single-cell atlases into single-cell-signaling atlases. It is engineered to be computationally efficient and very easy to run. It interfaces directly with Seurat from Satija Lab. The cell-signaling outputs from NICHES may be analyzed with any single-cell toolset, including Seurat, Scanpy, Monocle, or others.
+
+Here, we show how NICHES may be used with spatial transcriptomic data.
+
+## Load Dependencies
+```{r message=F, warning=F}
+library(Seurat)
+library(SeuratData)
+library(ggplot2)
+library(cowplot)
+library(patchwork)
+library(dplyr)
+library(SeuratWrappers)
+library(NICHES)
+```
+## Load Data, Normalize, Visualize
+```{r message=F, warning=F}
+InstallData("stxBrain")
+brain <- LoadData("stxBrain", type = "anterior1")
+# Normalization 
+brain <- SCTransform(brain, assay = "Spatial", verbose = FALSE)
+SpatialFeaturePlot(brain, features = c("Hpca", "Ttr"))
+# Dimensional reduction with all cells
+brain <- RunPCA(brain, assay = "SCT", verbose = FALSE)
+brain <- FindNeighbors(brain, reduction = "pca", dims = 1:30)
+brain <- FindClusters(brain, verbose = FALSE)
+brain <- RunUMAP(brain, reduction = "pca", dims = 1:30)
+p1 <- DimPlot(brain, reduction = "umap", label = TRUE)
+p2 <- SpatialDimPlot(brain, label = TRUE, label.size = 3)
+p1 + p2
+```
+## Format Spatial Coordinates and Normalize
+```{r message=F, warning=F}
+brain@meta.data$x <- brain@images$anterior1@coordinates$row
+brain@meta.data$y <- brain@images$anterior1@coordinates$col
+
+DefaultAssay(brain) <- "Spatial"
+brain <- NormalizeData(brain)
+```
+## Impute (Optional) and Run NICHES
+```{r message=F, warning=F}
+brain <- SeuratWrappers::RunALRA(brain)
+
+NICHES_output <- NICHES::RunNICHES(object = brain,
+                             LR.database = "fantom5",
+                             species = "mouse",
+                             assay = "alra",
+                       position.x = 'x', 
+                       position.y = 'y',
+                       rad.set = 2, # Geometry dependent
+                       min.cells.per.ident = 0,
+                       min.cells.per.gene =  NULL,
+                       meta.data.to.map = c('orig.ident','cell_type'),
+                       CellToCell = F,CellToSystem = F,SystemToCell = F,
+                       CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = T)
+
+set.seed(31)
+
+niche <- NICHES_output[[2]]
+Idents(niche) <- niche[['ReceivingType']]
+
+#Limit analysis to populations > 50 measurements
+POI_niche <- names(table(Idents(niche))[table(Idents(niche))>50])
+niche <- subset(niche,idents = POI_niche)
+
+# Scale and visualize
+niche <- ScaleData(niche)
+niche <- FindVariableFeatures(niche,selection.method = "disp")
+niche <- RunPCA(niche)
+ElbowPlot(niche,ndims = 50)
+niche <- RunUMAP(niche,dims = 1:10)
+
+DimPlot(niche,reduction = 'umap',pt.size = 0.5,shuffle = T,cols = cell_type_colors) +ggtitle('Niche Signaling')+NoLegend()
+```
+
+
+```{r message=F, warning=F}
+# Find markers
+mark <- FindAllMarkers(niche,min.pct = 0.25,only.pos = T,test.use = "roc")
+#mark$ratio <- mark$pct.1/mark$pct.2
+GOI_niche <- mark %>% group_by(cluster) %>% top_n(10,myAUC)
+
+# Print to PDF
+pdf("Spatial_Niche_Markers.pdf",width = 16,height = 4)
+DotPlot(niche,features = unique(GOI_niche$gene),idents = POI_niche,scale=T)+ 
+  theme(axis.text.x = element_text(angle = 90, vjust = 1, hjust=1))+
+  ggtitle("Niche Signaling Markers")
+dev.off()
+
+niche@meta.data$POI_receiving_type <- factor(niche@meta.data$ReceivingType,levels = POI_niche)
+library(viridis)
+pdf("Spatial_Niche_Markers_heatmap.pdf",width = 8,height = 8)
+DoHeatmap(niche,features = unique(GOI_niche$gene),group.by = "POI_receiving_type",group.colors = cell_type_colors)+ scale_fill_gradientn(colors = c("grey","white", "blue"))
+dev.off()
+
+# Check that these make sense and print little plots
+DefaultAssay(brain) <- 'alra'
+p1 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Fgf1",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Ligand")+theme(legend.position = "right")
+p2 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Fgfr2",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Receptor")+theme(legend.position = "right")
+DefaultAssay(brain) <- 'SCT'
+p3 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Fgf1",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Ligand")+theme(legend.position = "right")
+p4 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Fgfr2",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Receptor")+theme(legend.position = "right")
+pdf('Spatial_Niche_Confirmation1.pdf',width = 6,height=6)
+#cowplot::plot_grid(p1,p2,p3,p4)
+ggpubr::ggarrange(p1,p2,p3,p4,nrow = 2,ncol=2)
+dev.off()
+
+
+DefaultAssay(brain) <- 'alra'
+p5 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Gnai2",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Ligand")+theme(legend.position = "right")
+p6 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Unc5b",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Receptor")+theme(legend.position = "right")
+DefaultAssay(brain) <- 'SCT'
+p7 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Gnai2",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Ligand")+theme(legend.position = "right")
+p8 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Unc5b",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Receptor")+theme(legend.position = "right")
+pdf('Spatial_Niche_Confirmation2.pdf',width = 6,height=6)
+ggpubr::ggarrange(p5,p6,p7,p8,nrow = 2,ncol=2)
+dev.off()
+
+
+DefaultAssay(brain) <- 'alra'
+SpatialFeaturePlot(brain, crop = TRUE, features = c("Fgf1","Fgfr2","Gnai2","Unc5b"),slot = "data",min.cutoff =  'q1',
+                   max.cutoff = 'q99')
+pdf('Spatial_Niche_Confirmation3.pdf',width = 6,height=8)
+SpatialFeaturePlot(brain, crop = TRUE, features = c("Fgf1","Fgfr2","Gnai2","Unc5b"),slot = "data",min.cutoff =  'q1',
+                   max.cutoff = 'q99')+ theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))
+dev.off()
