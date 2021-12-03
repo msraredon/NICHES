@@ -37,7 +37,7 @@ prepSeurat <- function(object,assay,min.cells.per.ident,min.cells.per.gene){
   
   num.cells <- ncol(sys.small)
   message(paste("\n",num.cells,'distinct cells from',
-                length(names(table(Seurat::Idents(sys.small)))),'celltypes to be analyzed, across',nrow(GOI),'signaling genes'))
+                length(names(table(Seurat::Idents(sys.small)))),'celltypes to be analyzed'))
   
   return(sys.small)
 }

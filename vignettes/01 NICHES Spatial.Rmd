@@ -1,0 +1,121 @@
+---
+title: "Using NICHES with Spatial Datasets"
+author: "Micha Sam Brickman Raredon & Junchen Yang"
+date: "`r Sys.Date()`"
+vignette: |
+  %\VignetteIndexEntry{Using NICHES with Spatial Datasets} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+NICHES is a toolset which transforms single-cell atlases into single-cell-signaling atlases. It is engineered to be computationally efficient and very easy to run. It interfaces directly with Seurat from Satija Lab. The cell-signaling outputs from NICHES may be analyzed with any single-cell toolset, including Seurat, Scanpy, Monocle, or others.
+
+Here, we show how NICHES may be used with spatial transcriptomic data.
+
+First, let's load dependencies.
+
+## Load Dependencies
+```{r message=F, warning=F}
+library(Seurat)
+library(SeuratData)
+library(ggplot2)
+library(cowplot)
+library(patchwork)
+library(dplyr)
+library(SeuratWrappers)
+library(NICHES)
+library(viridis)
+```
+Next, we load the data, perform basic pre-processing, and cluster the data so that we can visualize patterns of interest. For this vignettes we will use basic Seurat clustering annotations to avoid the work of labeling celltypes.
+
+## Load Data, Normalize, Visualize
+```{r message=F, warning=F}
+InstallData("stxBrain")
+brain <- LoadData("stxBrain", type = "anterior1")
+# Normalization 
+brain <- SCTransform(brain, assay = "Spatial", verbose = FALSE)
+SpatialFeaturePlot(brain, features = c("Hpca", "Ttr"))
+# Dimensional reduction with all cells
+brain <- RunPCA(brain, assay = "SCT", verbose = FALSE)
+brain <- FindNeighbors(brain, reduction = "pca", dims = 1:30)
+brain <- FindClusters(brain, verbose = FALSE)
+brain <- RunUMAP(brain, reduction = "pca", dims = 1:30)
+p1 <- DimPlot(brain, reduction = "umap",group.by = 'seurat_clusters', label = TRUE)
+p2 <- SpatialDimPlot(brain, label = TRUE,group.by = 'seurat_clusters', label.size = 3)
+p1 + p2
+```
+
+These annotations are fine for the demonstration of NICHES. Next, we format the spatial coordinates so that every cell has an explicitly labeled x and y coordinate.
+
+## Format Spatial Coordinates and Normalize
+```{r message=F, warning=F}
+brain@meta.data$x <- brain@images$anterior1@coordinates$row
+brain@meta.data$y <- brain@images$anterior1@coordinates$col
+
+DefaultAssay(brain) <- "Spatial"
+brain <- NormalizeData(brain)
+```
+
+NICHES can be run on imputed or non-imputed data. Here, we will use imputed data.
+
+## Impute and Run NICHES
+```{r message=F, warning=F}
+brain <- SeuratWrappers::RunALRA(brain)
+
+NICHES_output <- RunNICHES(object = brain,
+                           LR.database = "fantom5",
+                           species = "mouse",
+                           assay = "alra",
+                           position.x = 'x',
+                           position.y = 'y',
+                           rad.set = 2, # Geometry dependent
+                           min.cells.per.ident = 0,
+                           min.cells.per.gene = NULL,
+                           meta.data.to.map = c('orig.ident','seurat_clusters'),
+                           CellToCell = F,CellToSystem = F,SystemToCell = F,
+                           CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = T)
+```
+
+NICHES outputs a list of objects. Each one contains a certain type of cell-system signaling atlas. Above, we have only calculated a single one of interest, namely, cellular microenvironment. We next isolate this output and embed to visualize the microenvironemnt of each cell.
+
+```{r message=F, warning=F}
+niche <- NICHES_output[['NeighborhoodToCell']]
+Idents(niche) <- niche[['ReceivingType']]
+
+# Scale and visualize
+niche <- ScaleData(niche)
+niche <- FindVariableFeatures(niche,selection.method = "disp")
+niche <- RunPCA(niche)
+ElbowPlot(niche,ndims = 50)
+niche <- RunUMAP(niche,dims = 1:10)
+DimPlot(niche,reduction = 'umap',pt.size = 0.5,shuffle = T, label = T) +ggtitle('Cellular Microenvironment')+NoLegend()
+```
+
+Next, let's find signaling mechanisms specific to each celltype niche and plot in heatmap form:
+
+```{r message=F, warning=F,fig.width = 10,fig.height = 20}
+# Find markers
+mark <- FindAllMarkers(niche,min.pct = 0.25,only.pos = T,test.use = "roc")
+GOI_niche <- mark %>% group_by(cluster) %>% top_n(5,myAUC)
+DoHeatmap(niche,features = unique(GOI_niche$gene))+ 
+  scale_fill_gradientn(colors = c("grey","white", "blue"))
+```
+
+We can then confirm that identified celltype-niche specific signaling mechanisms are indeed specific to tissue regions in which those cells are found:
+
+```{r message=F, warning=F}
+
+# Check that these make sense and print little plots
+DefaultAssay(brain) <- 'alra'
+p1 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Fgf1",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Ligand")+theme(legend.position = "right")
+p2 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Fgfr2",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Receptor")+theme(legend.position = "right")
+
+ggpubr::ggarrange(p1,p2)
+```

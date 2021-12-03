@@ -1,0 +1,7 @@
+pandoc: 2.3.1
+pkgdown: 1.6.1
+pkgdown_sha: ~
+articles:
+  01 NICHES Spatial: 01 NICHES Spatial.html
+last_built: 2021-11-23T20:01Z
+
