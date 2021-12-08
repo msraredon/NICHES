@@ -1,0 +1,63 @@
+---
+title: "Converting Single-Cell Atlases to Single-Cell Signaling Atlases"
+author: "Micha Sam Brickman Raredon & Junchen Yang"
+date: "`r Sys.Date()`"
+vignette: |
+  %\VignetteIndexEntry{Converting Single-Cell Atlases to Single-Cell Signaling Atlases} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+NICHES is able to rapidly convert traditional single-cell atlases into single-cell signaling atlases which allow cell-cell signaling to be analyzed using existing single-cell software. Here, we leverage publicly available data to demonstrate:
+
+## Load Dependencies
+```{r message=F, warning=F}
+library(Seurat)
+library(SeuratData)
+library(NICHES)
+```
+
+## Load and Visualize Single-Cell Data
+Here, we use the 'pbmc3k' dataset from SeuratData
+```{r message=F, warning=F}
+InstallData("pbmc3k")
+data("pbmc3k")
+Idents(pbmc3k) <- pbmc3k$seurat_annotations
+pbmc3k <- ScaleData(pbmc3k)
+pbmc3k <- FindVariableFeatures(pbmc3k)
+pbmc3k <- RunPCA(pbmc3k)
+ElbowPlot(pbmc3k,ndims=50)
+pbmc3k <- RunUMAP(pbmc3k,dims = 1:10)
+DimPlot(pbmc3k,reduction = 'umap',label = T,repel = F,label.size = 6)
+```
+
+For simplicity, let's focus in on signaling within a simple 4-cell system:
+```{r message=F, warning=F}
+sub <- subset(pbmc3k,idents = c('B','DC','Naive CD4 T','CD14+ Mono'))
+DimPlot(sub,reduction = 'umap',label = T,repel = F,label.size = 6)
+```
+
+## Convert to Cell-Cell Signaling Atlas
+```{r message=F, warning=F}
+scc <- RunNICHES(sub,
+                 assay = 'RNA',
+                 species = 'human',
+                 LR.database = 'fantom5',
+                 CellToCell = T)
+```
+
+## Visualize Cell-Cell Signaling Relationships using UMAP
+```{r message=F, warning=F}
+demo <- scc$CellToCell
+demo <- ScaleData(demo)
+demo <- FindVariableFeatures(demo)
+demo <- RunPCA(demo)
+ElbowPlot(demo,ndims=50)
+demo <- RunUMAP(demo,dims = 1:10)
+DimPlot(demo,reduction = 'umap',group.by = 'VectorType',label = T)+NoLegend()
+```

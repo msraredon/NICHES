@@ -1,9 +1,9 @@
 ---
-title: "Using NICHES with Spatial Datasets"
-author: "Micha Sam Brickman Raredon & Junchen Yang"
+title: "Estimating Microenvironment from Spatial Data"
+author: "Junchen Yang & Micha Sam Brickman Raredon"
 date: "`r Sys.Date()`"
 vignette: |
-  %\VignetteIndexEntry{Using NICHES with Spatial Datasets} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Estimating Microenvironment from Spatial Data} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 NICHES is a toolset which transforms single-cell atlases into single-cell-signaling atlases. It is engineered to be computationally efficient and very easy to run. It interfaces directly with Seurat from Satija Lab. The cell-signaling outputs from NICHES may be analyzed with any single-cell toolset, including Seurat, Scanpy, Monocle, or others.
 
-Here, we show how NICHES may be used with spatial transcriptomic data.
+Here, we show how NICHES may be used to estimate individual cellular microenvironment from spatial transcriptomic data.
 
 First, let's load dependencies.
 
@@ -31,7 +31,7 @@ library(SeuratWrappers)
 library(NICHES)
 library(viridis)
 ```
-Next, we load the data, perform basic pre-processing, and cluster the data so that we can visualize patterns of interest. For this vignettes we will use basic Seurat clustering annotations to avoid the work of labeling celltypes.
+Next, we load the data, perform basic pre-processing, and cluster the data so that we can visualize patterns of interest. For this vignette we will use basic Seurat clustering annotations to avoid the work of labeling celltypes, which are not necessary for this demonstration.
 
 ## Load Data, Normalize, Visualize
 ```{r message=F, warning=F}
@@ -50,7 +50,9 @@ p2 <- SpatialDimPlot(brain, label = TRUE,group.by = 'seurat_clusters', label.siz
 p1 + p2
 ```
 
-These annotations are fine for the demonstration of NICHES. Next, we format the spatial coordinates so that every cell has an explicitly labeled x and y coordinate.
+These numeric annotations are satisfactory for the demonstration of NICHES. Any an all metadata can be carried over when NICHES is run, allowing multiple levels of clustering and sub-clustering to be leveraged downstream after micorenvironment calculation.
+
+Next, we will format the spatial coordinate metadata so that every cell has an explicitly labeled x and y coordinate.
 
 ## Format Spatial Coordinates and Normalize
 ```{r message=F, warning=F}
@@ -81,7 +83,7 @@ NICHES_output <- RunNICHES(object = brain,
                            CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = T)
 ```
 
-NICHES outputs a list of objects. Each one contains a certain type of cell-system signaling atlas. Above, we have only calculated a single one of interest, namely, cellular microenvironment. We next isolate this output and embed to visualize the microenvironemnt of each cell.
+NICHES outputs a list of objects. Each object contains a certain style of cell-system signaling atlas. Above, we have only calculated a single one of interest, namely, individual cellular microenvironment. We next isolate this output and embed using UMAP to visualize the microenvironemnt of each cell.
 
 ```{r message=F, warning=F}
 niche <- NICHES_output[['NeighborhoodToCell']]
@@ -96,7 +98,7 @@ niche <- RunUMAP(niche,dims = 1:10)
 DimPlot(niche,reduction = 'umap',pt.size = 0.5,shuffle = T, label = T) +ggtitle('Cellular Microenvironment')+NoLegend()
 ```
 
-Next, let's find signaling mechanisms specific to each celltype niche and plot in heatmap form:
+We can already see, from this plot, some notable overlap between the microenvironments of celltypes 1 & 7 and celltypes 6 & 3. Let's explore this more deeply by finding signaling mechanisms specific to each celltype niche, plotting some of the results in heatmap form:
 
 ```{r message=F, warning=F,fig.width = 10,fig.height = 20}
 # Find markers
@@ -106,7 +108,9 @@ DoHeatmap(niche,features = unique(GOI_niche$gene))+
   scale_fill_gradientn(colors = c("grey","white", "blue"))
 ```
 
-We can then confirm that identified celltype-niche specific signaling mechanisms are indeed specific to tissue regions in which those cells are found:
+This confirms that celltypes 1 & 7 and 6 & 3 do indeed have some shared character.
+
+We can further confirm that identified celltype specific signaling mechanisms are indeed specific to tissue regions in which those cells are found:
 
 ```{r message=F, warning=F}
 
