@@ -1,0 +1,129 @@
+---
+title: "Figure D - G"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{tutorial}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+
+```{r setup}
+library(Seurat)
+library(SeuratData)
+library(SeuratWrappers)
+library(ggplot2)
+library(patchwork)
+library(dplyr)
+library(cowplot)
+library(viridis)
+```
+
+
+```{r}
+cortex <- spatial_vignette_preprocessing()
+```
+
+
+```{r}
+cell_type_colors <- c("darkorchid2","green4","mediumspringgreen","#8DA0CB",
+                        "orangered3","dodgerblue4","burlywood3","darkblue",
+                        "cyan2" , "maroon4")
+names(cell_type_colors) <- levels(cortex@meta.data$cell_type)
+fig_D1 <- SpatialDimPlot(cortex, crop = TRUE, label = F,pt.size.factor = 2.2,cols = cell_type_colors)+NoLegend()
+fig_D2 <- get_legend(SpatialDimPlot(cortex, crop = TRUE, label = F,pt.size.factor = 10,cols = cell_type_colors)
+                        +guides(fill = guide_legend(title="Cell types",ncol = 1,override.aes = list(size = 4))))
+fig_D1 
+plot_grid(fig_D2)
+```
+
+```{r}
+# Impute the data with ALRA
+DefaultAssay(cortex) <- "Spatial"
+cortex <- NormalizeData(cortex)
+cortex <- RunALRA(cortex,setDefaultAssay = TRUE)
+
+cortex@meta.data$x <- cortex@images$anterior1@coordinates$row
+cortex@meta.data$y <- cortex@images$anterior1@coordinates$col
+```
+
+```{r}
+library(NICHES)
+
+cortex@assays$alra@counts <- cortex@assays$Spatial@counts
+NICHES.list <- RunNICHES(object = cortex,LR.database = "fantom5",species = "mouse",assay = "alra",
+                       position.x = 'x', 
+                       position.y = 'y',
+                       rad.set = 2, 
+                       k = NULL,
+                       min.cells.per.ident = 0, 
+                       meta.data.to.map = c('orig.ident','cell_type'),
+                       CellToCell = F,CellToSystem = F,SystemToCell = F,
+                       CellToCellSpatial = T,CellToNeighborhood = F,NeighborhoodToCell = T)
+```
+
+```{r}
+# Exploring Cell - Cell Matrix
+NICEHS.cell2cell <- NICHES.list[[1]]
+
+NICEHS.cell2cell <- ScaleData(NICEHS.cell2cell)
+NICEHS.cell2cell <- FindVariableFeatures(NICEHS.cell2cell,selection.method = "disp")
+NICEHS.cell2cell <- RunPCA(NICEHS.cell2cell)
+NICEHS.cell2cell <- RunTSNE(
+  NICEHS.cell2cell, tsne.method = "FIt-SNE", check_duplicates = FALSE, do.fast = TRUE, seed.use=3, dims = 1:30, perplexity = 100,
+  fast_tsne_path="/data/software/FIt-SNE/bin/fast_tsne", ann_not_vptree=FALSE, nthreads=12
+)
+Idents(NICEHS.cell2cell) <- "cell_type.Joint"
+
+#Limit analysis to populations > 100 measurements
+POI <- names(table(Idents(NICEHS.cell2cell))[table(Idents(NICEHS.cell2cell))>100])
+NICEHS.cell2cell <- subset(NICEHS.cell2cell,idents = POI)
+set.seed(31)
+sampled_colors_paircells <- sample(color, length(POI))
+```
+
+```{r}
+niche <- NICHES.list[['NeighborhoodToCell']]
+Idents(niche) <- niche[['ReceivingType']]
+#Limit analysis to populations > 50 measurements
+POI_niche <- names(table(Idents(niche))[table(Idents(niche))>50])
+niche <- subset(niche,idents = POI_niche)
+# Scale and visualize
+niche <- ScaleData(niche)
+niche <- FindVariableFeatures(niche,selection.method = "disp")
+niche <- RunPCA(niche)
+niche <- RunUMAP(niche,dims = 1:30)
+
+DimPlot(niche,reduction = 'umap',pt.size = 0.5,shuffle = T,cols = cell_type_colors) +ggtitle('Niche Matrix Embedding from ST data')+NoLegend()
+plot_grid(get_legend(DimPlot(niche,reduction = 'umap',pt.size = 0.5,shuffle = T,cols = cell_type_colors) +ggtitle('Niche Signaling')
+                               + guides(col = guide_legend(nrow = 3,override.aes = list(size = 4)))     
+                               +theme(legend.background = element_rect(color = NA),legend.position = "bottom")
+                               + theme(plot.margin = unit(c(0, 0, 0, 0), "cm"))))
+```
+
+```{r}
+# Find markers
+mark <- FindAllMarkers(niche,min.pct = 0.25,only.pos = T,test.use = "roc")
+#mark$ratio <- mark$pct.1/mark$pct.2
+GOI_niche <- mark %>% group_by(cluster) %>% top_n(10,myAUC)
+
+niche@meta.data$POI_receiving_type <- factor(niche@meta.data$ReceivingType,levels = POI_niche)
+Idents(niche) <- niche@meta.data$POI_receiving_type
+DoHeatmap(niche,features = unique(GOI_niche$gene),group.by = "POI_receiving_type") + scale_fill_gradientn(colors = c("grey","white", "blue"))
+```
+
+```{r}
+SpatialFeaturePlot(cortex, crop = TRUE, features = "Fgf1",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Ligand")+theme(legend.position = "right")
+SpatialFeaturePlot(cortex, crop = TRUE, features = "Fgfr2",slot = "data",min.cutoff =  'q1',
+                         max.cutoff = 'q99')+ggtitle("Receptor")+theme(legend.position = "right")
+```
+
