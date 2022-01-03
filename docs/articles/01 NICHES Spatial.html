@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Using NICHES with Spatial Datasets • NICHES</title>
+<title>Estimating Microenvironment from Spatial Data • NICHES</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Using NICHES with Spatial Datasets">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Estimating Microenvironment from Spatial Data">
 <meta property="og:description" content="NICHES">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -54,7 +54,19 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/01%20NICHES%20Spatial.html">Using NICHES with Spatial Datasets</a>
+      <a href="../articles/01%20NICHES%20Spatial.html">Estimating Microenvironment from Spatial Data</a>
+    </li>
+    <li>
+      <a href="../articles/02%20NICHES%20Single.html">Converting Single-Cell Atlases to Single-Cell Signaling Atlases</a>
+    </li>
+    <li>
+      <a href="../articles/simulation_example1.html">Simulation case 1: Hidden intra-cluster heterogeneity</a>
+    </li>
+    <li>
+      <a href="../articles/simulation_example2.html">Simulation case 2: Differential signaling distributions in disparate experimental conditions</a>
+    </li>
+    <li>
+      <a href="../articles/simulation_example3.html">Simulation case 3</a>
     </li>
   </ul>
 </li>
@@ -72,10 +84,10 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Using NICHES with Spatial Datasets</h1>
-                        <h4 class="author">Micha Sam Brickman Raredon &amp; Junchen Yang</h4>
+      <h1 data-toc-skip>Estimating Microenvironment from Spatial Data</h1>
+                        <h4 class="author">Junchen Yang &amp; Micha Sam Brickman Raredon</h4>
             
-            <h4 class="date">2021-11-23</h4>
+            <h4 class="date">2022-01-03</h4>
       
       
       <div class="hidden name"><code>01 NICHES Spatial.Rmd</code></div>
@@ -85,7 +97,7 @@
     
     
 <p>NICHES is a toolset which transforms single-cell atlases into single-cell-signaling atlases. It is engineered to be computationally efficient and very easy to run. It interfaces directly with Seurat from Satija Lab. The cell-signaling outputs from NICHES may be analyzed with any single-cell toolset, including Seurat, Scanpy, Monocle, or others.</p>
-<p>Here, we show how NICHES may be used with spatial transcriptomic data.</p>
+<p>Here, we show how NICHES may be used to estimate individual cellular microenvironment from spatial transcriptomic data.</p>
 <p>First, let’s load dependencies.</p>
 <div id="load-dependencies" class="section level2">
 <h2 class="hasAnchor">
@@ -100,7 +112,7 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">SeuratWrappers</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">NICHES</span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/sjmgarnier/viridis">viridis</a></span><span class="op">)</span></code></pre></div>
-<p>Next, we load the data, perform basic pre-processing, and cluster the data so that we can visualize patterns of interest. For this vignettes we will use basic Seurat clustering annotations to avoid the work of labeling celltypes.</p>
+<p>Next, we load the data, perform basic pre-processing, and cluster the data so that we can visualize patterns of interest. For this vignette we will use basic Seurat clustering annotations to avoid the work of labeling celltypes, which are not necessary for this demonstration.</p>
 </div>
 <div id="load-data-normalize-visualize" class="section level2">
 <h2 class="hasAnchor">
@@ -122,7 +134,8 @@
 <span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SpatialPlot.html">SpatialDimPlot</a></span><span class="op">(</span><span class="va">brain</span>, label <span class="op">=</span> <span class="cn">TRUE</span>,group.by <span class="op">=</span> <span class="st">'seurat_clusters'</span>, label.size <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
 <span class="va">p1</span> <span class="op">+</span> <span class="va">p2</span></code></pre></div>
 <p><img src="01%20NICHES%20Spatial_files/figure-html/unnamed-chunk-2-2.png" width="700"></p>
-<p>These annotations are fine for the demonstration of NICHES. Next, we format the spatial coordinates so that every cell has an explicitly labeled x and y coordinate.</p>
+<p>These numeric annotations are satisfactory for the demonstration of NICHES. Any an all metadata can be carried over when NICHES is run, allowing multiple levels of clustering and sub-clustering to be leveraged downstream after micorenvironment calculation.</p>
+<p>Next, we will format the spatial coordinate metadata so that every cell has an explicitly labeled x and y coordinate.</p>
 </div>
 <div id="format-spatial-coordinates-and-normalize" class="section level2">
 <h2 class="hasAnchor">
@@ -153,7 +166,7 @@
                            meta.data.to.map <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'orig.ident'</span>,<span class="st">'seurat_clusters'</span><span class="op">)</span>,
                            CellToCell <span class="op">=</span> <span class="cn">F</span>,CellToSystem <span class="op">=</span> <span class="cn">F</span>,SystemToCell <span class="op">=</span> <span class="cn">F</span>,
                            CellToCellSpatial <span class="op">=</span> <span class="cn">F</span>,CellToNeighborhood <span class="op">=</span> <span class="cn">F</span>,NeighborhoodToCell <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
-<p>NICHES outputs a list of objects. Each one contains a certain type of cell-system signaling atlas. Above, we have only calculated a single one of interest, namely, cellular microenvironment. We next isolate this output and embed to visualize the microenvironemnt of each cell.</p>
+<p>NICHES outputs a list of objects. Each object contains a certain style of cell-system signaling atlas. Above, we have only calculated a single one of interest, namely, individual cellular microenvironment. We next isolate this output and embed using UMAP to visualize the microenvironemnt of each cell.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">niche</span> <span class="op">&lt;-</span> <span class="va">NICHES_output</span><span class="op">[[</span><span class="st">'NeighborhoodToCell'</span><span class="op">]</span><span class="op">]</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">niche</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">niche</span><span class="op">[[</span><span class="st">'ReceivingType'</span><span class="op">]</span><span class="op">]</span>
@@ -168,7 +181,7 @@
 <code class="sourceCode R"><span class="va">niche</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunUMAP.html">RunUMAP</a></span><span class="op">(</span><span class="va">niche</span>,dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">niche</span>,reduction <span class="op">=</span> <span class="st">'umap'</span>,pt.size <span class="op">=</span> <span class="fl">0.5</span>,shuffle <span class="op">=</span> <span class="cn">T</span>, label <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="op">+</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">'Cellular Microenvironment'</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
 <p><img src="01%20NICHES%20Spatial_files/figure-html/unnamed-chunk-5-2.png" width="700"></p>
-<p>Next, let’s find signaling mechanisms specific to each celltype niche and plot in heatmap form:</p>
+<p>We can already see, from this plot, some notable overlap between the microenvironments of celltypes 1 &amp; 7 and celltypes 6 &amp; 3. Let’s explore this more deeply by finding signaling mechanisms specific to each celltype niche, plotting some of the results in heatmap form:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Find markers</span>
 <span class="va">mark</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindAllMarkers.html">FindAllMarkers</a></span><span class="op">(</span><span class="va">niche</span>,min.pct <span class="op">=</span> <span class="fl">0.25</span>,only.pos <span class="op">=</span> <span class="cn">T</span>,test.use <span class="op">=</span> <span class="st">"roc"</span><span class="op">)</span>
@@ -176,7 +189,8 @@
 <span class="fu"><a href="https://satijalab.org/seurat/reference/DoHeatmap.html">DoHeatmap</a></span><span class="op">(</span><span class="va">niche</span>,features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span><span class="op">(</span><span class="va">GOI_niche</span><span class="op">$</span><span class="va">gene</span><span class="op">)</span><span class="op">)</span><span class="op">+</span> 
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"grey"</span>,<span class="st">"white"</span>, <span class="st">"blue"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="01%20NICHES%20Spatial_files/figure-html/unnamed-chunk-6-1.png" width="960"></p>
-<p>We can then confirm that identified celltype-niche specific signaling mechanisms are indeed specific to tissue regions in which those cells are found:</p>
+<p>This confirms that celltypes 1 &amp; 7 and 6 &amp; 3 do indeed have some shared character.</p>
+<p>We can further confirm that identified celltype specific signaling mechanisms are indeed specific to tissue regions in which those cells are found:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="co"># Check that these make sense and print little plots</span>
@@ -202,7 +216,7 @@
 
 
       <footer><div class="copyright">
-  <p>Developed by Micha Sam Brickman Raredon.</p>
+  <p>Developed by Micha Sam Brickman Raredon, Junchen Yang.</p>
 </div>
 
 <div class="pkgdown">

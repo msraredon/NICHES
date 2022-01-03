@@ -3,5 +3,9 @@ pkgdown: 1.6.1
 pkgdown_sha: ~
 articles:
   01 NICHES Spatial: 01 NICHES Spatial.html
-last_built: 2021-11-23T20:01Z
+  02 NICHES Single: 02 NICHES Single.html
+  simulation_example1: simulation_example1.html
+  simulation_example2: simulation_example2.html
+  simulation_example3: simulation_example3.html
+last_built: 2022-01-03T21:37Z
 
