@@ -104,6 +104,8 @@ RunCellToCell <- function(sys.small,
   # Combine all of these to make the full SCC matrix
   scc <- do.call(cbind,scc.data)
   
+  scc <- unique(scc) #Bugfix MSBR 2021-1-3
+  
   #Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
   
