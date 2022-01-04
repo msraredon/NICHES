@@ -82,7 +82,7 @@ SCC_sim1 <- NICHES::RunNICHES(object = seu_obj_sim1,LR.database = "fantom5",spec
                         CellToCellSpatial =F,CellToNeighborhood = F,NeighborhoodToCell =F)
 
 Seurat::Idents(SCC_sim1[[1]]) <- SCC_sim1[[1]]@meta.data$VectorType
-SCC_sim1_sub <- subset(SCC_sim1[[1]],idents = "C1-C2")
+SCC_sim1_sub <- subset(SCC_sim1[[1]],idents = "C1—C2")
 SCC_sim1_sub@meta.data$case <- "1"
 
 ```
@@ -128,7 +128,7 @@ SCC_sim2 <- NICHES::RunNICHES(object = seu_obj_sim2,LR.database = "fantom5",spec
                         CellToCellSpatial =F,CellToNeighborhood = F,NeighborhoodToCell =F)
 
 Seurat::Idents(SCC_sim2[[1]]) <- SCC_sim2[[1]]@meta.data$VectorType
-SCC_sim2_sub <- subset(SCC_sim2[[1]],idents = "C1-C2")
+SCC_sim2_sub <- subset(SCC_sim2[[1]],idents = "C1—C2")
 SCC_sim2_sub@meta.data$case <- "2"
 ```
 
@@ -174,9 +174,9 @@ p7 <- ggplot(avg.exp,aes(x=case,y=RNA.C1,color = case,fill=case)) +
   ggtitle('Mean Connectivity')+
   ylab('Mean Connectivity')+
   ylim(0,1.25*max(avg.exp$RNA.C1))+ stat_compare_means(label.x = 1.4,label.y = 1.6)+theme_classic()
-p8 <- VlnPlot(SCC_combo,'A2m-Lrp1')+ylim(0,1.1*max(SCC_combo@assays$CellToCell@data))+ 
+p8 <- VlnPlot(SCC_combo,'A2m—Lrp1')+ylim(0,1.1*max(SCC_combo@assays$CellToCell@data))+ 
   stat_compare_means(label.x = 1.3,label.y = 3)+
-  ggtitle('Single Cell Connectivity (SCC)')+xlab(NULL)+theme_classic()
+  ggtitle('NICHES Output')+xlab(NULL)+theme_classic()
 temp2 <- plot_grid(p7,p8)
 ```
 

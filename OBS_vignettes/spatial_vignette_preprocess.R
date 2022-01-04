@@ -3,6 +3,9 @@
 # Time stamp:
 
 spatial_vignette_preprocessing <- function(){
+  require(SeuratData)
+  require(Seurat)
+  require(SeuratWrappers)
   InstallData("stxBrain",force.reinstall = T)
   brain <- LoadData("stxBrain", type = "anterior1")
   
