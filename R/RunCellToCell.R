@@ -93,8 +93,8 @@ RunCellToCell <- function(sys.small,
     # Combine into partial SCC matrix  
     scc.data[[i]] <- lig.data[[i]]*rec.data[[i]]
     
-    rownames(scc.data[[i]]) <- paste(rownames(lig.data[[i]]),rownames(rec.data[[i]]),sep = '-')
-    colnames(scc.data[[i]]) <- paste(colnames(lig.data[[i]]),colnames(rec.data[[i]]),sep = '-')
+    rownames(scc.data[[i]]) <- paste(rownames(lig.data[[i]]),rownames(rec.data[[i]]),sep = '—')
+    colnames(scc.data[[i]]) <- paste(colnames(lig.data[[i]]),colnames(rec.data[[i]]),sep = '—')
     
     sending.cell.idents[[i]] <- as.character(Seurat::Idents(sys.small)[colnames(lig.data[[i]])])
     receiving.cell.idents[[i]] <- as.character(Seurat::Idents(sys.small)[colnames(rec.data[[i]])])
@@ -103,8 +103,6 @@ RunCellToCell <- function(sys.small,
   
   # Combine all of these to make the full SCC matrix
   scc <- do.call(cbind,scc.data)
-  
-  scc <- scc[unique(rownames(scc)),] #Bugfix MSBR 2021-1-3
   
   #Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
@@ -117,7 +115,7 @@ RunCellToCell <- function(sys.small,
   rownames(meta.data.to.add) <- colnames(scc)
   meta.data.to.add$VectorType <- paste(meta.data.to.add$SendingType,
                                        meta.data.to.add$ReceivingType,
-                                       sep = '-')
+                                       sep = '—')
   #Add ident metadata
   demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add)
   
@@ -138,7 +136,7 @@ RunCellToCell <- function(sys.small,
   colnames(receiving.metadata) <- paste(colnames(receiving.metadata),'Receiving',sep='.')
   # Compile
   meta.data.to.add.also <- cbind(sending.metadata,receiving.metadata,joint.metadata)
-  rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='-')
+  rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='—')
   # Add additional metadata
   demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }

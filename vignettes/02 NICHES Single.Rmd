@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-NICHES is able to rapidly convert traditional single-cell atlases into single-cell signaling atlases which allow cell-cell signaling to be analyzed using existing single-cell software. Here, we leverage publicly available data to demonstrate:
+NICHES is able to rapidly convert traditional single-cell atlases into single-cell signaling atlases which allow cell-cell signaling to be analyzed using existing single-cell software. Here, we leverage  publicly available PBMC data to demonstrate:
 
 ## Load Dependencies
 ```{r message=F, warning=F}
@@ -21,10 +21,12 @@ library(Seurat)
 library(SeuratData)
 library(SeuratWrappers)
 library(NICHES)
+library(dplyr)
+library(ggplot2)
 ```
 
 ## Load and Visualize Single-Cell Data
-Here, we use the 'pbmc3k' dataset from SeuratData
+Here, we use the 'pbmc3k' dataset from SeuratData. This is a commonly-used dataset showing options for the workflow.
 ```{r message=F, warning=F}
 InstallData("pbmc3k")
 data("pbmc3k")
@@ -37,9 +39,9 @@ pbmc3k <- RunUMAP(pbmc3k,dims = 1:10)
 DimPlot(pbmc3k,reduction = 'umap',label = T,repel = F,label.size = 6)
 ```
 
-For simplicity, let's focus in on signaling within a simple 4-cell system:
+For simplicity, let's focus in on signaling within a simple 3-cell system:
 ```{r message=F, warning=F}
-sub <- subset(pbmc3k,idents = c('B','DC','Naive CD4 T','CD14+ Mono'))
+sub <- subset(pbmc3k,idents = c('B','Naive CD4 T','CD14+ Mono'))
 DimPlot(sub,reduction = 'umap',label = T,repel = F,label.size = 6)
 ```
 
@@ -61,11 +63,11 @@ demo <- ScaleData(demo)
 demo <- FindVariableFeatures(demo)
 demo <- RunPCA(demo)
 ElbowPlot(demo,ndims=50)
-PCHeatmap(demo,dims = 1:9,balanced = T,cells = 100)
-demo <- RunUMAP(demo,dims = 1:10)
+PCHeatmap(demo,dims = 1:6,balanced = T,cells = 100)
+demo <- RunUMAP(demo,dims = 1:6)
 DimPlot(demo,reduction = 'umap',group.by = 'VectorType',label = F)
 ```
-Although we can see some patterns and segregation of cell-cell relationships, this doesn't look particularly clean. This is because the four cell types that we have chosen here overlap significantly in the mechanisms that they employ. If we want to further clarify patterns that might not otherwise be obvious, we can run NICHES on the same data but imputed to amplify low-strength signal:
+This allows us to see some patterns and segregation of cell-cell relationships, however, this doesn't look particularly clean. This is because the cell types that we have chosen here overlap significantly in the mechanisms that they employ. If we want to further clarify patterns that might not otherwise be obvious, we can run NICHES on the same data but imputed to amplify low-strength signal and remove gene-sampling-related clustering artifacts:
 ```{r message=F, warning=F}
 imputed <- SeuratWrappers::RunALRA(sub)
 scc.imputed <- RunNICHES(imputed,
@@ -78,7 +80,18 @@ demo.2 <- ScaleData(demo.2)
 demo.2 <- FindVariableFeatures(demo.2)
 demo.2 <- RunPCA(demo.2)
 ElbowPlot(demo.2,ndims=50)
-PCHeatmap(demo.2,dims = 1:9,balanced = T,cells = 100)
-demo.2 <- RunUMAP(demo.2,dims = 1:10)
+PCHeatmap(demo.2,dims = 1:6,balanced = T,cells = 100)
+demo.2 <- RunUMAP(demo.2,dims = 1:6)
 DimPlot(demo.2,reduction = 'umap',group.by = 'VectorType',label = F)
 ```
+
+This looks cleaner, removes sampling-related artifacts, and allows clearer observation of relationships which occupy their own region of mechanism-space versus overlap with other cell-cell relationships. Differential expression can be run to identify prominent marker mechanisms as follows:
+```{r message=F, warning=F,fig.width = 8,fig.height = 8}
+# Find markers
+mark <- FindAllMarkers(demo.2,min.pct = 0.25,only.pos = T,test.use = "roc")
+GOI_niche <- mark %>% group_by(cluster) %>% top_n(5,myAUC)
+DoHeatmap(demo.2,features = unique(GOI_niche$gene))+ 
+  scale_fill_gradientn(colors = c("grey","white", "blue"))
+```
+
+Which allows immediate recognition and confirmation of known biological truths such as CD40LG-CD40 preferentially mediating information transfer from T to B cells.

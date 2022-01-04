@@ -9,8 +9,8 @@
 #' @param assay string. Default: "RNA". The assay to run the NICHES transformation on. 
 #' @param LR.database string. Default: "fantom5". Currently accepts "fantom5","omnipath", or "custom"
 #' @param species string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'
-#' @param min.cells.per.ident integer. Default: 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
-#' @param min.cells.per.gene integer. Default: 10. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
+#' @param min.cells.per.ident integer. Default: NULL. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
+#' @param min.cells.per.gene integer. Default: NULL. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
 #' @param meta.data.to.map character vector. Optional. Default: NULL. A vector of metadata names present in the original object which will be carried to the NICHES objects
 #' @param position.x string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.
 #' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
@@ -87,10 +87,13 @@ RunNICHES <- function(object,
   if(!is.null(custom_LR_database) & LR.database!="custom"){ 
     warning("custom_LR_database is provided but LR.databse is not specified as 'custom'")
 }
-  # TODO: check min.cells.per.ident and min.cells.per.gene (only integers)?
-  ## MSBR:: THIS CAUSES A BUG -- needs to accept NULL as well for if-logic in prepSeurat
-  #min.cells.per.ident <- as.integer(min.cells.per.ident)
-  #min.cells.per.gene <- as.integer(min.cells.per.gene)
+  # Convert any non-integer inputs to integers. Still allows NULL as option.
+  if (!is.null(min.cells.per.ident)){
+  min.cells.per.ident <- as.integer(min.cells.per.ident)
+  }
+  if (!is.null(min.cells.per.gene)){
+  min.cells.per.gene <- as.integer(min.cells.per.gene)
+  }
   
   # check meta.data.to.map
   if(!is.null(meta.data.to.map)){

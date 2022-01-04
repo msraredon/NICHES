@@ -66,16 +66,16 @@ RunSystemToCell <- function(sys.small,
 
 
   # Create the rownames (directed ligands and receptors)
-  rownames(sc.connectome) <- paste(rownames(lig.map),rownames(rec.map),sep = '-')
+  rownames(sc.connectome) <- paste(rownames(lig.map),rownames(rec.map),sep = '—')
   # Create the column names (directed System-cell)
-  colnames(sc.connectome) <- paste("System",colnames(rec.map),sep = '-')
+  colnames(sc.connectome) <- paste("System",colnames(rec.map),sep = '—')
   
   #Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'SystemToCell')
   
   # Add metadata to the Seurat object
   meta.data.to.add <- data.frame(as.character(colnames(rec.map)))
-  rownames(meta.data.to.add) <- paste("System",colnames(rec.map),sep = '-')
+  rownames(meta.data.to.add) <- paste("System",colnames(rec.map),sep = '—')
   demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add,col.name = 'ReceivingCell')
   demo <- Seurat::AddMetaData(demo,metadata = Seurat::Idents(sys.small),col.name = 'ReceivingType')
   
@@ -97,7 +97,7 @@ RunSystemToCell <- function(sys.small,
     #colnames(receiving.metadata) <- paste(colnames(receiving.metadata),'Receiving',sep='.')
     # Compile
     meta.data.to.add.also <- receiving.metadata
-    rownames(meta.data.to.add.also) <- paste('System',receiving.barcodes,sep='-')
+    rownames(meta.data.to.add.also) <- paste('System',receiving.barcodes,sep='—')
     # Add additional metadata
     demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }

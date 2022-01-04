@@ -48,7 +48,7 @@ RunCellToNeighborhood <- function(sys.small,
   
   # Make SCC matrix
   scc <- lig.data*rec.data
-  rownames(scc) <- paste(rownames(lig.data),rownames(rec.data),sep = '-')
+  rownames(scc) <- paste(rownames(lig.data),rownames(rec.data),sep = '—')
 
   # Condense by column name
   colnames(scc) <- colnames(lig.data) # Make colnames equal to sending cell
@@ -57,7 +57,7 @@ RunCellToNeighborhood <- function(sys.small,
 
   # Label columns properly
   barcodes <- colnames(scc)
-  colnames(scc) <- paste(colnames(scc),'Neighborhood',sep = '-')
+  colnames(scc) <- paste(colnames(scc),'Neighborhood',sep = '—')
 
   # Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToNeighborhood')
@@ -84,7 +84,7 @@ RunCellToNeighborhood <- function(sys.small,
     #colnames(receiving.metadata) <- paste(colnames(receiving.metadata),'Receiving',sep='.')
     # Compile
     meta.data.to.add.also <- sending.metadata
-    rownames(meta.data.to.add.also) <- paste(sending.barcodes,'Neighborhood',sep='-')
+    rownames(meta.data.to.add.also) <- paste(sending.barcodes,'Neighborhood',sep='—')
     # Add additional metadata
     demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }

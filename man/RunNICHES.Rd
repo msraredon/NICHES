@@ -35,9 +35,9 @@ RunNICHES(
 
 \item{species}{string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'}
 
-\item{min.cells.per.ident}{integer. Default: 1. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
+\item{min.cells.per.ident}{integer. Default: NULL. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
 
-\item{min.cells.per.gene}{integer. Default: 10. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
+\item{min.cells.per.gene}{integer. Default: NULL. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
 \item{meta.data.to.map}{character vector. Optional. Default: NULL. A vector of metadata names present in the original object which will be carried to the NICHES objects}
 
