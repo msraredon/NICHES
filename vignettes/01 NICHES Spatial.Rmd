@@ -50,7 +50,7 @@ p2 <- SpatialDimPlot(brain, label = TRUE,group.by = 'seurat_clusters', label.siz
 p1 + p2
 ```
 
-These numeric annotations are satisfactory for the demonstration of NICHES. Any an all metadata can be carried over when NICHES is run, allowing multiple levels of clustering and sub-clustering to be leveraged downstream after micorenvironment calculation.
+These numeric annotations are satisfactory for the demonstration of NICHES. Any and all metadata can be carried over when NICHES is run, allowing multiple levels of clustering and sub-clustering to be leveraged downstream after micorenvironment calculation.
 
 Next, we will format the spatial coordinate metadata so that every cell has an explicitly labeled x and y coordinate.
 

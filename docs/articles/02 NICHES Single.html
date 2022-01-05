@@ -59,6 +59,9 @@
     <li>
       <a href="../articles/02%20NICHES%20Single.html">Converting Single-Cell Atlases to Single-Cell Signaling Atlases</a>
     </li>
+    <li>
+      <a href="../articles/03%20Rat%20Alveolus.html">Exploring Cellular Relationships in the Rat Alveolus</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -150,7 +153,8 @@
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunUMAP.html">RunUMAP</a></span><span class="op">(</span><span class="va">demo</span>,dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">demo</span>,reduction <span class="op">=</span> <span class="st">'umap'</span>,group.by <span class="op">=</span> <span class="st">'VectorType'</span>,label <span class="op">=</span> <span class="cn">F</span><span class="op">)</span></code></pre></div>
-<p><img src="02%20NICHES%20Single_files/figure-html/unnamed-chunk-5-3.png" width="700"> This allows us to see some patterns and segregation of cell-cell relationships, however, this doesn’t look particularly clean. This is because the cell types that we have chosen here overlap significantly in the mechanisms that they employ. If we want to further clarify patterns that might not otherwise be obvious, we can run NICHES on the same data but imputed to amplify low-strength signal and remove gene-sampling-related clustering artifacts:</p>
+<p><img src="02%20NICHES%20Single_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
+<p>This allows us to see some patterns and segregation of cell-cell relationships, however, this doesn’t look particularly clean. This is because the cell types that we have chosen here overlap significantly in the mechanisms that they employ. If we want to further clarify patterns that might not otherwise be obvious, we can run NICHES on the same data but imputed to amplify low-strength signal and remove gene-sampling-related clustering artifacts:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">imputed</span> <span class="op">&lt;-</span> <span class="fu">SeuratWrappers</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/SeuratWrappers/man/RunALRA.html">RunALRA</a></span><span class="op">(</span><span class="va">sub</span><span class="op">)</span>
 <span class="va">scc.imputed</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunNICHES.html">RunNICHES</a></span><span class="op">(</span><span class="va">imputed</span>,

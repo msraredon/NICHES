@@ -1,0 +1,131 @@
+---
+title: "Exploring Cellular Relationships in the Rat Alveolus"
+author: "Micha Sam Brickman Raredon & Junchen Yang"
+date: "`r Sys.Date()`"
+vignette: |
+  %\VignetteIndexEntry{Exploring Cellular Relationships and Cell-Cell Signaling in the Rat Alveolus} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+In this vignette we explore cellular microenvironment, cellular influence, and specific cell-cell relationships in the rat alveolus leveraging data from https://www.science.org/doi/10.1126/sciadv.aaw3851
+
+## Load Dependencies
+```{r message=F, warning=F}
+require(Seurat)
+require(SeuratWrappers)
+require(ggpubr)
+require(NICHES)
+library(SeuratData)
+library(Connectome)
+library(ggplot2)
+library(cowplot)
+library(ComplexHeatmap)
+library(ggthemes)
+library(dplyr)
+library(gridExtra)
+library(igraph)
+library(TSCAN)
+library(ggbeeswarm)
+library(writexl)
+library(RColorBrewer)
+```
+
+First, let's take a look at the whole dataset (10,953 cells):
+
+#Load Data
+```{r message=F, warning=F}
+load("raredon_2019_rat.Robj")
+TSNEPlot(rat)
+```
+
+It is important to note that not all of these cell types are localized close together in the same region of tissue. Let's limit our analysis to 9 celltypes that we are confident co-localize within the same region of tissue, namely, the alveolus:
+
+```{r message=F, warning=F}
+rat.sub <- subset(rat,idents = c('ATII','ATI',
+                                 'Mac_alv','Mac_inter',
+                                 'Fib_Col13a1+','Fib_Col14a1+','SMCs',
+                                 'EC_cap','EC_vasc'))
+```
+
+We may then compute and explore the character of different cellular 'niches' (System-to-Cell signaling networks) within this specific cell-system, as follows:
+
+```{r message=F, warning=F}
+lung.niche <- RunNICHES(rat.sub,
+                        assay = 'alra',
+                        species = 'rat',
+                        LR.database = 'fantom5',
+                        SystemToCell = T,
+                        CellToCell = F) 
+# Here we use a previously-created imputed data slot. The same computation may be performed on any data slot including standard log-normalized RNA values.
+niche.object <- lung.niche$SystemToCell #Extract the output of interest
+niche.object <- ScaleData(niche.object) #Scale
+niche.object <- FindVariableFeatures(niche.object) #Identify variable features
+niche.object <- RunPCA(niche.object,npcs = 100) #RunPCA
+ElbowPlot(niche.object,ndims=100) #Choose PCs to use for embedding
+niche.object <- RunUMAP(niche.object,dims = 1:15) #Embed
+DimPlot(niche.object,reduction = 'umap',label = T,repel = F,label.size = 6)+ 
+  NoLegend()+ NoAxes()+ ggtitle('Alveolar Microenvironment')
+  guides(colour=guide_legend(ncol=1,override.aes = list(size=6))) #Plot
+```
+
+
+Each dot in the plot above represents an individual System-to-Cell network landing on a given receiving cell within this alveolar cell-system. We may identify markers for each celltype or cluster as follows:
+
+```{r message=F, warning=F,fig.width = 8,fig.height = 8}
+#Markers
+Idents(niche.object) <- niche.object[['ReceivingType']]
+mark <- FindAllMarkers(niche.object,logfc.threshold = 1,min.pct = 0.5,only.pos = T,test.use = 'roc')
+
+# Pull markers of interest to plot
+mark$ratio <- mark$pct.1/mark$pct.2
+marker.list <- mark %>% group_by(cluster) %>% top_n(5,avg_log2FC)
+
+#Plot in Heatmap form
+DoHeatmap(niche.object,features = marker.list$gene,cells = WhichCells(niche.object,downsample = 100))
+
+```
+
+
+This gives us a sense of the character of each celltype niche. However, it doesn't allow us to see where the signal is coming from. To ask these kinds of questions, we need to characterize cell-cell relationships, which we do as follows:
+
+```{r message=F, warning=F,fig.width = 12,fig.height = 12}
+lung.cc <- RunNICHES(rat.sub,
+                        assay = 'alra',
+                        species = 'rat',
+                        LR.database = 'fantom5',
+                        CellToCell = T) 
+cc.object <- lung.cc$CellToCell #Extract the output of interest
+cc.object <- ScaleData(cc.object) #Scale
+cc.object <- FindVariableFeatures(cc.object) #Identify variable features
+cc.object <- RunPCA(cc.object,npcs = 100) #RunPCA
+ElbowPlot(cc.object,ndims=100) #Choose PCs to use for embedding
+cc.object <- RunUMAP(cc.object,dims = 1:100) #Embed
+DimPlot(cc.object,reduction = 'umap',label = F)+ NoAxes()+ ggtitle('Alveolar Cell-Cell Signaling')+
+  guides(colour=guide_legend(ncol=2,override.aes = list(size=6))) #Plot
+```
+
+We are now prepared to fully dissect a given cellular niche. Let's see how different cells influence the EC_cap population within this system:
+
+```{r message=F, warning=F,fig.width = 8,fig.height = 8}
+Idents(cc.object) <- cc.object[['ReceivingType']]
+ec.network <- subset(cc.object,idents ='EC_cap')
+Idents(ec.network) <- ec.network[['VectorType']]
+mark.ec <- FindAllMarkers(ec.network,
+                          logfc.threshold = 1,
+                          min.pct = 0.5,
+                          only.pos = T,
+                          test.use = 'roc')
+# Pull markers of interest to plot
+mark.ec$ratio <- mark.ec$pct.1/mark.ec$pct.2
+marker.list.ec <- mark.ec %>% group_by(cluster) %>% top_n(5,avg_log2FC)
+
+#Plot in Heatmap form
+DoHeatmap(ec.network,features = marker.list.ec$gene,cells = WhichCells(ec.network,downsample = 100))
+```
+
