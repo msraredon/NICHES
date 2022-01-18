@@ -10,4 +10,7 @@ docs
 
 # Big Data for Vignettes
 vignettes/*.Robj
+vignettes/*.h5ad
+vignettes/*.h5Seurat
+
 vignettes/venv
