@@ -10,3 +10,4 @@ docs
 
 # Big Data for Vignettes
 vignettes/*.Robj
+vignettes/venv
