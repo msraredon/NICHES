@@ -71,7 +71,6 @@ ElbowPlot(niche.object,ndims=100) #Choose PCs to use for embedding
 niche.object <- RunUMAP(niche.object,dims = 1:15) #Embed
 DimPlot(niche.object,reduction = 'umap',label = T,repel = F,label.size = 6)+ 
   NoLegend()+ NoAxes()+ ggtitle('Alveolar Microenvironment')
-  guides(colour=guide_legend(ncol=1,override.aes = list(size=6))) #Plot
 ```
 
 
@@ -99,7 +98,7 @@ lung.cc <- RunNICHES(rat.sub,
                         assay = 'alra',
                         species = 'rat',
                         LR.database = 'fantom5',
-                        CellToCell = T) 
+                        CellToCell = T) #Note the difference in input arguments here
 cc.object <- lung.cc$CellToCell #Extract the output of interest
 cc.object <- ScaleData(cc.object) #Scale
 cc.object <- FindVariableFeatures(cc.object) #Identify variable features
@@ -129,3 +128,30 @@ marker.list.ec <- mark.ec %>% group_by(cluster) %>% top_n(5,avg_log2FC)
 DoHeatmap(ec.network,features = marker.list.ec$gene,cells = WhichCells(ec.network,downsample = 100))
 ```
 
+One of the powerful applications of NICHES is the ability to parse intra-cluster heterogeneity very easily, to see if there are subtly-different subcategories of cell-cell relationships present within the data. Here, we further dissect cell-cell signaling coming from alveolar macrophages and landing on the ATI cell population:
+
+```{r message=F, warning=F}
+# Subclustering of a relationship:
+Idents(cc.object) <- cc.object[['VectorType']]
+sub <- subset(cc.object,idents = 'Mac_alv—ATI')
+sub <- ScaleData(sub)
+sub <- FindVariableFeatures(sub)
+sub <- RunPCA(sub)
+ElbowPlot(sub,ndims=50)
+PCHeatmap(sub,dims=1:10,balanced = T,cells=100)
+sub <- RunUMAP(sub,dims = 1:10)
+sub <- FindNeighbors(sub,dims = 1:10,force.recalc = T)
+sub <- FindClusters(sub,resolution = 0.1)
+DimPlot(sub)
+```
+
+This looks interesting. Let's explore some marker mechanisms:
+
+```{r message=F, warning=F,fig.width = 6,fig.height = 10}
+mark.sub <- FindAllMarkers(sub,only.pos = T,test.use = 'roc')
+marker.sub.list <- mark.sub %>% group_by(cluster) #%>% top_n(20,avg_log2FC)
+DoHeatmap(sub,features = marker.sub.list$gene)+
+  scale_fill_gradientn(colors = c("grey","white", "blue"))
+```
+
+This is a striking result. Keep in mind that all of these measurements are from the pairing of an alveolar macrophage as a sending cell and an ATI cell as a receiving cell. However, within this single braod relationship, there are subcategories of cell pairings which are possible.  Above, it is notable that cluster 1 is quite sparse in mechanism employment. Additionally, cluster 4 is very strongly employing a number of signaling mechanisms which are largely not used by the other subcategories of macrophage-ATI pairings.

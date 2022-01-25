@@ -81,7 +81,7 @@
       <h1 data-toc-skip>Estimating Microenvironment from Spatial Data</h1>
                         <h4 class="author">Junchen Yang &amp; Micha Sam Brickman Raredon</h4>
             
-            <h4 class="date">2022-01-04</h4>
+            <h4 class="date">2022-01-24</h4>
       
       
       <div class="hidden name"><code>01 NICHES Spatial.Rmd</code></div>
@@ -112,8 +112,8 @@
 <h2 class="hasAnchor">
 <a href="#load-data-normalize-visualize" class="anchor"></a>Load Data, Normalize, Visualize</h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="http://www.satijalab.org/seurat/reference/InstallData.html">InstallData</a></span><span class="op">(</span><span class="st">"stxBrain"</span><span class="op">)</span>
-<span class="va">brain</span> <span class="op">&lt;-</span> <span class="fu"><a href="http://www.satijalab.org/seurat/reference/LoadData.html">LoadData</a></span><span class="op">(</span><span class="st">"stxBrain"</span>, type <span class="op">=</span> <span class="st">"anterior1"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://satijalab.org/seurat/reference/InstallData.html">InstallData</a></span><span class="op">(</span><span class="st">"stxBrain"</span><span class="op">)</span>
+<span class="va">brain</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/LoadData.html">LoadData</a></span><span class="op">(</span><span class="st">"stxBrain"</span>, type <span class="op">=</span> <span class="st">"anterior1"</span><span class="op">)</span>
 <span class="co"># Normalization </span>
 <span class="va">brain</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SCTransform.html">SCTransform</a></span><span class="op">(</span><span class="va">brain</span>, assay <span class="op">=</span> <span class="st">"Spatial"</span>, verbose <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/SpatialPlot.html">SpatialFeaturePlot</a></span><span class="op">(</span><span class="va">brain</span>, features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"Hpca"</span>, <span class="st">"Ttr"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -184,7 +184,7 @@
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"grey"</span>,<span class="st">"white"</span>, <span class="st">"blue"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="01%20NICHES%20Spatial_files/figure-html/unnamed-chunk-6-1.png" width="960"></p>
 <p>This confirms that celltypes 1 &amp; 7 and 6 &amp; 3 do indeed have some shared character.</p>
-<p>We can further confirm that identified celltype specific signaling mechanisms are indeed specific to tissue regions in which those cells are found:</p>
+<p>We can further confirm that identified celltype specific signaling mechanisms are indeed specific to tissue regions in which those cells are found, by plotting matched ligand and receptor pairs:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R">
 <span class="co"># Check that these make sense and print little plots</span>
@@ -196,6 +196,21 @@
 
 <span class="fu">ggpubr</span><span class="fu">::</span><span class="fu"><a href="https://rpkgs.datanovia.com/ggpubr/reference/ggarrange.html">ggarrange</a></span><span class="op">(</span><span class="va">p1</span>,<span class="va">p2</span><span class="op">)</span></code></pre></div>
 <p><img src="01%20NICHES%20Spatial_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
+<p>Further, and perhaps more usefully, we can map over the output from NICHES onto the original spatial object as follows:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Add Niches output as an assay</span>
+<span class="va">niches.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/AssayData.html">GetAssayData</a></span><span class="op">(</span>object <span class="op">=</span>  <span class="va">niche</span><span class="op">[[</span><span class="st">'NeighborhoodToCell'</span><span class="op">]</span><span class="op">]</span>, slot <span class="op">=</span> <span class="st">'data'</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html">colnames</a></span><span class="op">(</span><span class="va">niches.data</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">niche</span><span class="op">[[</span><span class="st">'ReceivingCell'</span><span class="op">]</span><span class="op">]</span><span class="op">$</span><span class="va">ReceivingCell</span>
+<span class="va">brain</span><span class="op">[[</span><span class="st">"NeighborhoodToCell"</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/CreateAssayObject.html">CreateAssayObject</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">niches.data</span> <span class="op">)</span>
+<span class="fu"><a href="https://satijalab.org/seurat/reference/DefaultAssay.html">DefaultAssay</a></span><span class="op">(</span><span class="va">brain</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"NeighborhoodToCell"</span>
+<span class="va">brain</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">brain</span><span class="op">)</span></code></pre></div>
+<p>Which allows direct visualization of niche interactions of interest in a spatial context:</p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Plot celltype specific niche signaling</span>
+<span class="fu"><a href="https://satijalab.org/seurat/reference/SpatialPlot.html">SpatialFeaturePlot</a></span><span class="op">(</span><span class="va">brain</span>,
+                   features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Bmp2—Bmpr2'</span>,<span class="st">'Efna1—Ephb6'</span>,<span class="st">'Fgf1—Fgfr2'</span><span class="op">)</span>,
+                   slot <span class="op">=</span> <span class="st">'scale.data'</span><span class="op">)</span></code></pre></div>
+<p><img src="01%20NICHES%20Spatial_files/figure-html/unnamed-chunk-9-1.png" width="700"></p>
 </div>
   </div>
 

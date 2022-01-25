@@ -81,7 +81,7 @@
       <h1 data-toc-skip>Exploring Cellular Relationships in the Rat Alveolus</h1>
                         <h4 class="author">Micha Sam Brickman Raredon &amp; Junchen Yang</h4>
             
-            <h4 class="date">2022-01-04</h4>
+            <h4 class="date">2022-01-24</h4>
       
       
       <div class="hidden name"><code>03 Rat Alveolus.Rmd</code></div>
@@ -144,83 +144,8 @@
 <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">niche.object</span>,reduction <span class="op">=</span> <span class="st">'umap'</span>,label <span class="op">=</span> <span class="cn">T</span>,repel <span class="op">=</span> <span class="cn">F</span>,label.size <span class="op">=</span> <span class="fl">6</span><span class="op">)</span><span class="op">+</span> 
   <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoLegend</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoAxes</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">'Alveolar Microenvironment'</span><span class="op">)</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-4-2.png" width="700"></p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R">  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span><span class="op">(</span>colour<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html">guide_legend</a></span><span class="op">(</span>ncol<span class="op">=</span><span class="fl">1</span>,override.aes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>size<span class="op">=</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co">#Plot</span>
-<span class="co">#&gt; $colour</span>
-<span class="co">#&gt; $title</span>
-<span class="co">#&gt; list()</span>
-<span class="co">#&gt; attr(,"class")</span>
-<span class="co">#&gt; [1] "waiver"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $title.position</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $title.theme</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $title.hjust</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $title.vjust</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $label</span>
-<span class="co">#&gt; [1] TRUE</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $label.position</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $label.theme</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $label.hjust</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $label.vjust</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $keywidth</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $keyheight</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $direction</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $override.aes</span>
-<span class="co">#&gt; $override.aes$size</span>
-<span class="co">#&gt; [1] 6</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $nrow</span>
-<span class="co">#&gt; NULL</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $ncol</span>
-<span class="co">#&gt; [1] 1</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $byrow</span>
-<span class="co">#&gt; [1] FALSE</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $reverse</span>
-<span class="co">#&gt; [1] FALSE</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $order</span>
-<span class="co">#&gt; [1] 0</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $available_aes</span>
-<span class="co">#&gt; [1] "any"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $name</span>
-<span class="co">#&gt; [1] "legend"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attr(,"class")</span>
-<span class="co">#&gt; [1] "guide"  "legend"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; attr(,"class")</span>
-<span class="co">#&gt; [1] "guides"</span></code></pre></div>
 <p>Each dot in the plot above represents an individual System-to-Cell network landing on a given receiving cell within this alveolar cell-system. We may identify markers for each celltype or cluster as follows:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">#Markers</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">niche.object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">niche.object</span><span class="op">[[</span><span class="st">'ReceivingType'</span><span class="op">]</span><span class="op">]</span>
 <span class="va">mark</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindAllMarkers.html">FindAllMarkers</a></span><span class="op">(</span><span class="va">niche.object</span>,logfc.threshold <span class="op">=</span> <span class="fl">1</span>,min.pct <span class="op">=</span> <span class="fl">0.5</span>,only.pos <span class="op">=</span> <span class="cn">T</span>,test.use <span class="op">=</span> <span class="st">'roc'</span><span class="op">)</span>
@@ -233,25 +158,25 @@
 <span class="fu"><a href="https://satijalab.org/seurat/reference/DoHeatmap.html">DoHeatmap</a></span><span class="op">(</span><span class="va">niche.object</span>,features <span class="op">=</span> <span class="va">marker.list</span><span class="op">$</span><span class="va">gene</span>,cells <span class="op">=</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/WhichCells.html">WhichCells</a></span><span class="op">(</span><span class="va">niche.object</span>,downsample <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-5-1.png" width="768"></p>
 <p>This gives us a sense of the character of each celltype niche. However, it doesn’t allow us to see where the signal is coming from. To ask these kinds of questions, we need to characterize cell-cell relationships, which we do as follows:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">lung.cc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunNICHES.html">RunNICHES</a></span><span class="op">(</span><span class="va">rat.sub</span>,
                         assay <span class="op">=</span> <span class="st">'alra'</span>,
                         species <span class="op">=</span> <span class="st">'rat'</span>,
                         LR.database <span class="op">=</span> <span class="st">'fantom5'</span>,
-                        CellToCell <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> 
+                        CellToCell <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="co">#Note the difference in input arguments here</span>
 <span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="va">lung.cc</span><span class="op">$</span><span class="va">CellToCell</span> <span class="co">#Extract the output of interest</span>
 <span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">cc.object</span><span class="op">)</span> <span class="co">#Scale</span>
 <span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">cc.object</span><span class="op">)</span> <span class="co">#Identify variable features</span>
 <span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">cc.object</span>,npcs <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="co">#RunPCA</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">cc.object</span>,ndims<span class="op">=</span><span class="fl">100</span><span class="op">)</span> <span class="co">#Choose PCs to use for embedding</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-6-1.png" width="1152"></p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunUMAP.html">RunUMAP</a></span><span class="op">(</span><span class="va">cc.object</span>,dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">100</span><span class="op">)</span> <span class="co">#Embed</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">cc.object</span>,reduction <span class="op">=</span> <span class="st">'umap'</span>,label <span class="op">=</span> <span class="cn">F</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/SeuratTheme.html">NoAxes</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html">ggtitle</a></span><span class="op">(</span><span class="st">'Alveolar Cell-Cell Signaling'</span><span class="op">)</span><span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html">guides</a></span><span class="op">(</span>colour<span class="op">=</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html">guide_legend</a></span><span class="op">(</span>ncol<span class="op">=</span><span class="fl">2</span>,override.aes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span>size<span class="op">=</span><span class="fl">6</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="co">#Plot</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-6-2.png" width="1152"></p>
 <p>We are now prepared to fully dissect a given cellular niche. Let’s see how different cells influence the EC_cap population within this system:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://satijalab.org/seurat/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">cc.object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">cc.object</span><span class="op">[[</span><span class="st">'ReceivingType'</span><span class="op">]</span><span class="op">]</span>
 <span class="va">ec.network</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">cc.object</span>,idents <span class="op">=</span><span class="st">'EC_cap'</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">ec.network</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">ec.network</span><span class="op">[[</span><span class="st">'VectorType'</span><span class="op">]</span><span class="op">]</span>
@@ -267,6 +192,42 @@
 <span class="co">#Plot in Heatmap form</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/DoHeatmap.html">DoHeatmap</a></span><span class="op">(</span><span class="va">ec.network</span>,features <span class="op">=</span> <span class="va">marker.list.ec</span><span class="op">$</span><span class="va">gene</span>,cells <span class="op">=</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/WhichCells.html">WhichCells</a></span><span class="op">(</span><span class="va">ec.network</span>,downsample <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-7-1.png" width="768"></p>
+<p>One of the powerful applications of NICHES is the ability to parse intra-cluster heterogeneity very easily, to see if there are subtly-different subcategories of cell-cell relationships present within the data. Here, we further dissect cell-cell signaling coming from alveolar macrophages and landing on the ATI cell population:</p>
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Subclustering of a relationship:</span>
+<span class="fu"><a href="https://satijalab.org/seurat/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">cc.object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">cc.object</span><span class="op">[[</span><span class="st">'VectorType'</span><span class="op">]</span><span class="op">]</span>
+<span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">cc.object</span>,idents <span class="op">=</span> <span class="st">'Mac_alv—ATI'</span><span class="op">)</span>
+<span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">sub</span><span class="op">)</span>
+<span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">sub</span><span class="op">)</span>
+<span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">sub</span><span class="op">)</span>
+<span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">sub</span>,ndims<span class="op">=</span><span class="fl">50</span><span class="op">)</span></code></pre></div>
+<p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://satijalab.org/seurat/reference/DimHeatmap.html">PCHeatmap</a></span><span class="op">(</span><span class="va">sub</span>,dims<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,balanced <span class="op">=</span> <span class="cn">T</span>,cells<span class="op">=</span><span class="fl">100</span><span class="op">)</span></code></pre></div>
+<p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-8-2.png" width="700"></p>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunUMAP.html">RunUMAP</a></span><span class="op">(</span><span class="va">sub</span>,dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">)</span>
+<span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindNeighbors.html">FindNeighbors</a></span><span class="op">(</span><span class="va">sub</span>,dims <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">10</span>,force.recalc <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
+<span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindClusters.html">FindClusters</a></span><span class="op">(</span><span class="va">sub</span>,resolution <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span>
+<span class="co">#&gt; Modularity Optimizer version 1.3.0 by Ludo Waltman and Nees Jan van Eck</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Number of nodes: 1331</span>
+<span class="co">#&gt; Number of edges: 40995</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Running Louvain algorithm...</span>
+<span class="co">#&gt; Maximum modularity in 10 random starts: 0.9292</span>
+<span class="co">#&gt; Number of communities: 5</span>
+<span class="co">#&gt; Elapsed time: 0 seconds</span>
+<span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">sub</span><span class="op">)</span></code></pre></div>
+<p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-8-3.png" width="700"></p>
+<p>This looks interesting. Let’s explore some marker mechanisms:</p>
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="va">mark.sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindAllMarkers.html">FindAllMarkers</a></span><span class="op">(</span><span class="va">sub</span>,only.pos <span class="op">=</span> <span class="cn">T</span>,test.use <span class="op">=</span> <span class="st">'roc'</span><span class="op">)</span>
+<span class="va">marker.sub.list</span> <span class="op">&lt;-</span> <span class="va">mark.sub</span> <span class="op">%&gt;%</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html">group_by</a></span><span class="op">(</span><span class="va">cluster</span><span class="op">)</span> <span class="co">#%&gt;% top_n(20,avg_log2FC)</span>
+<span class="fu"><a href="https://satijalab.org/seurat/reference/DoHeatmap.html">DoHeatmap</a></span><span class="op">(</span><span class="va">sub</span>,features <span class="op">=</span> <span class="va">marker.sub.list</span><span class="op">$</span><span class="va">gene</span><span class="op">)</span><span class="op">+</span>
+  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_gradient.html">scale_fill_gradientn</a></span><span class="op">(</span>colors <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">"grey"</span>,<span class="st">"white"</span>, <span class="st">"blue"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-9-1.png" width="576"></p>
+<p>This is a striking result. Keep in mind that all of these measurements are from the pairing of an alveolar macrophage as a sending cell and an ATI cell as a receiving cell. However, within this single braod relationship, there are subcategories of cell pairings which are possible. Above, it is notable that cluster 1 is quite sparse in mechanism employment. Additionally, cluster 4 is very strongly employing a number of signaling mechanisms which are largely not used by the other subcategories of macrophage-ATI pairings.</p>
 </div>
   </div>
 

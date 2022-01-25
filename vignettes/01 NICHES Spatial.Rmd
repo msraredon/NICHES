@@ -110,7 +110,7 @@ DoHeatmap(niche,features = unique(GOI_niche$gene))+
 
 This confirms that celltypes 1 & 7 and 6 & 3 do indeed have some shared character.
 
-We can further confirm that identified celltype specific signaling mechanisms are indeed specific to tissue regions in which those cells are found:
+We can further confirm that identified celltype specific signaling mechanisms are indeed specific to tissue regions in which those cells are found, by plotting matched ligand and receptor pairs:
 
 ```{r message=F, warning=F}
 
@@ -122,4 +122,23 @@ p2 <- SpatialFeaturePlot(brain, crop = TRUE, features = "Fgfr2",slot = "data",mi
                          max.cutoff = 'q99')+ggtitle("Receptor")+theme(legend.position = "right")
 
 ggpubr::ggarrange(p1,p2)
+```
+
+Further, and perhaps more usefully, we can map over the output from NICHES onto the original spatial object as follows:
+```{r message=F, warning=F}
+# Add Niches output as an assay
+niches.data <- GetAssayData(object =  niche[['NeighborhoodToCell']], slot = 'data')
+colnames(niches.data) <- niche[['ReceivingCell']]$ReceivingCell
+brain[["NeighborhoodToCell"]] <- CreateAssayObject(data = niches.data )
+DefaultAssay(brain) <- "NeighborhoodToCell"
+brain <- ScaleData(brain)
+```
+
+Which allows direct visualization of niche interactions of interest in a spatial context:
+```{r message=F, warning=F}
+# Plot celltype specific niche signaling
+SpatialFeaturePlot(brain,
+                   features = c('Bmp2—Bmpr2','Efna1—Ephb6','Fgf1—Fgfr2'),
+                   slot = 'scale.data')
+
 ```

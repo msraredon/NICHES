@@ -81,7 +81,7 @@
       <h1 data-toc-skip>Converting Single-Cell Atlases to Single-Cell Signaling Atlases</h1>
                         <h4 class="author">Micha Sam Brickman Raredon &amp; Junchen Yang</h4>
             
-            <h4 class="date">2022-01-04</h4>
+            <h4 class="date">2022-01-24</h4>
       
       
       <div class="hidden name"><code>02 NICHES Single.Rmd</code></div>
@@ -107,7 +107,7 @@
 <a href="#load-and-visualize-single-cell-data" class="anchor"></a>Load and Visualize Single-Cell Data</h2>
 <p>Here, we use the ‘pbmc3k’ dataset from SeuratData. This is a commonly-used dataset showing options for the workflow.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="http://www.satijalab.org/seurat/reference/InstallData.html">InstallData</a></span><span class="op">(</span><span class="st">"pbmc3k"</span><span class="op">)</span>
+<code class="sourceCode R"><span class="fu"><a href="https://satijalab.org/seurat/reference/InstallData.html">InstallData</a></span><span class="op">(</span><span class="st">"pbmc3k"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span><span class="op">(</span><span class="st">"pbmc3k"</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">pbmc3k</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">pbmc3k</span><span class="op">$</span><span class="va">seurat_annotations</span>
 <span class="va">pbmc3k</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">pbmc3k</span><span class="op">)</span>
