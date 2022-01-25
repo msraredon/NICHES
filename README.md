@@ -9,7 +9,7 @@ NICHES creates unique 1:1 pairs of cells and characterizes each cellular interac
 
 When applied to traditional scRNAseq datasets, a uniform sampling of unique barcode pairings is taken from each celltype cross. When applied to spatial datasets, edge construction may be limited to direct neighbor-neighbor interactions, or those within a certain user-defined radius, to provide a histologically-grounded portrait of cell-cell signaling and cellular niches.
 
-For detailed Methods, please see our preprint on bioRxiv:
+For detailed Methods, please see our preprint on bioRxiv: https://www.biorxiv.org/content/10.1101/2022.01.23.477401v1
 
 ## Installation
 To install `NICHES` in R, you may run:
@@ -19,4 +19,4 @@ install_github('msraredon/Connectome', ref = 'master')
 ```
 
 ## Reference
-If used for publication, please cite:
+If used for publication, please cite: https://doi.org/10.1101/2022.01.23.477401
