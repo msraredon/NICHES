@@ -147,11 +147,11 @@ DimPlot(sub)
 
 This looks interesting. Let's explore some marker mechanisms:
 
-```{r message=F, warning=F,fig.width = 6,fig.height = 10}
+```{r message=F, warning=F,fig.width = 6,fig.height = 15}
 mark.sub <- FindAllMarkers(sub,only.pos = T,test.use = 'roc')
 marker.sub.list <- mark.sub %>% group_by(cluster) #%>% top_n(20,avg_log2FC)
 DoHeatmap(sub,features = marker.sub.list$gene)+
   scale_fill_gradientn(colors = c("grey","white", "blue"))
 ```
 
-This is a striking result. Keep in mind that all of these measurements are from the pairing of an alveolar macrophage as a sending cell and an ATI cell as a receiving cell. However, within this single braod relationship, there are subcategories of cell pairings which are possible.  Above, it is notable that cluster 1 is quite sparse in mechanism employment. Additionally, cluster 4 is very strongly employing a number of signaling mechanisms which are largely not used by the other subcategories of macrophage-ATI pairings.
+All of these measurements are from the pairing of an alveolar macrophage as a sending cell and an ATI cell as a receiving cell. However, within this single cell-cell relationship, there are subcategories of cell pairings which are possible.  Above, it is notable that cluster 1 is quite sparse in mechanism employment. Additionally, cluster 4 is employing a number of signaling mechanisms which are largely not used by the other subcategories of macrophage-ATI pairings.
