@@ -15,7 +15,7 @@ For detailed Methods, please see our preprint on bioRxiv: https://www.biorxiv.or
 To install `NICHES` in R, you may run:
 ```
 library(devtools)
-install_github('msraredon/Connectome', ref = 'master')
+install_github('msraredon/NICHES', ref = 'master')
 ```
 
 ## Reference
