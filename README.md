@@ -18,5 +18,8 @@ library(devtools)
 install_github('msraredon/NICHES', ref = 'master')
 ```
 
+## Vignettes
+For use vignettes, please visit: https://msraredon.github.io/NICHES/
+
 ## Reference
 If used for publication, please cite: https://doi.org/10.1101/2022.01.23.477401
