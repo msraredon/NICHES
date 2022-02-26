@@ -125,8 +125,8 @@ RunCellToCell <- function(sys.small,
   sending.barcodes <- colnames(do.call(cbind,lig.data)) #This can be simplified if the above SCC construction is simplified
   receiving.barcodes <- colnames(do.call(cbind,rec.data)) #This can be simplified if the above SCC construction is simplified
   # Pull and format sending and receiving metadata    jc: possible bug, change object to sys.small
-  sending.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map][sending.barcodes,])
-  receiving.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map][receiving.barcodes,])
+  sending.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map,drop=FALSE][sending.barcodes,])
+  receiving.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map,drop=FALSE][receiving.barcodes,])
   # Make joint metadata
   datArray <- abind::abind(sending.metadata,receiving.metadata,along=3)
   joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))

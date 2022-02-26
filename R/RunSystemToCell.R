@@ -87,7 +87,7 @@ RunSystemToCell <- function(sys.small,
     # Pull and format sending and receiving metadata
     #sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
     # jc: possible bug, change object to sys.small
-    receiving.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map][receiving.barcodes,])
+    receiving.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map,drop=FALSE][receiving.barcodes,])
     # Make joint metadata
     #datArray <- abind(sending.metadata,receiving.metadata,along=3)
     #joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
