@@ -10,7 +10,7 @@ LazyData: yes
 RoxygenNote: 7.1.1.9000
 VignetteBuilder: knitr
 Depends:
-    R (>= 4.0)
+    R (>= 4.1)
 biocViews:
 Imports:
     OmnipathR,
