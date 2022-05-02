@@ -14,6 +14,11 @@ RunNICHES <- function(object,...){
 
 
 
+# TODO: make cell_types be the Idents(object) as a requirement
+# Current issue: we directly take Idents(object) as cell types. The warnings are not explicit
+# Soluion 1: Change Idents(object) to object[['cell_types']] and make `cell_types` a parameter with default as NULL.
+#           This parameter will be checked when `CellToCell` is flag as TRUE, so this will bring awareness to the users.
+
 #' RunNICHES
 #' 
 #' Performs user-selected NICHES transformations on a Seurat object. 
@@ -206,6 +211,11 @@ RunNICHES.Seurat <- function(object,
   return(output)
 }
 
+# TODO: (Temporary) cell_types needs to be a column in the metadata and needs to be set as Idents before 
+#       downstream computations (add checker function)
+
+# TODO: add method for dgc and dgr sparse matrices
+
 
 # TODO: for now pos.x and pos.y are required to be 2 cols of meta.data.to.map
 #       let's think of better ways 
@@ -223,8 +233,9 @@ RunNICHES.Seurat <- function(object,
 #' @param min.cells.per.ident integer. Default: NULL. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param min.cells.per.gene integer. Default: NULL. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
 #' @param meta.data.to.map A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).
-#' @param position.x string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.
-#' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
+#' @param position.x string. Optional. Default: NULL. The name of the meta.data.to.map column specifying location on the spatial x-axis. Only required for spatial omics data.
+#' @param position.y string. Optional. Default: NULL. The name of the meta.data.to.map column specifying location on the spatial y-axis. Only required for spatial omics data.
+#' @param cell_types string. Optional. Default: NULL. The name of the meta.data.to.map column specifying the cell types of the cells. Only required for RunCellToCell.
 #' @param custom_LR_database data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').
 #' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
 #' @param rad.set numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.
@@ -247,6 +258,7 @@ RunNICHES.matrix <- function(object,
                              meta.data.to.map = NULL,
                              position.x = NULL,
                              position.y = NULL,
+                             cell_types = NULL,
                              custom_LR_database = NULL,
                              k = 4,
                              rad.set = NULL,
@@ -337,16 +349,24 @@ RunNICHES.matrix <- function(object,
   
   # TODO: add a checker to check where position.x and position.y are in the meta data
   
-  # convert the input data_mat and meta.data.to.map to a Seurat object
-  object <- Seurat::CreateSeuratObject(counts=data_mat,assay="RNA",meta.data=meta.data.to.map, min.cells = 0,min.features = 0)
+  # check cell types metadata when CellToCell is True
+  if(org_names_indicator['CellToCell'] == T){
+    if(is.null(cell_types)) stop("cell_types need to be provided to run the downsampling procedure in the CellToCell computation") 
+    else if(!(cell_types %in% colnames(meta.data.to.map))) stop("cell_types is not in the columns of meta.data.to.map, 
+                                                             please make sure its name is in the colnames of meta.data.to.map")
+  }
   
+  # convert the input data_mat and meta.data.to.map to a Seurat object
+  object <- Seurat::CreateSeuratObject(counts=object,assay="RNA",meta.data=meta.data.to.map, min.cells = 0,min.features = 0)
+  # set the ident to cell_types
+  Idents(object) <- cell_types
   # Initialize output structure
   output <- list()
   
   
   # jc: move the shared preprocessing steps here to avoid redundancy and reduce the number of parameters to be passed to other functions
   sys.small <- prepSeurat(object,"RNA",min.cells.per.ident,min.cells.per.gene)
-  ground.truth <- lr_load(LR.database,custom_LR_database,species,rownames(sys.small@assays[[assay]]))
+  ground.truth <- lr_load(LR.database,custom_LR_database,species,rownames(sys.small@assays[["RNA"]]))
   if (org_names_indicator["CellToCellSpatial"] == T | org_names_indicator["CellToNeighborhood"] == T | org_names_indicator["NeighborhoodToCell"] == T){
     ## 1. Move the neighbor graph construction here
     ## 2. Enable a k-nearest-neighbor parameter as an alternative

@@ -13,6 +13,7 @@
   meta.data.to.map = NULL,
   position.x = NULL,
   position.y = NULL,
+  cell_types = NULL,
   custom_LR_database = NULL,
   k = 4,
   rad.set = NULL,
@@ -38,9 +39,11 @@
 
 \item{meta.data.to.map}{A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).}
 
-\item{position.x}{string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.}
+\item{position.x}{string. Optional. Default: NULL. The name of the meta.data.to.map column specifying location on the spatial x-axis. Only required for spatial omics data.}
 
-\item{position.y}{string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.}
+\item{position.y}{string. Optional. Default: NULL. The name of the meta.data.to.map column specifying location on the spatial y-axis. Only required for spatial omics data.}
+
+\item{cell_types}{string. Optional. Default: NULL. The name of the meta.data.to.map column specifying the cell types of the cells. Only required for RunCellToCell.}
 
 \item{custom_LR_database}{data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').}
 

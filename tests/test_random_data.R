@@ -27,13 +27,30 @@ DimPlot(pbmc, reduction = "umap", label = TRUE, pt.size = 0.5) + NoLegend()
 
 
 
-Idents(pbmc) <- pbmc@meta.data$seurat_clusters
+pbmc@meta.data$cell_types <- Idents(pbmc)
 niche_obj <- RunNICHES(object = pbmc,assay = "RNA",LR.database = "fantom5",species = "human",
                        min.cells.per.ident = 20, 
                        min.cells.per.gene = 100,
-                       meta.data.to.map = NULL,
+                       meta.data.to.map = colnames(pbmc@meta.data),
                        CellToCell = T,CellToSystem = T,SystemToCell = T,
                        CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
+niche_obj2 <- RunNICHES(object = as.matrix(pbmc@assays$RNA@data),LR.database = "fantom5",species = "human",
+                        meta.data.to.map = pbmc@meta.data,
+                        cell_types = "cell_types",
+                        min.cells.per.ident = 20, 
+                        min.cells.per.gene = 100,
+                        CellToCell = T,CellToSystem = T,SystemToCell = T,
+                        CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
+niche_obj3 <- RunNICHES(object = as.matrix(pbmc@assays$RNA@data),LR.database = "fantom5",species = "human",
+                        meta.data.to.map = pbmc@meta.data,
+                        cell_types = "cell_types",
+                        min.cells.per.ident = 20, 
+                        min.cells.per.gene = 100,
+                        CellToCell = F,CellToSystem = T,SystemToCell = T,
+                        CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
 
 custom_db <- data.frame("L" = ncomms8866_human$Ligand.ApprovedSymbol[1:100],"R" = ncomms8866_human$Receptor.ApprovedSymbol[1:100])
 
