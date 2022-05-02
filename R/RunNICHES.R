@@ -3,13 +3,13 @@
 #' 
 #' RunNICHES generic function
 #'
-#' @param data normalized data matrix or a seurat object
+#' @param object normalized data matrix or a seurat object
 #' @param ... 
 #'
 #' @export
 #'
-RunNICHES <- function(data,...){
-  UseMethod("RunNICHES",data)
+RunNICHES <- function(object,...){
+  UseMethod("RunNICHES",object)
 }
 
 
@@ -209,7 +209,37 @@ RunNICHES.Seurat <- function(object,
 
 # TODO: for now pos.x and pos.y are required to be 2 cols of meta.data.to.map
 #       let's think of better ways 
-RunNICHES.matrix <- function(data_mat,
+
+#' RunNICHES for matrix
+#' 
+#' Performs user-selected NICHES transformations on a matrix. 
+#' By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
+#' If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
+#' Output is a set of specialized NICHES objects which allow fine analysis of cell-cell interactions.
+#' 
+#' @param object A normalized data matrix. Rows are genes and columns are cells.
+#' @param LR.database string. Default: "fantom5". Currently accepts "fantom5","omnipath", or "custom"
+#' @param species string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'
+#' @param min.cells.per.ident integer. Default: NULL. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
+#' @param min.cells.per.gene integer. Default: NULL. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
+#' @param meta.data.to.map A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).
+#' @param position.x string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.
+#' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
+#' @param custom_LR_database data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').
+#' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
+#' @param rad.set numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.
+#' @param blend string. Default: "mean". Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "mean", also accepts "sum".
+#' @param CellToCell logical. Default: TRUE. Whether to analyze cell-cell interactions without considering spatial coordinates.
+#' @param CellToSystem logical. Default: FALSE. Whether to analyze summed signaling output to total system coming from each cell. Does not consider Euclidean coordinates.
+#' @param SystemToCell logical. Default: FALSE. Whether to analyze summed signaling input from total system landing on each cell (cellular microenvironment/niche). Does not consider Euclidean coordinates. 
+#' @param CellToCellSpatial logical. Default: FALSE. Whether to analyze cell-cell interactions between Euclidean neighbors. Only applicable in spatial datasets.
+#' @param CellToNeighborhood logical. Default: FALSE. Whether to analyze summed signaling output to Euclidean neighbors. Only applicable in spatial datasets.
+#' @param NeighborhoodToCell logical. Default: FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.
+#'
+#' @export
+
+
+RunNICHES.matrix <- function(object,
                              LR.database="fantom5",
                              species,
                              min.cells.per.ident = NULL,
