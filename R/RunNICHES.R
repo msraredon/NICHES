@@ -19,6 +19,15 @@ RunNICHES <- function(object,...){
 # Soluion 1: Change Idents(object) to object[['cell_types']] and make `cell_types` a parameter with default as NULL.
 #           This parameter will be checked when `CellToCell` is flag as TRUE, so this will bring awareness to the users.
 
+# TODO: Demultiplex the metadata compilation in each RunXXX function
+
+
+# TO THINK: output format: maybe there is a better way to do this
+#           Currently I add a parameter output_format to control whether the output list should contain seurat objects or lists of matrix and dataframe
+#           This output_format is passed to each RunXXX function, where a seurat object still will be built at the end but will output differently depend on the parameter
+
+
+
 #' RunNICHES
 #' 
 #' Performs user-selected NICHES transformations on a Seurat object. 
@@ -45,7 +54,8 @@ RunNICHES <- function(object,...){
 #' @param CellToCellSpatial logical. Default: FALSE. Whether to analyze cell-cell interactions between Euclidean neighbors. Only applicable in spatial datasets.
 #' @param CellToNeighborhood logical. Default: FALSE. Whether to analyze summed signaling output to Euclidean neighbors. Only applicable in spatial datasets.
 #' @param NeighborhoodToCell logical. Default: FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.
-#'
+#' @param output_format string. Default: "seurat". Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
+#' 
 #' @export
 
 
@@ -67,7 +77,8 @@ RunNICHES.Seurat <- function(object,
                         SystemToCell = F,
                         CellToCellSpatial = F,
                         CellToNeighborhood = F,
-                        NeighborhoodToCell = F
+                        NeighborhoodToCell = F,
+                        output_format = "seurat"
                         ){
   # TODO: check the parameter validity here, then register the parameters
   # 1: check the data format of the required parameters and the optional parameters (if(!is.null())): int, character, etc.
@@ -163,25 +174,32 @@ RunNICHES.Seurat <- function(object,
     edgelist <- compute_edgelist(sys.small,position.x,position.y,k,rad.set)
   }
   
+  # check the output format
+  if(!output_format %in% c("seurat","raw"))
+    stop(paste0("Unsupported output format: ",output_format,", Currently only 'seurat' and 'raw' are supported."))
+
   
   # Calculate NICHES organizations without spatial restrictions
   # jc: only pass the processed data to each function
   if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(sys.small=sys.small,
                                                                    ground.truth=ground.truth,
                                                                    assay = assay,
-                                                                   meta.data.to.map = meta.data.to.map
+                                                                   meta.data.to.map = meta.data.to.map,
+                                                                   output_format = output_format
                                                                    )}
   if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(sys.small=sys.small,
                                                                        ground.truth=ground.truth,
                                                                        assay = assay,
                                                                        meta.data.to.map = meta.data.to.map,
-                                                                       blend = blend
+                                                                       blend = blend,
+                                                                       output_format = output_format
                                                                        )}
   if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(sys.small=sys.small,
                                                                        ground.truth=ground.truth,
                                                                        assay = assay,
                                                                        meta.data.to.map = meta.data.to.map,
-                                                                       blend = blend
+                                                                       blend = blend,
+                                                                       output_format = output_format
                                                                        )}
   
   
@@ -189,19 +207,22 @@ RunNICHES.Seurat <- function(object,
                                                                                  ground.truth=ground.truth,
                                                                                  assay = assay,
                                                                                  meta.data.to.map = meta.data.to.map,
-                                                                                 edgelist = edgelist
+                                                                                 edgelist = edgelist,
+                                                                                 output_format = output_format
                                                                                  )} #Spatially-limited Cell-Cell vectors
   if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(sys.small=sys.small,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = assay,
                                                                                    meta.data.to.map = meta.data.to.map,
-                                                                                   edgelist = edgelist
+                                                                                   edgelist = edgelist,
+                                                                                   output_format = output_format
                                                                                    )} #Spatially-limited Cell-Neighborhood vectors
   if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(sys.small=sys.small,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = assay,
                                                                                    meta.data.to.map = meta.data.to.map,
-                                                                                   edgelist = edgelist
+                                                                                   edgelist = edgelist,
+                                                                                   output_format = output_format
                                                                                    )} #Spatially-limited Neighborhood-Cell vectors (niches)
 
   # jc: Add organization names to the list
@@ -246,6 +267,7 @@ RunNICHES.Seurat <- function(object,
 #' @param CellToCellSpatial logical. Default: FALSE. Whether to analyze cell-cell interactions between Euclidean neighbors. Only applicable in spatial datasets.
 #' @param CellToNeighborhood logical. Default: FALSE. Whether to analyze summed signaling output to Euclidean neighbors. Only applicable in spatial datasets.
 #' @param NeighborhoodToCell logical. Default: FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.
+#' @param output_format string. Default: "seurat". Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
 #'
 #' @export
 
@@ -268,7 +290,8 @@ RunNICHES.matrix <- function(object,
                              SystemToCell = F,
                              CellToCellSpatial = F,
                              CellToNeighborhood = F,
-                             NeighborhoodToCell = F
+                             NeighborhoodToCell = F,
+                             output_format="seurat"
                             ){
   # TODO: check the parameter validity here, then register the parameters
   # 1: check the data format of the required parameters and the optional parameters (if(!is.null())): int, character, etc.
@@ -379,19 +402,22 @@ RunNICHES.matrix <- function(object,
   if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(sys.small=sys.small,
                                                                    ground.truth=ground.truth,
                                                                    assay = "RNA",
-                                                                   meta.data.to.map = colnames(meta.data.to.map)
+                                                                   meta.data.to.map = colnames(meta.data.to.map),
+                                                                   output_format = output_format
   )}
   if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(sys.small=sys.small,
                                                                        ground.truth=ground.truth,
                                                                        assay = "RNA",
                                                                        meta.data.to.map = colnames(meta.data.to.map),
-                                                                       blend = blend
+                                                                       blend = blend,
+                                                                       output_format = output_format
   )}
   if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(sys.small=sys.small,
                                                                        ground.truth=ground.truth,
                                                                        assay = "RNA",
                                                                        meta.data.to.map = colnames(meta.data.to.map),
-                                                                       blend = blend
+                                                                       blend = blend,
+                                                                       output_format = output_format
   )}
   
   
@@ -399,19 +425,22 @@ RunNICHES.matrix <- function(object,
                                                                                  ground.truth=ground.truth,
                                                                                  assay = "RNA",
                                                                                  meta.data.to.map = colnames(meta.data.to.map),
-                                                                                 edgelist = edgelist
+                                                                                 edgelist = edgelist,
+                                                                                 output_format = output_format
   )} #Spatially-limited Cell-Cell vectors
   if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(sys.small=sys.small,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = "RNA",
                                                                                    meta.data.to.map = colnames(meta.data.to.map),
-                                                                                   edgelist = edgelist
+                                                                                   edgelist = edgelist,
+                                                                                   output_format = output_format
   )} #Spatially-limited Cell-Neighborhood vectors
   if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(sys.small=sys.small,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = "RNA",
                                                                                    meta.data.to.map = colnames(meta.data.to.map),
-                                                                                   edgelist = edgelist
+                                                                                   edgelist = edgelist,
+                                                                                   output_format = output_format
   )} #Spatially-limited Neighborhood-Cell vectors (niches)
   
   # jc: Add organization names to the list

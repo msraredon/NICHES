@@ -14,6 +14,7 @@
 #' @param assay The assay to run the CellToSystem transformation on. Defaults to "RNA."
 #' @param blend Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
+#' @param output_format string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
 #' 
 #' @export
 
@@ -22,7 +23,8 @@ RunCellToSystem <- function(sys.small,
                             ground.truth,
                             assay,
                             blend = 'sum',
-                            meta.data.to.map
+                            meta.data.to.map,
+                            output_format
                             ){
   
   
@@ -108,6 +110,16 @@ RunCellToSystem <- function(sys.small,
   # How many vectors were captured by this sampling?
   
   message(paste("\n",length(unique(demo$SendingCell)),'Cell-To-System edges were computed, across',length(unique(demo$SendingType)),'cell types'))
-  return(demo)
+  
+  if(output_format == "seurat") return(demo)
+  else{
+    output_list <- vector(mode = "list",length=2)
+    names(output_list) <- c("CellToSystemMatrix","metadata")
+    output_list[["CellToSystemMatrix"]] <- demo[["CellToSystem"]]@counts
+    output_list[["metadata"]] <- demo@meta.data
+    return(output_list)
+  }
+  
+  
 }
 

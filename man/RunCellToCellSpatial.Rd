@@ -9,7 +9,8 @@ RunCellToCellSpatial(
   ground.truth,
   assay,
   meta.data.to.map,
-  edgelist
+  edgelist,
+  output_format
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ RunCellToCellSpatial(
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
 
 \item{edgelist}{data.frame. Each row is an directional edge between two spatially connected cells}
+
+\item{output_format}{string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata}
 }
 \description{
 RunCellToCellSpatial

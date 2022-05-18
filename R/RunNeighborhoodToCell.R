@@ -5,6 +5,7 @@
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
 #' @param edgelist data.frame. Each row is an directional edge between two spatially connected cells
+#' @param output_format string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
 #'
 #' @export
 
@@ -12,7 +13,8 @@ RunNeighborhoodToCell <- function(sys.small,
                                   ground.truth,
                                   assay,
                                   meta.data.to.map,
-                                  edgelist
+                                  edgelist,
+                                  output_format
                                   ){
   
   # Make ligand matrix
@@ -93,6 +95,14 @@ RunNeighborhoodToCell <- function(sys.small,
   # How many vectors were captured by this sampling?
   message(paste("\n",length(unique(demo$ReceivingCell)),'Neighborhood-To-Cell edges were computed, across',length(unique(demo$ReceivingType)),'cell types'))
   
-  return(demo)
+  if(output_format == "seurat") return(demo)
+  else{
+    output_list <- vector(mode = "list",length=2)
+    names(output_list) <- c("NeighborhoodToCellMatrix","metadata")
+    output_list[["NeighborhoodToCellMatrix"]] <- demo[["NeighborhoodToCell"]]@counts
+    output_list[["metadata"]] <- demo@meta.data
+    return(output_list)
+  }
+  
 }
 

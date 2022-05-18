@@ -9,6 +9,7 @@
 #' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
+#' @param output_format string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
 #'
 #' @importFrom rlang .data
 #' @importFrom dplyr %>%
@@ -18,7 +19,8 @@
 RunCellToCell <- function(sys.small,
                           ground.truth,
                           assay,
-                          meta.data.to.map){
+                          meta.data.to.map,
+                          output_format){
 
   
   ### CREATE MAPPING ###
@@ -145,6 +147,15 @@ RunCellToCell <- function(sys.small,
   
   # How many vectors were captured by this sampling?
   message(paste("\n",ncol(demo),'Cell-To-Cell edges computed, sampling',length(unique(demo$VectorType)),'distinct VectorTypes, out of',length(table(Seurat::Idents(sys.small)))^2,'total possible'))
-  return(demo)
+  
+  if(output_format == "seurat") return(demo)
+  else{
+    output_list <- vector(mode = "list",length=2)
+    names(output_list) <- c("CellToCellMatrix","metadata")
+    output_list[["CellToCellMatrix"]] <- demo[["CellToCell"]]@counts
+    output_list[["metadata"]] <- demo@meta.data
+    return(output_list)
+  }
+
 }
 

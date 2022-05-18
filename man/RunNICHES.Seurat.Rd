@@ -23,7 +23,8 @@
   SystemToCell = F,
   CellToCellSpatial = F,
   CellToNeighborhood = F,
-  NeighborhoodToCell = F
+  NeighborhoodToCell = F,
+  output_format = "seurat"
 )
 }
 \arguments{
@@ -64,6 +65,8 @@
 \item{CellToNeighborhood}{logical. Default: FALSE. Whether to analyze summed signaling output to Euclidean neighbors. Only applicable in spatial datasets.}
 
 \item{NeighborhoodToCell}{logical. Default: FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.}
+
+\item{output_format}{string. Default: "seurat". Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata}
 }
 \description{
 Performs user-selected NICHES transformations on a Seurat object. 

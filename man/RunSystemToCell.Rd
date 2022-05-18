@@ -9,7 +9,8 @@ RunSystemToCell(
   ground.truth,
   assay,
   blend = "sum",
-  meta.data.to.map
+  meta.data.to.map,
+  output_format
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ RunSystemToCell(
 \item{blend}{Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
+
+\item{output_format}{string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata}
 }
 \description{
 Condenses signaling edges landing on each cell within a Seurat object, from all other cells in the system treated as a single source. 

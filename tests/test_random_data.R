@@ -7,7 +7,7 @@ library(NICHES)
 # Use Seurat data as examples
 
 library(Seurat)
-data1 <-  Read10X(data.dir = "/data/test_data/test_data/hg19/")
+data1 <-  Read10X(data.dir = "/data/test_data/filtered_gene_bc_matrices/hg19/")
 pbmc <- CreateSeuratObject(counts = data1, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
@@ -50,6 +50,24 @@ niche_obj3 <- RunNICHES(object = as.matrix(pbmc@assays$RNA@data),LR.database = "
                         min.cells.per.gene = 100,
                         CellToCell = F,CellToSystem = T,SystemToCell = T,
                         CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
+
+
+niche_obj4 <- RunNICHES(object = as.matrix(pbmc@assays$RNA@data),LR.database = "fantom5",species = "human",
+                        meta.data.to.map = pbmc@meta.data,
+                        cell_types = "cell_types",
+                        min.cells.per.ident = 20, 
+                        min.cells.per.gene = 100,
+                        CellToCell = T,CellToSystem = T,SystemToCell = T,
+                        CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F,output_format = "raw")
+
+
+niche_obj5 <- RunNICHES(object = pbmc,assay = "RNA",LR.database = "fantom5",species = "human",
+                       min.cells.per.ident = 20, 
+                       min.cells.per.gene = 100,
+                       meta.data.to.map = colnames(pbmc@meta.data),
+                       CellToCell = T,CellToSystem = T,SystemToCell = T,
+                       CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F,output_format = "raw")
 
 
 custom_db <- data.frame("L" = ncomms8866_human$Ligand.ApprovedSymbol[1:100],"R" = ncomms8866_human$Receptor.ApprovedSymbol[1:100])

@@ -4,7 +4,7 @@
 \alias{RunCellToCell}
 \title{RunCellToCell}
 \usage{
-RunCellToCell(sys.small, ground.truth, assay, meta.data.to.map)
+RunCellToCell(sys.small, ground.truth, assay, meta.data.to.map, output_format)
 }
 \arguments{
 \item{sys.small}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
@@ -14,6 +14,8 @@ RunCellToCell(sys.small, ground.truth, assay, meta.data.to.map)
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the SCC objects}
+
+\item{output_format}{string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata}
 }
 \description{
 Performs cell-cell transformation on a Seurat object, with structural downsampling to avoid data-inflation. Outputs another Seurat object, but where the columns of the matrix are 
