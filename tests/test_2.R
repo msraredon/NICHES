@@ -4,7 +4,7 @@
 library(NICHES)
 library(Seurat)
 # Load Data
-emb <- readRDS("/data/github_proj/SCC_paper/code_test/data/spatial_seurat_processed_main.RDS")
+emb <- readRDS("/data/jyc/github_proj/SCC_paper/code_test/data/spatial_seurat_processed_main.RDS")
 
 #Pull out one slide only
 FFPE2 <- subset(emb,idents=c("E10.5 tail"))
@@ -23,6 +23,10 @@ FFPE2$y <- temp$X2
 test <- RunNICHES(object = FFPE2,assay = "SCT",LR.database = 'fantom5',species = 'mouse',position.x = 'x',position.y = 'y',rad.set = 1,k=NULL,
                CellToCell = T,CellToSystem = T,SystemToCell = T,
                CellToCellSpatial = T,CellToNeighborhood = T,NeighborhoodToCell = T,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
+
+test1 <- RunNICHES(object = FFPE2,assay = "SCT",LR.database = 'fantom5',species = 'mouse',position.x = 'x',position.y = 'y',rad.set = 1,k=NULL,
+                  CellToCell = T,CellToSystem = T,SystemToCell = T,blend = "sum",
+                  CellToCellSpatial = T,CellToNeighborhood = T,NeighborhoodToCell = T,meta.data.to.map = c('nCount_SCT','orig.ident')) #works
 
 # Cluster
 Idents(test[[1]]) <- 'VectorType'

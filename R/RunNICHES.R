@@ -214,6 +214,7 @@ RunNICHES.Seurat <- function(object,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = assay,
                                                                                    meta.data.to.map = meta.data.to.map,
+                                                                                   blend = blend,
                                                                                    edgelist = edgelist,
                                                                                    output_format = output_format
                                                                                    )} #Spatially-limited Cell-Neighborhood vectors
@@ -221,6 +222,7 @@ RunNICHES.Seurat <- function(object,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = assay,
                                                                                    meta.data.to.map = meta.data.to.map,
+                                                                                   blend = blend,
                                                                                    edgelist = edgelist,
                                                                                    output_format = output_format
                                                                                    )} #Spatially-limited Neighborhood-Cell vectors (niches)
@@ -432,6 +434,7 @@ RunNICHES.matrix <- function(object,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = "RNA",
                                                                                    meta.data.to.map = colnames(meta.data.to.map),
+                                                                                   blend = blend,
                                                                                    edgelist = edgelist,
                                                                                    output_format = output_format
   )} #Spatially-limited Cell-Neighborhood vectors
@@ -439,6 +442,7 @@ RunNICHES.matrix <- function(object,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = "RNA",
                                                                                    meta.data.to.map = colnames(meta.data.to.map),
+                                                                                   blend = blend,
                                                                                    edgelist = edgelist,
                                                                                    output_format = output_format
   )} #Spatially-limited Neighborhood-Cell vectors (niches)

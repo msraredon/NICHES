@@ -9,6 +9,7 @@ RunNeighborhoodToCell(
   ground.truth,
   assay,
   meta.data.to.map,
+  blend = "mean",
   edgelist,
   output_format
 )
@@ -21,6 +22,8 @@ RunNeighborhoodToCell(
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
+
+\item{blend}{Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum"}
 
 \item{edgelist}{data.frame. Each row is an directional edge between two spatially connected cells}
 

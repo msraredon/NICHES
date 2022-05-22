@@ -4,6 +4,7 @@
 #' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
+#' @param blend Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum"
 #' @param edgelist data.frame. Each row is an directional edge between two spatially connected cells 
 #' @param output_format string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
 #'
@@ -13,6 +14,7 @@ RunCellToNeighborhood <- function(sys.small,
                                   ground.truth,
                                   assay,
                                   meta.data.to.map,
+                                  blend="mean",
                                   edgelist,
                                   output_format
                                   ){
@@ -55,8 +57,10 @@ RunCellToNeighborhood <- function(sys.small,
   # Condense by column name
   colnames(scc) <- colnames(lig.data) # Make colnames equal to sending cell
   scc <- as.matrix(scc)
-  scc <- t(rowsum(t(scc), colnames(scc)))
-
+  if(blend == "sum") scc <- t(rowsum(t(scc), colnames(scc)))
+  else if(blend == "mean")  scc <- sapply(unique(colnames(scc)), function(sending_name) 
+    rowMeans(scc[,colnames(scc)== sending_name,drop=FALSE], na.rm=TRUE) )
+  
   # Label columns properly
   barcodes <- colnames(scc)
   colnames(scc) <- paste(colnames(scc),'Neighborhood',sep = '—')
