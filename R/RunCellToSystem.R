@@ -12,7 +12,7 @@
 #' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the CellToSystem transformation on. Defaults to "RNA."
-#' @param blend Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"
+#' @param blend Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum"
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
 #' @param output_format string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
 #' 
@@ -22,7 +22,7 @@
 RunCellToSystem <- function(sys.small,
                             ground.truth,
                             assay,
-                            blend = 'sum',
+                            blend = 'mean',
                             meta.data.to.map,
                             output_format
                             ){
