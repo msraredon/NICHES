@@ -122,7 +122,7 @@ RunNICHES <- function(object,
     if(!is.null(rad.set)) rad.set <- as.numeric(rad.set)
   }
   
-  if((!is.null(position.x) | !is.null(position.y)) & org_names_indicator["CellToCellSpatial"] == F & org_names_indicator["CellToNeighborhood"] == F & org_names_indicator["NeighborhoodToCell"] == T)
+  if((!is.null(position.x) | !is.null(position.y)) & org_names_indicator["CellToCellSpatial"] == F & org_names_indicator["CellToNeighborhood"] == F & org_names_indicator["NeighborhoodToCell"] == F)
     warning("Spatial positions are provided but the spatial organization functions: 'CellToCellSpatial','CellToNeighborhood', and 'NeighborhoodToCell' are set to FALSE.")
     
   # TODO: check blend with the system indicators, blend is not in other functions?
