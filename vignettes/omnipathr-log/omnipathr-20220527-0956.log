@@ -1,0 +1,11 @@
+[2022-05-27 09:56:30] [INFO]    [OmnipathR] Initialized cache: `/home/jyc/.cache/OmnipathR`.
+[2022-05-27 09:56:30] [INFO]    [OmnipathR] Welcome to OmnipathR!
+[2022-05-27 09:56:30] [INFO]    [OmnipathR] Cache record does not exist: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=ligrecextra&organisms=9606&fields=sources,references,curation_effort&license=academic`
+[2022-05-27 09:56:30] [INFO]    [OmnipathR] Retrieving URL: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=ligrecextra&organisms=9606&fields=sources,references,curation_effort&license=academic`
+[2022-05-27 09:56:30] [TRACE]   [OmnipathR] Attempt 1/3: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=ligrecextra&organisms=9606&fields=sources,references,curation_effort&license=academic`
+[2022-05-27 09:56:32] [INFO]    [OmnipathR] Cache item `0fbfb4de77ad3ee1c1676ccf1db67b570530f02f` version 1: status changed from `unknown` to `started`.
+[2022-05-27 09:56:32] [TRACE]   [OmnipathR] Exporting object to RDS: `/home/jyc/.cache/OmnipathR/0fbfb4de77ad3ee1c1676ccf1db67b570530f02f-1.rds`.
+[2022-05-27 09:56:32] [TRACE]   [OmnipathR] Exported RDS to `/home/jyc/.cache/OmnipathR/0fbfb4de77ad3ee1c1676ccf1db67b570530f02f-1.rds`.
+[2022-05-27 09:56:32] [INFO]    [OmnipathR] Download ready [key=0fbfb4de77ad3ee1c1676ccf1db67b570530f02f, version=1]
+[2022-05-27 09:56:32] [INFO]    [OmnipathR] Cache item `0fbfb4de77ad3ee1c1676ccf1db67b570530f02f` version 1: status changed from `started` to `ready`.
+[2022-05-27 09:56:32] [SUCCESS] [OmnipathR] Downloaded 8350 interactions.
