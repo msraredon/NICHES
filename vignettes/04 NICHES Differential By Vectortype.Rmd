@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 A common question is how to use NICHES to assess differential signaling across experimental conditions or batches. This is a task that is exceptionally easy in NICHES if performed in the correct way. Here, we demonstrate how to approach this task, using the publicly available 'ifnb' dataset within SeuratData which allows comparision of IFNb-stimualted PBMCs versus control PBMCs.
 
-##Load Required Packages
+## Load Required Packages
 ```{r message=F, warning=F}
 library(Seurat)
 library(ggplot2)
@@ -25,7 +25,7 @@ library(NICHES)
 library(stringr)
 ```
 
-##Load Data and Explore Metadata
+## Load Data and Explore Metadata
 ```{r message=F, warning=F}
 library(SeuratData)
 #InstallData("ifnb")
@@ -35,7 +35,7 @@ table(ifnb@meta.data$stim,ifnb@meta.data$seurat_annotations)
 
 This dataset contains two experimental conditions, annotated STIM and CTRL. Prior to running NICHES, we will split the dataset into two objects, one representing each experimental condition. This way, cells will only be crossed with cells in the same experimental condition.
 
-##  Split by Experimental Contion
+## Split by Experimental Contion
 ```{r message=F, warning=F}
 # Set idents so that celltypes are in active identity slot
 Idents(ifnb) <- ifnb@meta.data["seurat_annotations"]

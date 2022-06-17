@@ -1,0 +1,204 @@
+---
+title: "Pseudtotemporal Ordering with NICHES"
+author: "Micha Sam Brickman Raredon & Neeharika Kothapalli"
+date: "`r Sys.Date()`"
+vignette: |
+  %\VignetteIndexEntry{Pseudtotemporal Ordering with NICHES} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+NICHES data can be overlayed onto pseudotemporal orderings. However, the exact way in which this is done matters a great deal for biologically interpretability. This vignette demonstrates one of the simplest and most mangeable use-cases: asking how sensed microenvironment 'changes' with differentiation in a single homeostatic tissue. The ligand milieu in this case is constant (since we are dealing with a single system and the tissue itself has constant composition) but the receptor profile of a differentiating lineage will change over psuedotime. NICHES allows rapid observation of this changing interaction.
+
+We leverage data from https://www.science.org/doi/10.1126/sciadv.aaw3851 to show this specific application.
+
+## Load Dependencies
+```{r message=F, warning=F}
+require(Seurat)
+require(NICHES)
+require(monocle3)
+library(dplyr)
+library(ggplot2)
+library(cowplot)
+library(ComplexHeatmap)
+library(SeuratWrappers)
+library(Matrix)
+library(patchwork)
+library(magick)
+set.seed(2)
+```
+
+We look at the whole dataset as a starting point (10,953 cells):
+
+# Load Data
+```{r message=F, warning=F}
+load("raredon_2019_rat.Robj")
+TSNEPlot(rat)
+```
+
+We are going to focus specifically on ATII-ATI epithelial differentiation. We want to ask what changes occur in the sensed microenviornment as ATII cells differentate into ATI cells. For simplicity, we are going to again limit our analysis to 9 celltypes that we are confident are often found in close proximity to both ATII and ATI cells in the alveolus of the lung:
+
+## Focus on histologically co-localized cell-system, and downsample for this vignette
+```{r message=F, warning=F}
+rat.sub <- subset(rat,idents = c('ATII','ATI',
+                                 'Mac_alv','Mac_inter',
+                                 'Fib_Col13a1+','Fib_Col14a1+','SMCs',
+                                 'EC_cap','EC_vasc'))
+rat.sub <- subset(rat.sub,cells = WhichCells(rat.sub,downsample = 300))
+rat.sub <- ScaleData(rat.sub)
+rat.sub <- FindVariableFeatures(rat.sub)
+rat.sub <- RunPCA(rat.sub)
+ElbowPlot(rat.sub,ndims=50)
+rat.sub <- RunUMAP(rat.sub,dims = 1:40)
+UMAPPlot(rat.sub)
+```
+
+We then compute SystemToCell information within this cell-system and isolate the outputs corresponding to our two transdifferentiating celltypes, as follows:
+
+## Visualization of homeostatic microenvironment for two transdifferentiatng celltypes
+```{r message=F, warning=F}
+lung.niche <- RunNICHES(rat.sub,
+                        assay = 'alra',
+                        species = 'rat',
+                        LR.database = 'fantom5',
+                        SystemToCell = T,
+                        CellToCell = F) 
+# Here we use a previously-created imputed data slot. The same computation may be performed on any data slot including standard log-normalized RNA values.
+niche.object <- lung.niche$SystemToCell #Extract the output of interest
+
+# Subset to receiving cells of interest
+Idents(niche.object) <- niche.object@meta.data$ReceivingType
+niche.object <- subset(niche.object,idents = c('ATII','ATI'))
+niche.object <- ScaleData(niche.object) #Scale
+niche.object <- FindVariableFeatures(niche.object) #Identify variable features
+niche.object <- RunPCA(niche.object,npcs = 50) #RunPCA
+ElbowPlot(niche.object,ndims=50) #Choose PCs to use for embedding
+niche.object <- RunUMAP(niche.object,dims = 1:12) #Embed
+DimPlot(niche.object,reduction = 'umap',label = T,repel = F,label.size = 6)+ 
+  NoLegend()+ NoAxes()+ ggtitle('Alveolar Epithelial Microenvironment')
+```
+
+
+This is a good start and tells us we are on the right track. We can that some SystemToCell measurements classified as landing on an ATII are actually quantitatively similar to those landing on ATI cells. We can explore this in greater depth by pausing the analysis of the NICHES data, and taking the time to pseudotemporally order the original cells. Here, we use monocle3 to do this:
+
+## Psuedotemporal ordering of original cells
+```{r message=F, warning=F}
+# Subset, run UMAP, take a look to check
+cell.data <- subset(rat.sub,idents = c('ATII','ATI'))
+cell.data <- ScaleData(cell.data)
+cell.data <- FindVariableFeatures(cell.data)
+cell.data <- RunPCA(cell.data)
+ElbowPlot(cell.data,ndims=20)
+cell.data <- RunUMAP(cell.data,dims = 1:3)
+UMAPPlot(cell.data)
+
+# Convert to Monocle CDS
+cell.cds <- as.cell_data_set(cell.data)
+# Calculate size factors using built-in function in monocle3
+#cell.cds <- estimate_size_factors(cell.cds)
+
+# Make pseudotime trajectory with a known start point
+cell.cds <- cluster_cells(cds = cell.cds, reduction_method = "UMAP")
+cell.cds <- learn_graph(cell.cds, use_partition = F)
+start <- WhichCells(cell.data,idents = 'ATII')
+cell.cds <- order_cells(cell.cds, reduction_method = "UMAP", root_cells = start)
+
+# Plot pseudotime trajectory
+plot_cells(
+  cds = cell.cds,
+  color_cells_by = "pseudotime",
+  show_trajectory_graph = TRUE,
+  cell_size = 0.5)
+
+```
+
+We can then map this pseudotemporal ordering back to the original Seurat object:
+
+```{r message=F, warning=F}
+cell.data <- AddMetaData(
+  object = cell.data,
+  metadata = cell.cds@principal_graph_aux@listData$UMAP$pseudotime,
+  col.name = "Pseudotime"
+)
+
+FeaturePlot(cell.data, c("Pseudotime"), pt.size = 0.4) & scale_color_viridis_c()
+```
+
+OR, we can map the pseudotemporal ordering on the NICHES SystemToCell object.
+
+```{r message=F, warning=F}
+niche.object <- AddMetaData(
+  object = niche.object,
+  metadata = cell.cds@principal_graph_aux@listData$UMAP$pseudotime,
+  col.name = "Pseudotime"
+)
+
+FeaturePlot(niche.object, c("Pseudotime"), pt.size = 0.4) & scale_color_viridis_c()
+```
+
+But more fundamentally, we are now set to see how signaling 'changes' over pseudotime, which was our original goal. Here is one approach for how to do this:
+
+```{r message=F, warning=F,fig.width = 6,fig.height = 10}
+# Convert NICHES object to matrix format
+data <-  as.matrix(niche.object@assays[["SystemToCell"]]@data)
+
+# Count the percent of non-zeros for each mechanism
+temp <- apply(data,1,function(z){
+  n <- 1-sum(z==0)/dim(data)[2]
+})
+temp <- temp[which(temp>0.25)] # Remove mechanisms with more than 75% of zeros
+mechs <- names(temp)
+data <- data[mechs,] # 836 mechs
+
+# Pull metadata
+meta <- niche.object@meta.data
+meta$cell <- rownames(meta)
+
+# Run Pearson correlation for each mechanism against pseudotime
+df <- data.frame()
+for(i in 1:length(mechs)){
+  temp <- data.frame(data = data[i,])
+  colnames(temp) <- "data"
+  temp$cell <- rownames(temp)
+  temp <- merge(temp,meta,by="cell")
+  test <- cor.test(temp$Pseudotime,temp$data)
+  row = data.frame(mech = rownames(data)[i],p.val = test[["p.value"]], cor = test[["estimate"]][["cor"]])
+  df <- rbind(df,row)
+}
+
+# Subset to mechanisms with desired thresholds
+df$q.val= p.adjust(df$p.val, method = "fdr")
+plot <- df[which(df$q.val<0.05),]
+plot <- plot[which(plot$mech %in% mechs),]
+plot <- plot[which(abs(plot$cor)>.8),] # Looking for high correlations with pseudotime
+to_plot <- as.matrix(data[plot$mech,])
+
+# Arrange metadata and cells by pseudotime
+meta <- meta %>% arrange(Pseudotime)
+to_plot <- to_plot[,meta$cell]
+
+# Prepare Annotations
+ha <- HeatmapAnnotation(df = meta[,c('Pseudotime','ReceivingType')],which = 'column')
+
+# Scale for visualization
+to_plot_scale <- t(scale(t(to_plot), center = TRUE, scale = TRUE)) # scale data for better visualization
+
+# Plot in HeatMap Form
+Heatmap(to_plot_scale,
+        column_order = meta$cell,
+        show_column_names = FALSE,
+        show_row_names = TRUE,
+        top_annotation = ha,
+        use_raster = T)
+```
+
+The altered sensed-signaling through Fgfr2, Hhip, and Met are all particularly biologically relevant in this instance. 
+
+These observed patterns are only dependent on receptor expression, and therefore could have been found through traditional transcriptomic analysis. Because NICHES operates on a mechanism level, however, this approach narrows focus exclusively onto receptors which have cognate ligand being expressed within the system.
+
+It should be noted that NICHES is also a powerful tool for psuedotemporal investigation of processes in which both the ligand milieu and the receptor expression of a differentating lineage are changing. This will be covered in a spearate vignette, since it is a distinct biologic application and is more complicated to implement.
