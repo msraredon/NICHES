@@ -31,6 +31,7 @@ library(SeuratWrappers)
 library(NICHES)
 library(viridis)
 ```
+
 Next, we load the data, perform basic pre-processing, and cluster the data so that we can visualize patterns of interest. For this vignette we will use basic Seurat clustering annotations to avoid the work of labeling celltypes, which are not necessary for this demonstration.
 
 ## Load Data, Normalize, Visualize
@@ -125,6 +126,7 @@ ggpubr::ggarrange(p1,p2)
 ```
 
 Further, and perhaps more usefully, we can map over the output from NICHES onto the original spatial object as follows:
+
 ```{r message=F, warning=F}
 # Add Niches output as an assay
 niches.data <- GetAssayData(object =  niche[['NeighborhoodToCell']], slot = 'data')
@@ -135,6 +137,7 @@ brain <- ScaleData(brain)
 ```
 
 Which allows direct visualization of niche interactions of interest in a spatial context:
+
 ```{r message=F, warning=F}
 # Plot celltype specific niche signaling
 SpatialFeaturePlot(brain,

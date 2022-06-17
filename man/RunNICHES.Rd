@@ -17,7 +17,7 @@ RunNICHES(
   custom_LR_database = NULL,
   k = 4,
   rad.set = NULL,
-  blend = "sum",
+  blend = "mean",
   CellToCell = T,
   CellToSystem = F,
   SystemToCell = F,
@@ -51,7 +51,7 @@ RunNICHES(
 
 \item{rad.set}{numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.}
 
-\item{blend}{string. Default: "sum". Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "sum", also accepts "mean".}
+\item{blend}{string. Default: "mean". Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "mean", also accepts "sum".}
 
 \item{CellToCell}{logical. Default: TRUE. Whether to analyze cell-cell interactions without considering spatial coordinates.}
 

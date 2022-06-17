@@ -26,7 +26,9 @@ library(ggplot2)
 ```
 
 ## Load and Visualize Single-Cell Data
+
 Here, we use the 'pbmc3k' dataset from SeuratData. This is a commonly-used dataset showing options for the workflow.
+
 ```{r message=F, warning=F}
 InstallData("pbmc3k")
 data("pbmc3k")
@@ -40,13 +42,16 @@ DimPlot(pbmc3k,reduction = 'umap',label = T,repel = F,label.size = 6)
 ```
 
 For simplicity, let's focus in on signaling within a simple 3-cell system:
+
 ```{r message=F, warning=F}
 sub <- subset(pbmc3k,idents = c('B','Naive CD4 T','CD14+ Mono'))
 DimPlot(sub,reduction = 'umap',label = T,repel = F,label.size = 6)
 ```
 
 ## Convert to Cell-Cell Signaling Atlas
+
 Here, we use the human-specific OmniPath database as our ground-truth ligand-receptor mechanism database, which includes some mechanisms with more than one subunit on both the sending and receiving arms:
+
 ```{r message=F, warning=F}
 scc <- RunNICHES(sub,
                  assay = 'RNA',
@@ -56,7 +61,9 @@ scc <- RunNICHES(sub,
 ```
 
 ## Visualize Cell-Cell Signaling Relationships using UMAP
+
 We can visualize cell-cell signaling relationships quickly using tSNE or UMAP as follows:
+
 ```{r message=F, warning=F}
 demo <- scc$CellToCell
 demo <- ScaleData(demo)
