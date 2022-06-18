@@ -1,9 +1,9 @@
 ---
-title: "Pseudtotemporal Ordering with NICHES"
+title: "Pseudotemporal Ordering with NICHES"
 author: "Micha Sam Brickman Raredon & Neeharika Kothapalli"
 date: "`r Sys.Date()`"
 vignette: |
-  %\VignetteIndexEntry{Pseudtotemporal Ordering with NICHES} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Pseudotemporal Ordering with NICHES} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}
@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-NICHES data can be overlayed onto pseudotemporal orderings. However, the exact way in which this is done matters a great deal for biologically interpretability. This vignette demonstrates one of the simplest and most mangeable use-cases: asking how sensed microenvironment 'changes' with differentiation in a single homeostatic tissue. The ligand milieu in this case is constant (since we are dealing with a single system and the tissue itself has constant composition) but the receptor profile of a differentiating lineage will change over psuedotime. NICHES allows rapid observation of this changing interaction.
+NICHES data can be overlaid onto pseudotemporal orderings. However, the exact way in which this is done matters a great deal for biologically interpretability. This vignette demonstrates one of the simplest and most manageable use-cases: asking how sensed microenvironment 'changes' with differentiation in a single homeostatic tissue. The ligand milieu in this case is constant (since we are dealing with a single system and the tissue itself has constant composition) but the receptor profile of a differentiating lineage will change over pseudotime. NICHES allows rapid observation of this changing interaction.
 
 We leverage data from https://www.science.org/doi/10.1126/sciadv.aaw3851 to show this specific application.
 
@@ -41,7 +41,7 @@ load("raredon_2019_rat.Robj")
 TSNEPlot(rat)
 ```
 
-We are going to focus specifically on ATII-ATI epithelial differentiation. We want to ask what changes occur in the sensed microenviornment as ATII cells differentate into ATI cells. For simplicity, we are going to again limit our analysis to 9 celltypes that we are confident are often found in close proximity to both ATII and ATI cells in the alveolus of the lung:
+We are going to focus specifically on ATII-ATI epithelial differentiation. We want to ask what changes occur in the sensed microenvironment as ATII cells differentiate into ATI cells. For simplicity, we are going to again limit our analysis to 9 cell types that we are confident are often found in close proximity to both ATII and ATI cells in the alveolus of the lung:
 
 ## Focus on histologically co-localized cell-system, and downsample for this vignette
 ```{r message=F, warning=F}
@@ -58,9 +58,9 @@ rat.sub <- RunUMAP(rat.sub,dims = 1:40)
 UMAPPlot(rat.sub)
 ```
 
-We then compute SystemToCell information within this cell-system and isolate the outputs corresponding to our two transdifferentiating celltypes, as follows:
+We then compute SystemToCell information within this cell-system and isolate the outputs corresponding to our two transdifferentiating cell types, as follows:
 
-## Visualization of homeostatic microenvironment for two transdifferentiatng celltypes
+## Visualization of homeostatic microenvironment for two transdifferentiating cell types
 ```{r message=F, warning=F}
 lung.niche <- RunNICHES(rat.sub,
                         assay = 'alra',
@@ -86,7 +86,7 @@ DimPlot(niche.object,reduction = 'umap',label = T,repel = F,label.size = 6)+
 
 This is a good start and tells us we are on the right track. We can that some SystemToCell measurements classified as landing on an ATII are actually quantitatively similar to those landing on ATI cells. We can explore this in greater depth by pausing the analysis of the NICHES data, and taking the time to pseudotemporally order the original cells. Here, we use monocle3 to do this:
 
-## Psuedotemporal ordering of original cells
+## Pseudotemporal ordering of original cells
 ```{r message=F, warning=F}
 # Subset, run UMAP, take a look to check
 cell.data <- subset(rat.sub,idents = c('ATII','ATI'))
@@ -143,7 +143,7 @@ FeaturePlot(niche.object, c("Pseudotime"), pt.size = 0.4) & scale_color_viridis_
 
 But more fundamentally, we are now set to see how signaling 'changes' over pseudotime, which was our original goal. Here is one approach for how to do this:
 
-```{r message=F, warning=F,fig.width = 6,fig.height = 10}
+```{r message=F, warning=F,fig.width = 8,fig.height = 12}
 # Convert NICHES object to matrix format
 data <-  as.matrix(niche.object@assays[["SystemToCell"]]@data)
 
@@ -201,4 +201,4 @@ The altered sensed-signaling through Fgfr2, Hhip, and Met are all particularly b
 
 These observed patterns are only dependent on receptor expression, and therefore could have been found through traditional transcriptomic analysis. Because NICHES operates on a mechanism level, however, this approach narrows focus exclusively onto receptors which have cognate ligand being expressed within the system.
 
-It should be noted that NICHES is also a powerful tool for psuedotemporal investigation of processes in which both the ligand milieu and the receptor expression of a differentating lineage are changing. This will be covered in a spearate vignette, since it is a distinct biologic application and is more complicated to implement.
+It should be noted that NICHES is also a powerful tool for pseudotemporal investigation of processes in which both the ligand milieu and the receptor expression of a differentiating lineage are changing. This will be covered in a separate vignette, since it is a distinct biologic application and is more complicated to implement.
