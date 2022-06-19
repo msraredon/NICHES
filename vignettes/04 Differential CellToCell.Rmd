@@ -143,7 +143,7 @@ lapply(VOI, function(x){
   #find markers (here we use wilcox, but ROC and other tests can be used as well)
   markers <- FindAllMarkers(subs, features=feats, test.use = "wilcox",assay='CellToCell')
   
-  #subset to top 20 markers per condition
+  #subset to top 10 markers per condition
   top10 <- markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
   
   #Make a heatmap
