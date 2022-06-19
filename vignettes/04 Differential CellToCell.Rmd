@@ -62,7 +62,8 @@ for(i in 1:length(data.list)){
                              min.cells.per.ident=1,
                              min.cells.per.gene = 50,
                              meta.data.to.map = c('orig.ident','seurat_annotations','stim'),
-                             SystemToCell = T)
+                             SystemToCell = T,
+                             CellToCell = T)
 }
 names(scc.list) <- names(data.list)
 ```
@@ -73,7 +74,7 @@ NICHES provides output as a list of objects or tables, because it is capable of 
 ```{r message=F, warning=F}
 temp.list <- list()
 for(i in 1:length(scc.list)){
-temp.list[[i]] <- scc.list[[i]]$CellToCell # Isolate
+temp.list[[i]] <- scc.list[[i]]$CellToCell # Isolate CellToCell Signaling, which is all that will be covered in this vignette
 temp.list[[i]]$Condition <- names(scc.list)[i] # Tag with metadata
 }
 ```

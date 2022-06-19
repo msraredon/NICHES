@@ -1,9 +1,9 @@
 ---
-title: "Exploring Cellular Relationships in the Rat Alveolus"
+title: "Cellular Relationships in the Rat Alveolus"
 author: "Micha Sam Brickman Raredon & Junchen Yang"
 date: "`r Sys.Date()`"
 vignette: |
-  %\VignetteIndexEntry{Exploring Cellular Relationships and Cell-Cell Signaling in the Rat Alveolus} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Cellular Relationships in the Rat Alveolus} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}

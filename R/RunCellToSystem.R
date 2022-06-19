@@ -2,7 +2,7 @@
 #' 
 #' Condenses all signaling edges coming from each cell within a Seurat object connecting to every other cell in the system, treated as a single sink.
 #' Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
-#' and the columns are each a single sending cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
+#' and the columns are each a single sending cell barcode. The information in the matrix is an average (or a sum, depending on user preference) of
 #' all signaling edges coming from that particular cell, to every other cell in the system (including to itself.)
 #' This transformation allows rapid manipulation and dimensional reduction of how a cell is connected within the system.
 #' The default assay of this object is called "CellToSystem" to distinguish it from other Seurat objects.
@@ -12,7 +12,7 @@
 #' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param ground.truth Ground truth signaling mechanisms present in sys.small.
 #' @param assay The assay to run the CellToSystem transformation on. Defaults to "RNA."
-#' @param blend Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"
+#' @param blend Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum"
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
 #' 
 #' @export
@@ -21,7 +21,7 @@
 RunCellToSystem <- function(sys.small,
                             ground.truth,
                             assay,
-                            blend = 'sum',
+                            blend = 'mean',
                             meta.data.to.map
                             ){
   
