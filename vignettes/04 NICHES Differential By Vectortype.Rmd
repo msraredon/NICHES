@@ -41,6 +41,10 @@ This dataset contains two experimental conditions, annotated STIM and CTRL. Prio
 Idents(ifnb) <- ifnb@meta.data["seurat_annotations"]
 # Split object into STIM and CTRL conditions, to calculate NICHES objects separately
 data.list <- SplitObject(ifnb, split.by="stim")
+# Make sure that data is normalized
+data.list <- lapply(X = data.list, FUN = function(x) {
+    x <- NormalizeData(x)
+})
 ```
 
 We now are prepared to run NICHES separately on the cell systems present in each experimental condition. 
