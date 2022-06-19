@@ -63,7 +63,7 @@
       <a href="../articles/03%20Rat%20Alveolus.html">Cellular Relationships in the Rat Alveolus</a>
     </li>
     <li>
-      <a href="../articles/04%20Differential%20CellToCell.html">Using NICHES to Analyze Cell-Cell Signaling Across Conditions</a>
+      <a href="../articles/04%20Differential%20CellToCell.html">Differential CellToCell Signaling Across Conditions</a>
     </li>
     <li>
       <a href="../articles/05%20Differential%20SystemToCell.html">Differential SystemToCell Signaling Across Conditions</a>
@@ -99,7 +99,7 @@
 
     
     
-<p>NICHES is also able to compare SystemToCell signaling across conditions to estimate changes in sensed-microenvironment due to altered experimental conditions or altered tissue state. To perform this operation, NICHES creates a measurement of ligand coming from the whole system by taking the mean of all sending cells for each ligand mechanis, and then multiplying this value with the cognate receptor mechanism expression on each receiving cell. The workflow has been designed this way so that altered cell compositions between samples will have a measurable effect on the NICHES output. This allows insight into the alterations to network connectivity which occur due to the development or elimination of celltypes in dynamic processes and can help users to identify cell-cell relationships of interest for further investigation.</p>
+<p>NICHES is also able to compare SystemToCell signaling across conditions to estimate changes in sensed-microenvironment due to altered experimental conditions or altered tissue state. To perform this operation, NICHES creates a measurement of ligand coming from the whole system by taking the mean of all sending cells for each ligand mechanism, and then multiplying this value with the cognate receptor mechanism expression on each receiving cell. The workflow has been designed this way so that altered cell compositions between samples will have a measurable effect on the NICHES output. This allows insight into the alterations to network connectivity which occur due to the development or elimination of celltypes in dynamic processes and can help users to identify cell-cell relationships of interest for further investigation.</p>
 <p>However, it also means that care must be taken when setting up the computational workflow. In particular, we recommend that the number of cells analyzed in each condition be standardized, to avoid potential artifacts which might be caused by taking the mean in different conditions using different denominators.</p>
 <p>We will demonstrate this workflow and functionality using the publicly available ‘ifnb’ dataset within SeuratData which allows comparision of IFNb-stimualted PBMCs versus control PBMCs.</p>
 <div id="load-required-packages" class="section level2">
