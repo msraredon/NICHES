@@ -364,7 +364,7 @@ RunNICHES.matrix <- function(object,
     if(!is.null(rad.set)) rad.set <- as.numeric(rad.set)
   }
   
-  # TODO: bug fix: change the last logical in the master branch
+  # finished: bug fix: change the last logical in the master branch
   if((!is.null(position.x) | !is.null(position.y)) & org_names_indicator["CellToCellSpatial"] == F & org_names_indicator["CellToNeighborhood"] == F & org_names_indicator["NeighborhoodToCell"] == F)
     warning("Spatial positions are provided but the spatial organization functions: 'CellToCellSpatial','CellToNeighborhood', and 'NeighborhoodToCell' are set to FALSE.")
   
