@@ -27,6 +27,8 @@ library(dplyr)
 library(scales)
 library(NICHES)
 library(stringr)
+library(reshape2)
+library(cowplot)
 ```
 
 ## Load Data and Explore Metadata
@@ -37,7 +39,7 @@ data("ifnb")
 table(ifnb@meta.data$stim,ifnb@meta.data$seurat_annotations)
 ```
 
-This dataset contains two experimental conditions, annotated STIM and CTRL. Prior to running NICHES, we will split the dataset into two objects, one representing each experimental condition. This way, cells will only be crossed with cells in the same experimental condition.
+This dataset contains two experimental conditions, annotated STIM and CTRL. As before, prior to running NICHES, we will split the dataset into two objects, one representing each experimental condition. This way, cells will only be crossed with cells in the same experimental condition. We also make sure that the data are normalized.
 
 ## Split by Experimental Contion
 ```{r message=F, warning=F}
@@ -51,7 +53,29 @@ data.list <- lapply(X = data.list, FUN = function(x) {
 })
 ```
 
-We now are prepared to run NICHES separately on the cell systems present in each experimental condition. 
+In contrast to the previous vignette, we are interested in the SystemToCell signaling output. Because of this, we advise standardizing the number of cells in each condition that are input into NICHES for each condition. This is one simple approach for how to do this:
+
+```{r message=F, warning=F}
+# Define the maximum number that can be sampled from all conditions
+max.cells <- min(ncol(data.list[[1]]),ncol(data.list[[2]])) 
+# Downsample to the same number of cells for each condition
+for (i in 1:length(data.list)){
+  Idents(data.list[[i]]) <- data.list[[i]]$stim
+  data.list[[i]] <- subset(data.list[[i]],cells = WhichCells(data.list[[i]],downsample = max.cells))
+  Idents(data.list[[i]]) <- data.list[[i]]$seurat_annotations
+}
+# Check resulting distributions and that the totals are the same
+distribution <- data.frame(CTRL = table(Idents(data.list[[1]])),
+                            STIM = table(Idents(data.list[[2]])))
+distribution <- reshape2::melt(distribution)
+ggplot(data = distribution,aes(x = STIM.Var1,y=value,fill = variable))+geom_bar(stat='identity',position='dodge')+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+  ggtitle('Number of Cells Per Condition')
+ncol(data.list[[1]])==ncol(data.list[[2]]) # Check that totals are the same
+
+```
+
+We now are prepared to calculate SystemToCell signaling for each experimental condition.
 
 ## Run NICHES
 ```{r message=F, warning=F}
@@ -78,7 +102,7 @@ NICHES provides output as a list of objects or tables, because it is capable of 
 ```{r message=F, warning=F}
 temp.list <- list()
 for(i in 1:length(scc.list)){
-temp.list[[i]] <- scc.list[[i]]$CellToCell # Isolate CellToCell Signaling, which is all that will be covered in this vignette
+temp.list[[i]] <- scc.list[[i]]$SystemToCell # Isolate SystemToCell Signaling, which is all that will be covered in this vignette
 temp.list[[i]]$Condition <- names(scc.list)[i] # Tag with metadata
 }
 ```
@@ -91,8 +115,8 @@ We can then merge these NICHES outputs together to embed, cluster, and analyze t
 scc.merge <- merge(temp.list[[1]],temp.list[2])
 
 # Clean up low-information crosses (connectivity data can be very sparse)
-VlnPlot(scc.merge,features = 'nFeature_CellToCell',group.by = 'Condition',pt.size=0.1,log = T)
-scc.sub <- subset(scc.merge,nFeature_CellToCell > 5) # Requesting at least 5 distinct ligand-receptor interactions between two cells
+VlnPlot(scc.merge,features = 'nFeature_SystemToCell',group.by = 'Condition',pt.size=0.1,log = T)
+scc.sub <- subset(scc.merge,nFeature_SystemToCell > 5) # Requesting at least 5 distinct ligand-receptor interactions between two cells
 ```
 
 Let's now perform an initial visualization of signaling between these two conditions, which we do as follows:
@@ -106,17 +130,16 @@ scc.sub <- RunPCA(scc.sub,npcs = 50)
 ElbowPlot(scc.sub,ndim=50)
 ```
 
-We choose to use the first 25 principle components for a first embedding:
+We choose to use the first 10 principle components for a first embedding:
 
 ```{r message=F, warning=F}
-scc.sub <- RunUMAP(scc.sub,dims = 1:25)
-DimPlot(scc.sub,group.by = 'VectorType')+NoLegend()
-DimPlot(scc.sub,group.by = 'Condition')
-DimPlot(scc.sub,group.by = 'ReceivingType')
-DimPlot(scc.sub,group.by = 'SendingType')
+scc.sub <- RunUMAP(scc.sub,dims = 1:10)
+p1 <- DimPlot(scc.sub,group.by = 'Condition')
+p2 <- DimPlot(scc.sub,group.by = 'ReceivingType')
+plot_grid(p1,p2)
 ```
 
-One thing we can do at this point is to ask how signaling is different between conditions for an individual cell-to-cell VectorType, which we do as follows:
+Predictably here, there is a big observed shift in
 
 ## Focus on a single cell-cell cross of interest
 ```{r message=F, warning=F}
