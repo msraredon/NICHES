@@ -1,9 +1,9 @@
 ---
-title: "Using NICHES to Analyze Cell-Cell Signaling Across Conditions"
+title: "Differential CellToCell Signaling Across Conditions"
 author: "Wes Lewis & Micha Sam Brickman Raredon"
 date: "`r Sys.Date()`"
 vignette: |
-  %\VignetteIndexEntry{Using NICHES to Analyze Cell-Cell Signaling Across Conditions} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Differential CellToCell Signaling Across Conditions} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include = FALSE}

@@ -5,9 +5,10 @@ articles:
   01 NICHES Spatial: 01 NICHES Spatial.html
   02 NICHES Single: 02 NICHES Single.html
   03 Rat Alveolus: 03 Rat Alveolus.html
-  04 NICHES Differential By Vectortype: 04 NICHES Differential By Vectortype.html
-  05 Pseudotime: 05 Pseudotime.html
-last_built: 2022-06-19T19:48Z
+  04 Differential CellToCell: 04 Differential CellToCell.html
+  05 Differential SystemToCell: 05 Differential SystemToCell.html
+  06 Pseudotime: 06 Pseudotime.html
+last_built: 2022-06-19T22:34Z
 urls:
   reference: https://msraredon.github.io/NICHES//reference
   article: https://msraredon.github.io/NICHES//articles
