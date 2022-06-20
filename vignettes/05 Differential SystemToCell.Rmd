@@ -1,0 +1,206 @@
+---
+title: "Differential SystemToCell Signaling Across Conditions"
+author: "Micha Sam Brickman Raredon"
+date: "`r Sys.Date()`"
+vignette: |
+  %\VignetteIndexEntry{Differential SystemToCell Signaling Across Conditions} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+NICHES is also able to compare SystemToCell signaling across conditions to estimate changes in sensed-microenvironment due to altered experimental conditions or altered tissue state. To perform this operation, NICHES creates a measurement of ligand coming from the whole system by taking the mean of all sending cells for each ligand mechanis, and then multiplying this value with the cognate receptor mechanism expression on each receiving cell. The workflow has been designed this way so that altered cell compositions between samples will have a measurable effect on the NICHES output. This allows insight into the alterations to network connectivity which occur due to the development or elimination of celltypes in dynamic processes and can help users to identify cell-cell relationships of interest for further investigation.
+
+However, it also means that care must be taken when setting up the computational workflow. In particular, we recommend that the number of cells analyzed in each condition be standardized, to avoid potential artifacts which might be caused by taking the mean in different conditions using different denominators.
+
+We will demonstrate this workflow and functionality using the publicly available 'ifnb' dataset within SeuratData which allows comparision of IFNb-stimualted PBMCs versus control PBMCs.
+
+## Load Required Packages
+```{r message=F, warning=F}
+library(Seurat)
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(NICHES)
+library(stringr)
+library(reshape2)
+library(cowplot)
+```
+
+## Load Data and Explore Metadata
+```{r message=F, warning=F}
+library(SeuratData)
+#InstallData("ifnb")
+data("ifnb")
+table(ifnb@meta.data$stim,ifnb@meta.data$seurat_annotations)
+```
+
+This dataset contains two experimental conditions, annotated STIM and CTRL. As before, prior to running NICHES, we will split the dataset into two objects, one representing each experimental condition. This way, cells will only be crossed with cells in the same experimental condition. We also make sure that the data are normalized.
+
+## Split by Experimental Contion
+```{r message=F, warning=F}
+# Set idents so that celltypes are in active identity slot
+Idents(ifnb) <- ifnb@meta.data["seurat_annotations"]
+# Split object into STIM and CTRL conditions, to calculate NICHES objects separately
+data.list <- SplitObject(ifnb, split.by="stim")
+# Make sure that data is normalized
+data.list <- lapply(X = data.list, FUN = function(x) {
+    x <- NormalizeData(x)
+})
+```
+
+In contrast to the previous vignette, we are interested in the SystemToCell signaling output. Because of this, we advise standardizing the number of cells in each condition that are input into NICHES for each condition. This is one simple approach for how to do this:
+
+```{r message=F, warning=F}
+# Define the maximum number that can be sampled from all conditions
+max.cells <- min(ncol(data.list[[1]]),ncol(data.list[[2]])) 
+# Downsample to the same number of cells for each condition
+for (i in 1:length(data.list)){
+  Idents(data.list[[i]]) <- data.list[[i]]$stim
+  data.list[[i]] <- subset(data.list[[i]],cells = WhichCells(data.list[[i]],downsample = max.cells))
+  Idents(data.list[[i]]) <- data.list[[i]]$seurat_annotations
+}
+# Check resulting distributions and that the totals are the same
+distribution <- data.frame(CTRL = table(Idents(data.list[[1]])),
+                            STIM = table(Idents(data.list[[2]])))
+distribution <- reshape2::melt(distribution)
+ggplot(data = distribution,aes(x = STIM.Var1,y=value,fill = variable))+geom_bar(stat='identity',position='dodge')+
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))+
+  ggtitle('Number of Cells Per Condition')
+ncol(data.list[[1]])==ncol(data.list[[2]]) # Check that totals are the same
+
+```
+
+We now are prepared to calculate SystemToCell signaling for each experimental condition.
+
+## Run NICHES
+```{r message=F, warning=F}
+# Run NICHES on each system and store/name the outputs
+scc.list <- list()
+for(i in 1:length(data.list)){
+  print(i)
+  scc.list[[i]] <- RunNICHES(data.list[[i]],
+                             LR.database="fantom5",
+                             species="human",
+                             assay="RNA",
+                             min.cells.per.ident=1,
+                             min.cells.per.gene = 50,
+                             meta.data.to.map = c('orig.ident','seurat_annotations','stim'),
+                             SystemToCell = T,
+                             CellToCell = T)
+}
+names(scc.list) <- names(data.list)
+```
+
+NICHES provides output as a list of objects or tables, because it is capable of providing many different styles of output with a single run. Let's isolate a specific output style we are interested in and tag it with appropriate metadata (redundant here, but good practice)
+
+## Isolate Output of Interest
+```{r message=F, warning=F}
+temp.list <- list()
+for(i in 1:length(scc.list)){
+temp.list[[i]] <- scc.list[[i]]$SystemToCell # Isolate SystemToCell Signaling, which is all that will be covered in this vignette
+temp.list[[i]]$Condition <- names(scc.list)[i] # Tag with metadata
+}
+```
+
+We can then merge these NICHES outputs together to embed, cluster, and analyze them jointly:
+
+# Merge and Clean
+```{r message=F, warning=F}
+# Merge together
+scc.merge <- merge(temp.list[[1]],temp.list[2])
+
+# Clean up low-information crosses (connectivity data can be very sparse)
+VlnPlot(scc.merge,features = 'nFeature_SystemToCell',group.by = 'Condition',pt.size=0.1,log = T)
+scc.sub <- subset(scc.merge,nFeature_SystemToCell > 5) # Requesting at least 5 distinct ligand-receptor interactions between two cells
+```
+
+Let's now perform an initial visualization of signaling between these two conditions, which we do as follows:
+
+## Visualize full dataset
+```{r message=F, warning=F}
+# Perform initial visualization
+scc.sub <- ScaleData(scc.sub)
+scc.sub <- FindVariableFeatures(scc.sub)
+scc.sub <- RunPCA(scc.sub,npcs = 50)
+ElbowPlot(scc.sub,ndim=50)
+```
+
+We choose to use the first 10 principle components for a first embedding:
+
+```{r message=F, warning=F}
+scc.sub <- RunUMAP(scc.sub,dims = 1:10)
+p1 <- DimPlot(scc.sub,group.by = 'Condition')
+p2 <- DimPlot(scc.sub,group.by = 'ReceivingType')
+plot_grid(p1,p2)
+```
+
+Predictably here, there is a big observed shift in
+
+## Focus on a single cell-cell cross of interest
+```{r message=F, warning=F}
+head(unique(scc.sub@meta.data$VectorType))
+# Define VectorTypes of interest (note the long em-dash used in NICHES)
+VOI <- "CD14 Mono—DC"
+# Loop over VectorTypes of interest, subsetting those interactions, finding markers associated with the comparison of interest (stimulus vs control) and  create a heatmap of top markers:
+lapply(VOI, function(x){
+ 
+  #subset
+  subs <- subset(scc.sub, subset = VectorType == x)
+  
+  #print number of cells per condition
+  print(paste0(x , ":  CTRL:", sum(subs@meta.data$Condition == "CTRL")))
+  print(paste0(x , ":  STIM:", sum(subs@meta.data$Condition == "STIM")))
+  
+  #set idents
+  Idents(subs) <- subs@meta.data$Condition
+  
+  #scale the subsetted data
+  FindVariableFeatures(subs,assay='CellToCell')
+  ScaleData(subs, assay='CellToCell')
+  
+  #these are the features in the scaledata slot
+  feats <- dimnames(subs@assays$CellToCell@scale.data)[[1]]
+  feats
+  
+  #find markers (here we use wilcox, but ROC and other tests can be used as well)
+  markers <- FindAllMarkers(subs, features=feats, test.use = "wilcox",assay='CellToCell')
+  
+  #subset to top 20 markers per condition
+  top10 <- markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+  
+  #Make a heatmap
+  DoHeatmap(subs,group.by="ident",features=top10$gene, assay="CellToCell") +  ggtitle("Top DE Mechanisms, CTRL vs STIM: ",x)
+})
+```
+
+These results confirm our expectation that chemokine signaling for this cell-cell VectorType is upregulated in the STIM condition as compared to contol. We can further isolate this specific VectorType for embedding or clustering:
+
+```{r message=F, warning=F}
+# Perform visualization for VectorTypes of interest
+VOI <- c("CD14 Mono—DC")
+Idents(scc.sub) <- scc.sub@meta.data$VectorType
+voi.data <- subset(scc.sub,idents = VOI)
+voi.data <- ScaleData(voi.data)
+voi.data <- FindVariableFeatures(voi.data)
+voi.data <- RunPCA(voi.data,npcs = 50)
+ElbowPlot(voi.data,ndim=50)
+voi.data <- RunUMAP(voi.data,dims = 1:10)
+DimPlot(voi.data,group.by = 'VectorType')
+DimPlot(voi.data,group.by = 'Condition')
+```
+
+And we can then check that the markers we found earlier appear accurate:
+
+```{r message=F, warning=F}
+FeaturePlot(voi.data,
+            features = c('CCL2—CCR1','CCL2—CCR5'),max.cutoff = 150)
+VlnPlot(voi.data,
+            features = c('CCL2—CCR1','CCL2—CCR5'),log = T,group.by = 'Condition')
+```
+
+

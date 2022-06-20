@@ -3,9 +3,9 @@
 .RData
 .Ruserdata
 <<<<<<< HEAD
-inst/doc
+# inst/doc
 =======
-docs
+# docs
 >>>>>>> a1cc21c35911df88195a3871328864d83b901f14
 
 # Big Data for Vignettes
@@ -14,3 +14,4 @@ vignettes/*.h5ad
 vignettes/*.h5Seurat
 
 vignettes/venv
+docs

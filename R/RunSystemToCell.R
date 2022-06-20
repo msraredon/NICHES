@@ -2,7 +2,7 @@
 #' 
 #' Condenses signaling edges landing on each cell within a Seurat object, from all other cells in the system treated as a single source. 
 #' Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
-#' and the columns are each a single receiving cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
+#' and the columns are each a single receiving cell barcode. The information in the matrix is an average (or a sum, depending on user preference) of
 #' all signaling edges landing on that particular cell, from all cells in the system (including from itself.)
 #' This transformation allows rapid manipulation and dimensional reduction of how a cell is connected within the system.
 #' The default assay of this object is called "SystemToCell" to distinguish it from other Seurat objects.
@@ -23,8 +23,12 @@ RunSystemToCell <- function(sys.small,
                             ground.truth,
                             assay,
                             blend = 'mean',
+<<<<<<< HEAD
                             meta.data.to.map,
                             output_format
+=======
+                            meta.data.to.map
+>>>>>>> origin/master
                             ){
   
 
