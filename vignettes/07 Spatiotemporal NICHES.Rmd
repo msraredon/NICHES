@@ -1,0 +1,170 @@
+---
+title: "Spatio-Temporal NICHES"
+author: "Junchen Yang & Micha Sam Brickman Raredon"
+date: "`r Sys.Date()`"
+vignette: |
+  %\VignetteIndexEntry{Spatio-Temporal NICHES} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Load Required Packages
+```{r message=F, warning=F}
+library(Seurat)
+library(NICHES)
+library(ggplot2)
+library(dplyr)
+library(cowplot)
+```
+
+## Load Data
+```{r message=F, warning=F}
+load("spatial_e10_processed_alra.Robj")
+load("spatial_e11_processed_alra.Robj")
+```
+
+## Visualize Data
+```{r message=F, warning=F}
+ggplot(data = E10@meta.data,aes(x=x,y=y,color=cell_label_dom))+
+  geom_point(size=2)+
+  scale_color_brewer(palette="Paired")
+ggplot(data = E11@meta.data,aes(x=x,y=y,color=cell_label_dom))+
+  geom_point(size=2)+
+  scale_color_brewer(palette="Paired")
+```
+
+## Run NICHES on each sample
+```{r message=F, warning=F}
+# Put objects in a named list together
+data.list <- list(E10,E11)
+names(data.list) <- c('E10','E11')
+# Run NICHES on each item in list and store the output
+niches.list <- list()
+for (i in 1:length(data.list)){
+niches.list[[i]] <- RunNICHES(data.list[[i]],
+                 assay = 'alra', # Note: using alra imputed data here instead of SCT
+                 species = 'mouse',
+                 LR.database = 'fantom5',
+                 CellToCellSpatial = T, # We are interested in local relationships
+                 NeighborhoodToCell = T, # We are interested in local niches
+                 CellToCell = F, # We do not want crosses which don't take into account spatial information
+                 position.x = "x",
+                 position.y= "y",
+                  )
+}
+names(niches.list) <- names(data.list)
+```
+
+## Investigate local microenvironment
+```{r message=F, warning=F}
+# Extract output of interest
+menv <- list()
+for (i in 1:length(niches.list)){
+  menv[[i]] <- niches.list[[i]][["NeighborhoodToCell"]] # Extract microenvironment information
+  menv[[i]]$Condition <- names(niches.list)[i]
+}
+# Merge together
+menv <- merge(menv[[1]],menv[2])
+table(menv$Condition,menv$ReceivingType)
+
+# Scale
+menv <- ScaleData(menv)
+# Find variable features
+menv <- FindVariableFeatures(menv,selection.method = "disp")
+# Run PCA
+menv <- RunPCA(menv,npcs = 100) # Run PCA
+ElbowPlot(menv,ndims = 100)
+PCHeatmap(menv,dims = 40:48,cells=100,balanced=T)
+menv <- RunUMAP(menv,dims = 1:50)
+p1 <- DimPlot(menv)+ggtitle('ReceivingType')
+p2 <- DimPlot(menv,group.by = 'Condition')
+plot_grid(p1,p2,ncol=1)
+```
+
+## Isolate a ReceivingType of interest
+```{r message=F, warning=F}
+ROI <- "Neural tube and notochord"
+subs <- subset(menv,idents = ROI)
+# Scale
+subs <- ScaleData(subs)
+# Find variable features
+subs <- FindVariableFeatures(subs,selection.method = "disp")
+# Run PCA
+subs <- RunPCA(subs,npcs = 50) # Run PCA
+ElbowPlot(subs,ndims = 50)
+PCHeatmap(subs,dims = 30:38,cells=100,balanced=T)
+subs <- RunUMAP(subs,dims = 1:40)
+p1 <- DimPlot(subs)+ggtitle('ReceivingType')
+p2 <- DimPlot(subs,group.by = 'Condition')
+plot_grid(p1,p2,ncol=1)
+```
+
+## Differential Analysis of Neural Tube Microenvironment
+```{r message=F, warning=F}
+Idents(subs) <- subs[['Condition']]
+marker.subs <- FindAllMarkers(subs,min.pct = 0.25,only.pos = T,test.use = "roc")
+# Remove markers mapped in only one dataset (infinite differential)
+marker.subs$ratio <- marker.subs$pct.1/marker.subs$pct.2
+marker.subs <- marker.subs[marker.subs$ratio < Inf,]
+# Select top markers
+GOI_niche.subs <- marker.subs %>% group_by(cluster) %>% top_n(20,myAUC)
+# Make a heatmap
+DoHeatmap(subs,
+          group.by="ident",
+          features=GOI_niche.subs$gene)+
+  ggtitle("Top DE Mechanisms, Neural Tube Microenvironment, E10 vs E11")+
+  theme(plot.title = element_text(vjust = 5)) 
+FeaturePlot(subs,'Dll1—Notch4')
+```
+
+# Add Niches microenvironment output as an assay in the original data
+```{r message=F, warning=F,fig.width = 8,fig.height = 12}
+# Extract tabular data and annotate with receiving cell barcodes
+niches.data <- list()
+for (i in 1:length(niches.list)){
+  niches.data[[i]] <- GetAssayData(object =  niches.list[[i]][['NeighborhoodToCell']], slot = 'data')
+  colnames(niches.data[[i]]) <- niches.list[[i]][['NeighborhoodToCell']]@meta.data$ReceivingCell
+}
+# Add as a new assay
+for (i in 1:length(data.list)){
+  data.list[[i]][["NeighborhoodToCell"]] <- CreateAssayObject(data = niches.data[[i]])
+  DefaultAssay(data.list[[i]]) <- "NeighborhoodToCell"
+  data.list[[i]] <- ScaleData(data.list[[i]])
+}
+p1 <- VlnPlot(data.list[[1]],'Dll1—Notch4',assay = "NeighborhoodToCell")
+p2 <- VlnPlot(data.list[[1]],c('Dll1','Notch4'),assay = 'alra')
+title <- ggdraw() + 
+  draw_label(
+    names(data.list[1]),
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,p1,p2,ncol=1,rel_heights = c(0.5, 1,1))
+
+p3 <- VlnPlot(data.list[[2]],'Dll1—Notch4',assay = 'NeighborhoodToCell')
+p4 <- VlnPlot(data.list[[2]],c('Dll1','Notch4'),assay = 'alra')
+title <- ggdraw() + 
+  draw_label(
+    names(data.list[2]),
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,p3,p4,ncol=1,rel_heights = c(0.5, 1,1))
+```

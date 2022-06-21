@@ -63,13 +63,16 @@
       <a href="articles/03%20Rat%20Alveolus.html">Cellular Relationships in the Rat Alveolus</a>
     </li>
     <li>
-      <a href="articles/04%20Differential%20CellToCell.html">Using NICHES to Analyze Cell-Cell Signaling Across Conditions</a>
+      <a href="articles/04%20Differential%20CellToCell.html">Differential CellToCell Signaling Across Conditions</a>
     </li>
     <li>
       <a href="articles/05%20Differential%20SystemToCell.html">Differential SystemToCell Signaling Across Conditions</a>
     </li>
     <li>
       <a href="articles/06%20Pseudotime.html">Pseudotemporal Ordering with NICHES</a>
+    </li>
+    <li>
+      <a href="articles/07%20Spatiotemporal%20NICHES.html">Spatio-Temporal NICHES</a>
     </li>
   </ul>
 </li>
@@ -98,8 +101,9 @@
 <div id="brief-methods" class="section level2">
 <h2 class="hasAnchor">
 <a href="#brief-methods" class="anchor"></a>Brief Methods</h2>
-<p>NICHES creates unique 1:1 pairs of cells and characterizes each cellular interaction across queried ligand-receptor signaling mechanisms. This allows low-dimensional embedding of cellular interactions in signal-space. Existing meta-data is carried over during transformation, allowing easy and powerful downstream statistical analysis using existing single-cell software packages such as Seurat and Scanpy. Niche-interactions within a system may be characterized by summing network signaling edges, by mechanism, landing on a given receiving cell. These approaches allow UMAP, tSNE, and pseudotemporal exploration of cell-cell interactions and cellular niches across celltypes, between experimental conditions, and over developmental trajectories.</p>
+<p>NICHES creates unique 1:1 pairs of cells and characterizes each cellular interaction across queried ligand-receptor signaling mechanisms. This allows low-dimensional embedding of cellular interactions in signal-space. Existing meta-data is carried over during transformation, allowing easy and powerful downstream statistical analysis using existing single-cell software packages. NICHES allows UMAP, tSNE, and pseudotemporal exploration of cell-cell interactions and sensed cellular microenvironmments across celltypes, between experimental conditions, and over developmental trajectories.</p>
 <p>When applied to traditional scRNAseq datasets, a uniform sampling of unique barcode pairings is taken from each celltype cross. When applied to spatial datasets, edge construction may be limited to direct neighbor-neighbor interactions, or those within a certain user-defined radius, to provide a histologically-grounded portrait of cell-cell signaling and cellular niches.</p>
+<p>Inputs and outputs to NICHES may be in either tabular or Seurat format.</p>
 <p>For detailed Methods, please see our preprint on bioRxiv: <a href="https://www.biorxiv.org/content/10.1101/2022.01.23.477401v1" class="uri">https://www.biorxiv.org/content/10.1101/2022.01.23.477401v1</a></p>
 </div>
 <div id="installation" class="section level2">

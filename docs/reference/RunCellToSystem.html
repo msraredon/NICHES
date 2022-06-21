@@ -42,7 +42,7 @@
 <meta property="og:title" content="RunCellToSystem — RunCellToSystem" />
 <meta property="og:description" content="Condenses all signaling edges coming from each cell within a Seurat object connecting to every other cell in the system, treated as a single sink.
 Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
-and the columns are each a single sending cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
+and the columns are each a single sending cell barcode. The information in the matrix is an average (or a sum, depending on user preference) of
 all signaling edges coming from that particular cell, to every other cell in the system (including to itself.)
 This transformation allows rapid manipulation and dimensional reduction of how a cell is connected within the system.
 The default assay of this object is called &quot;CellToSystem&quot; to distinguish it from other Seurat objects.
@@ -111,13 +111,16 @@ and &quot;SendingCell&quot; which is the exact cell barcode present in the origi
       <a href="../articles/03 Rat Alveolus.html">Cellular Relationships in the Rat Alveolus</a>
     </li>
     <li>
-      <a href="../articles/04 Differential CellToCell.html">Using NICHES to Analyze Cell-Cell Signaling Across Conditions</a>
+      <a href="../articles/04 Differential CellToCell.html">Differential CellToCell Signaling Across Conditions</a>
     </li>
     <li>
       <a href="../articles/05 Differential SystemToCell.html">Differential SystemToCell Signaling Across Conditions</a>
     </li>
     <li>
       <a href="../articles/06 Pseudotime.html">Pseudotemporal Ordering with NICHES</a>
+    </li>
+    <li>
+      <a href="../articles/07 Spatiotemporal NICHES.html">Spatio-Temporal NICHES</a>
     </li>
   </ul>
 </li>
@@ -145,7 +148,7 @@ and &quot;SendingCell&quot; which is the exact cell barcode present in the origi
     <div class="ref-description">
     <p>Condenses all signaling edges coming from each cell within a Seurat object connecting to every other cell in the system, treated as a single sink.
 Outputs another Seurat object, but where the rows of the matrix are ligand-receptor mechanisms
-and the columns are each a single sending cell barcode. The information in the matrix is a sum (or an average, depending on user preference) of
+and the columns are each a single sending cell barcode. The information in the matrix is an average (or a sum, depending on user preference) of
 all signaling edges coming from that particular cell, to every other cell in the system (including to itself.)
 This transformation allows rapid manipulation and dimensional reduction of how a cell is connected within the system.
 The default assay of this object is called "CellToSystem" to distinguish it from other Seurat objects.
@@ -157,7 +160,7 @@ and "SendingCell" which is the exact cell barcode present in the original Seurat
   <span class='va'>sys.small</span>,
   <span class='va'>ground.truth</span>,
   <span class='va'>assay</span>,
-  blend <span class='op'>=</span> <span class='st'>"sum"</span>,
+  blend <span class='op'>=</span> <span class='st'>"mean"</span>,
   <span class='va'>meta.data.to.map</span>
 <span class='op'>)</span></pre>
 
@@ -178,7 +181,7 @@ and "SendingCell" which is the exact cell barcode present in the original Seurat
     </tr>
     <tr>
       <th>blend</th>
-      <td><p>Choice of linear operator to combine edges. Defaults to "sum", also accepts "mean"</p></td>
+      <td><p>Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum"</p></td>
     </tr>
     <tr>
       <th>meta.data.to.map</th>
