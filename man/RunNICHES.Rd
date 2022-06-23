@@ -4,53 +4,24 @@
 \alias{RunNICHES}
 \title{RunNICHES}
 \usage{
-<<<<<<< HEAD
 RunNICHES(object, ...)
-=======
-RunNICHES(
-  object,
-  assay = "RNA",
-  LR.database = "fantom5",
-  species,
-  min.cells.per.ident = NULL,
-  min.cells.per.gene = NULL,
-  meta.data.to.map = NULL,
-  position.x = NULL,
-  position.y = NULL,
-  custom_LR_database = NULL,
-  k = 4,
-  rad.set = NULL,
-  blend = "mean",
-  CellToCell = T,
-  CellToSystem = F,
-  SystemToCell = F,
-  CellToCellSpatial = F,
-  CellToNeighborhood = F,
-  NeighborhoodToCell = F
-)
->>>>>>> origin/master
 }
 \arguments{
-\item{object}{normalized data matrix or a seurat object}
+\item{object}{Seurat object or a normalized data matrix. If it is Seurat object, the active identity will be used to define populations for connectomic sampling and crossings. If it is data matrix, rows are genes and columns are cells.}
 
-<<<<<<< HEAD
-\item{...}{}
-=======
-\item{assay}{string. Default: "RNA". The assay to run the NICHES transformation on.}
+\item{...}{Parameters passed for other methods}
 
-\item{LR.database}{string. Default: "fantom5". Currently accepts "fantom5","omnipath", or "custom"}
+\item{LR.database}{string. Default: "fantom5". Currently accepts "fantom5","omnipath", or "custom".}
 
-\item{species}{string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'}
+\item{species}{string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'.}
 
 \item{min.cells.per.ident}{integer. Default: NULL. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.}
 
 \item{min.cells.per.gene}{integer. Default: NULL. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
-\item{meta.data.to.map}{character vector. Optional. Default: NULL. A vector of metadata names present in the original object which will be carried to the NICHES objects}
+\item{position.x}{string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial x-axis. If `object` is a Seurat object, this is the name of the corresponding meta.data column of `object`. If `object` is a data matrix, this is the name of corresponding column in the input meta.data.df}
 
-\item{position.x}{string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.}
-
-\item{position.y}{string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.}
+\item{position.y}{string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial y-axis. If `object` is a Seurat object, this is the name of the corresponding meta.data column of `object`. If `object` is a data matrix, this is the name of corresponding column in the input meta.data.df}
 
 \item{custom_LR_database}{data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').}
 
@@ -71,8 +42,13 @@ RunNICHES(
 \item{CellToNeighborhood}{logical. Default: FALSE. Whether to analyze summed signaling output to Euclidean neighbors. Only applicable in spatial datasets.}
 
 \item{NeighborhoodToCell}{logical. Default: FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.}
->>>>>>> origin/master
+
+\item{output_format}{string. Default: "seurat". Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata}
 }
 \description{
 RunNICHES generic function
+Performs user-selected NICHES transformations on a Seurat object or a normalized data matrix. 
+By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
+If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
+Output is a set of specialized NICHES objects which allow fine analysis of cell-cell interactions.
 }

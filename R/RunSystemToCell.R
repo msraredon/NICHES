@@ -23,12 +23,8 @@ RunSystemToCell <- function(sys.small,
                             ground.truth,
                             assay,
                             blend = 'mean',
-<<<<<<< HEAD
                             meta.data.to.map,
                             output_format
-=======
-                            meta.data.to.map
->>>>>>> origin/master
                             ){
   
 
