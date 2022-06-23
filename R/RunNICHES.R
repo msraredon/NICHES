@@ -255,7 +255,7 @@ RunNICHES.Seurat <- function(object,
 #' @param species string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'
 #' @param min.cells.per.ident integer. Default: NULL. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param min.cells.per.gene integer. Default: NULL. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
-#' @param meta.data.to.map A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).
+#' @param meta.data.df A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).
 #' @param position.x string. Optional. Default: NULL. The name of the meta.data.to.map column specifying location on the spatial x-axis. Only required for spatial omics data.
 #' @param position.y string. Optional. Default: NULL. The name of the meta.data.to.map column specifying location on the spatial y-axis. Only required for spatial omics data.
 #' @param cell_types string. Optional. Default: NULL. The name of the meta.data.to.map column specifying the cell types of the cells. Only required for RunCellToCell.
@@ -279,7 +279,7 @@ RunNICHES.matrix <- function(object,
                              species,
                              min.cells.per.ident = NULL,
                              min.cells.per.gene = NULL,
-                             meta.data.to.map = NULL,
+                             meta.data.df = NULL,
                              position.x = NULL,
                              position.y = NULL,
                              cell_types = NULL,
@@ -340,9 +340,9 @@ RunNICHES.matrix <- function(object,
     min.cells.per.gene <- as.integer(min.cells.per.gene)
   }
   
-  # check meta.data.to.map: now it should be a data.frame
-  if(!is.null(meta.data.to.map)){
-    if(!is.data.frame(meta.data.to.map)) meta.data.to.map <- as.data.frame(meta.data.to.map)
+  # check meta.data.df: now it should be a data.frame
+  if(!is.null(meta.data.df)){
+    if(!is.data.frame(meta.data.df)) meta.data.df <- as.data.frame(meta.data.df)
   }
   
   # check indicators
@@ -377,12 +377,12 @@ RunNICHES.matrix <- function(object,
   # check cell types metadata when CellToCell is True
   if(org_names_indicator['CellToCell'] == T){
     if(is.null(cell_types)) stop("cell_types need to be provided to run the downsampling procedure in the CellToCell computation") 
-    else if(!(cell_types %in% colnames(meta.data.to.map))) stop("cell_types is not in the columns of meta.data.to.map, 
+    else if(!(cell_types %in% colnames(meta.data.df))) stop("cell_types is not in the columns of meta.data.to.map, 
                                                              please make sure its name is in the colnames of meta.data.to.map")
   }
   
-  # convert the input data_mat and meta.data.to.map to a Seurat object
-  object <- Seurat::CreateSeuratObject(counts=object,assay="RNA",meta.data=meta.data.to.map, min.cells = 0,min.features = 0)
+  # convert the input data_mat and meta.data.df to a Seurat object
+  object <- Seurat::CreateSeuratObject(counts=object,assay="RNA",meta.data=meta.data.df, min.cells = 0,min.features = 0)
   # set the ident to cell_types
   Idents(object) <- cell_types
   # Initialize output structure
@@ -404,20 +404,20 @@ RunNICHES.matrix <- function(object,
   if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(sys.small=sys.small,
                                                                    ground.truth=ground.truth,
                                                                    assay = "RNA",
-                                                                   meta.data.to.map = colnames(meta.data.to.map),
+                                                                   meta.data.to.map = colnames(meta.data.df),
                                                                    output_format = output_format
   )}
   if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(sys.small=sys.small,
                                                                        ground.truth=ground.truth,
                                                                        assay = "RNA",
-                                                                       meta.data.to.map = colnames(meta.data.to.map),
+                                                                       meta.data.to.map = colnames(meta.data.df),
                                                                        blend = blend,
                                                                        output_format = output_format
   )}
   if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(sys.small=sys.small,
                                                                        ground.truth=ground.truth,
                                                                        assay = "RNA",
-                                                                       meta.data.to.map = colnames(meta.data.to.map),
+                                                                       meta.data.to.map = colnames(meta.data.df),
                                                                        blend = blend,
                                                                        output_format = output_format
   )}
@@ -426,14 +426,14 @@ RunNICHES.matrix <- function(object,
   if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(sys.small=sys.small,
                                                                                  ground.truth=ground.truth,
                                                                                  assay = "RNA",
-                                                                                 meta.data.to.map = colnames(meta.data.to.map),
+                                                                                 meta.data.to.map = colnames(meta.data.df),
                                                                                  edgelist = edgelist,
                                                                                  output_format = output_format
   )} #Spatially-limited Cell-Cell vectors
   if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(sys.small=sys.small,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = "RNA",
-                                                                                   meta.data.to.map = colnames(meta.data.to.map),
+                                                                                   meta.data.to.map = colnames(meta.data.df),
                                                                                    blend = blend,
                                                                                    edgelist = edgelist,
                                                                                    output_format = output_format
@@ -441,7 +441,7 @@ RunNICHES.matrix <- function(object,
   if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(sys.small=sys.small,
                                                                                    ground.truth=ground.truth,
                                                                                    assay = "RNA",
-                                                                                   meta.data.to.map = colnames(meta.data.to.map),
+                                                                                   meta.data.to.map = colnames(meta.data.df),
                                                                                    blend = blend,
                                                                                    edgelist = edgelist,
                                                                                    output_format = output_format
