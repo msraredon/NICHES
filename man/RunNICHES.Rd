@@ -4,6 +4,7 @@
 \alias{RunNICHES}
 \alias{RunNICHES.Seurat}
 \alias{RunNICHES.matrix}
+\alias{RunNICHES.Matrix}
 \title{RunNICHES}
 \usage{
 RunNICHES(object, ...)
@@ -33,6 +34,30 @@ RunNICHES(object, ...)
 )
 
 \method{RunNICHES}{matrix}(
+  object,
+  LR.database = "fantom5",
+  species,
+  min.cells.per.ident = NULL,
+  min.cells.per.gene = NULL,
+  meta.data.df = NULL,
+  position.x = NULL,
+  position.y = NULL,
+  cell_types = NULL,
+  custom_LR_database = NULL,
+  k = 4,
+  rad.set = NULL,
+  blend = "mean",
+  CellToCell = T,
+  CellToSystem = F,
+  SystemToCell = F,
+  CellToCellSpatial = F,
+  CellToNeighborhood = F,
+  NeighborhoodToCell = F,
+  output_format = "seurat",
+  ...
+)
+
+\method{RunNICHES}{Matrix}(
   object,
   LR.database = "fantom5",
   species,
