@@ -44,6 +44,7 @@ RunNICHES(object, ...)
   meta.data.to.map = NULL,
   position.x = NULL,
   position.y = NULL,
+  cell_types = NULL,
   custom_LR_database = NULL,
   k = 4,
   rad.set = NULL,
@@ -149,9 +150,9 @@ RunNICHES(object, ...)
 
 \item{output_format}{string. Default: "seurat". Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata}
 
-\item{meta.data.df}{A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).}
+\item{cell_types}{string. Default: NULL. The name of the meta.data.df column specifying the cell types of the cells.}
 
-\item{cell_types}{string. Optional. Default: NULL. The name of the meta.data.df column specifying the cell types of the cells. Only required for RunCellToCell.}
+\item{meta.data.df}{A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).}
 }
 \description{
 Performs user-selected NICHES transformations on a Seurat object or a normalized data matrix. 
