@@ -2,12 +2,37 @@
 % Please edit documentation in R/RunNICHES.R
 \name{RunNICHES}
 \alias{RunNICHES}
+\alias{RunNICHES.default}
 \alias{RunNICHES.Seurat}
 \alias{RunNICHES.matrix}
 \alias{RunNICHES.Matrix}
 \title{RunNICHES}
 \usage{
 RunNICHES(object, ...)
+
+\method{RunNICHES}{default}(
+  object,
+  assay = "RNA",
+  LR.database = "fantom5",
+  species,
+  min.cells.per.ident = NULL,
+  min.cells.per.gene = NULL,
+  meta.data.to.map = NULL,
+  position.x = NULL,
+  position.y = NULL,
+  custom_LR_database = NULL,
+  k = 4,
+  rad.set = NULL,
+  blend = "mean",
+  CellToCell = T,
+  CellToSystem = F,
+  SystemToCell = F,
+  CellToCellSpatial = F,
+  CellToNeighborhood = F,
+  NeighborhoodToCell = F,
+  output_format = "seurat",
+  ...
+)
 
 \method{RunNICHES}{Seurat}(
   object,

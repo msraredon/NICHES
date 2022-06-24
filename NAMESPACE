@@ -2,6 +2,7 @@
 
 S3method(RunNICHES,Matrix)
 S3method(RunNICHES,Seurat)
+S3method(RunNICHES,default)
 S3method(RunNICHES,matrix)
 export(FilterGroundTruth)
 export(LoadCustom)
