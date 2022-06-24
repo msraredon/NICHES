@@ -2,14 +2,66 @@
 % Please edit documentation in R/RunNICHES.R
 \name{RunNICHES}
 \alias{RunNICHES}
+\alias{RunNICHES.Seurat}
+\alias{RunNICHES.matrix}
 \title{RunNICHES}
 \usage{
 RunNICHES(object, ...)
+
+\method{RunNICHES}{Seurat}(
+  object,
+  assay = "RNA",
+  LR.database = "fantom5",
+  species,
+  min.cells.per.ident = NULL,
+  min.cells.per.gene = NULL,
+  meta.data.to.map = NULL,
+  position.x = NULL,
+  position.y = NULL,
+  custom_LR_database = NULL,
+  k = 4,
+  rad.set = NULL,
+  blend = "mean",
+  CellToCell = T,
+  CellToSystem = F,
+  SystemToCell = F,
+  CellToCellSpatial = F,
+  CellToNeighborhood = F,
+  NeighborhoodToCell = F,
+  output_format = "seurat",
+  ...
+)
+
+\method{RunNICHES}{matrix}(
+  object,
+  LR.database = "fantom5",
+  species,
+  min.cells.per.ident = NULL,
+  min.cells.per.gene = NULL,
+  meta.data.df = NULL,
+  position.x = NULL,
+  position.y = NULL,
+  cell_types = NULL,
+  custom_LR_database = NULL,
+  k = 4,
+  rad.set = NULL,
+  blend = "mean",
+  CellToCell = T,
+  CellToSystem = F,
+  SystemToCell = F,
+  CellToCellSpatial = F,
+  CellToNeighborhood = F,
+  NeighborhoodToCell = F,
+  output_format = "seurat",
+  ...
+)
 }
 \arguments{
-\item{object}{Seurat object or a normalized data matrix. If it is Seurat object, the active identity will be used to define populations for connectomic sampling and crossings. If it is data matrix, rows are genes and columns are cells.}
+\item{object}{A normalized data matrix. Rows are genes and columns are cells.}
 
-\item{...}{Parameters passed for other methods}
+\item{...}{Arguments passed for other methods}
+
+\item{assay}{string. Default: "RNA". The assay to run the NICHES transformation on.}
 
 \item{LR.database}{string. Default: "fantom5". Currently accepts "fantom5","omnipath", or "custom".}
 
@@ -19,9 +71,11 @@ RunNICHES(object, ...)
 
 \item{min.cells.per.gene}{integer. Default: NULL. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system.}
 
-\item{position.x}{string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial x-axis. If `object` is a Seurat object, this is the name of the corresponding meta.data column of `object`. If `object` is a data matrix, this is the name of corresponding column in the input meta.data.df}
+\item{meta.data.to.map}{character vector. Optional. Default: NULL. A vector of metadata names present in the original object which will be carried to the NICHES objects}
 
-\item{position.y}{string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial y-axis. If `object` is a Seurat object, this is the name of the corresponding meta.data column of `object`. If `object` is a data matrix, this is the name of corresponding column in the input meta.data.df}
+\item{position.x}{string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial x-axis in the input meta.data.df.}
+
+\item{position.y}{string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial y-axis in the input meta.data.df.}
 
 \item{custom_LR_database}{data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').}
 
@@ -44,9 +98,12 @@ RunNICHES(object, ...)
 \item{NeighborhoodToCell}{logical. Default: FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.}
 
 \item{output_format}{string. Default: "seurat". Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata}
+
+\item{meta.data.df}{A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).}
+
+\item{cell_types}{string. Optional. Default: NULL. The name of the meta.data.df column specifying the cell types of the cells. Only required for RunCellToCell.}
 }
 \description{
-RunNICHES generic function
 Performs user-selected NICHES transformations on a Seurat object or a normalized data matrix. 
 By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
 If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
