@@ -203,7 +203,7 @@ plot_cells(cds, color_cells_by="VectorType")
 
 
 
-Interporability with  SingleCellExperiment
+Interporability with Scater (SingleCellExperiment)
 
 
 
