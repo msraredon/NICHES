@@ -1,9 +1,9 @@
 ---
-title: "08 Interperobility - SCANPY"
+title: "08 Interperobility - NICHES"
 output: html_document
 ---
 
-Interact scanpy with NICHES using PBMC 3k
+Interperobility with Scanpy
 
 # Pkg prep
 
@@ -154,4 +154,81 @@ with plt.rc_context({"figure.dpi": (300),"font.size":(10)}):
     sc.pl.dotplot(adata_niches, marker_LRs, groupby='VectorType',figsize=(20,10))
 ```
 
+
+
+
+
+Interporability with  Monocle3 (CellDataSet)
+
+```{r}
+# Install Monocle 3
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+#BiocManager::install(version = "3.14")
+
+BiocManager::install(c('BiocGenerics', 'DelayedArray', 'DelayedMatrixStats',
+                       'limma', 'lme4', 'S4Vectors', 'SingleCellExperiment',
+                       'SummarizedExperiment', 'batchelor', 'Matrix.utils',
+                       'HDF5Array', 'terra', 'ggrastr'))
+#BiocManager::install('ggrastr')
+#devtools::install_github('cole-trapnell-lab/leidenbase')
+devtools::install_github('cole-trapnell-lab/monocle3')
+```
+
+```{r}
+library(monocle3)
+lr_metadata <- data.frame(lr_names)
+rownames(lr_metadata) <- lr_names
+cds <- new_cell_data_set(niches_list$CellToCell$CellToCellMatrix,
+                         cell_metadata = niches_list$CellToCell$metadata,
+                         gene_metadata = lr_metadata)
+
+```
+
+```{r}
+# use all genes for pca
+cds <- preprocess_cds(cds, num_dim = 30,
+                      method = "PCA",norm_method = "none",scaling = TRUE,verbose = TRUE)
+```
+
+```{r}
+cds <- reduce_dimension(cds)
+```
+
+
+```{r}
+plot_cells(cds, color_cells_by="VectorType")
+```
+
+
+
+
+Interporability with  SingleCellExperiment
+
+
+
+```{r}
+library(scater)
+sce <- SingleCellExperiment(
+    assays = list(data = niches_list$CellToCell$CellToCellMatrix), 
+    colData = niches_list$CellToCell$metadata,
+    rowData = lr_metadata
+)
+```
+
+
+```{r}
+sce <- runPCA(sce,exprs_values="data")
+```
+
+```{r}
+plotExpression(sce,features = "GNAI2—C5AR1",exprs_values = "data",x = "VectorType",colour_by="VectorType")
+```
+```{r}
+sce <- runUMAP(sce,exprs_values="data")
+```
+
+```{r}
+plotUMAP(sce, colour_by = "VectorType")
+```
 
