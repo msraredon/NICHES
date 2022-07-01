@@ -7,7 +7,7 @@ library(NICHES)
 # Use Seurat data as examples
 
 library(Seurat)
-data1 <-  Read10X(data.dir = "/data/test_data/filtered_gene_bc_matrices/hg19/")
+data1 <-  Read10X(data.dir = "/data/jyc/test_data/filtered_gene_bc_matrices/hg19/")
 pbmc <- CreateSeuratObject(counts = data1, project = "pbmc3k", min.cells = 3, min.features = 200)
 pbmc[["percent.mt"]] <- PercentageFeatureSet(pbmc, pattern = "^MT-")
 pbmc <- subset(pbmc, subset = nFeature_RNA > 200 & nFeature_RNA < 2500 & percent.mt < 5)
@@ -32,19 +32,43 @@ niche_obj <- RunNICHES(object = pbmc,assay = "RNA",LR.database = "fantom5",speci
                        min.cells.per.ident = 20, 
                        min.cells.per.gene = 100,
                        meta.data.to.map = colnames(pbmc@meta.data),
+                       CellToCell = F,CellToSystem = T,SystemToCell = T,
+                       CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
+niche_obj1_tmp <- RunNICHES(object = pbmc,assay = "RNA",cell_types = "cell_types",LR.database = "fantom5",species = "human",
+                       min.cells.per.ident = 20, 
+                       min.cells.per.gene = 100,
+                       meta.data.to.map = colnames(pbmc@meta.data),
+                       CellToCell = F,CellToSystem = T,SystemToCell = T,
+                       CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
+
+niche_obj1_tmp <- RunNICHES(object = pbmc,assay = "asasas",LR.database = "fantom5",species = "human",
+                       min.cells.per.ident = 20, 
+                       min.cells.per.gene = 100,
+                       meta.data.to.map = colnames(pbmc@meta.data),
                        CellToCell = T,CellToSystem = T,SystemToCell = T,
                        CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
 
 niche_obj2 <- RunNICHES(object = as.matrix(pbmc@assays$RNA@data),LR.database = "fantom5",species = "human",
-                        meta.data.to.map = pbmc@meta.data,
+                        meta.data.df = pbmc@meta.data,
                         cell_types = "cell_types",
                         min.cells.per.ident = 20, 
                         min.cells.per.gene = 100,
                         CellToCell = T,CellToSystem = T,SystemToCell = T,
                         CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
 
+niche_obj2_tmp <- RunNICHES(object = pbmc@assays$RNA@data,LR.database = "fantom5",species = "human",
+                            meta.data.df = pbmc@meta.data,
+                        
+                        min.cells.per.ident = 20, 
+                        min.cells.per.gene = 100,
+                        CellToCell = F,CellToSystem = T,SystemToCell = T,
+                        CellToCellSpatial = F,CellToNeighborhood = F,NeighborhoodToCell = F)
+
+
 niche_obj3 <- RunNICHES(object = as.matrix(pbmc@assays$RNA@data),LR.database = "fantom5",species = "human",
-                        meta.data.to.map = pbmc@meta.data,
+                        meta.data.df = pbmc@meta.data,
                         cell_types = "cell_types",
                         min.cells.per.ident = 20, 
                         min.cells.per.gene = 100,
