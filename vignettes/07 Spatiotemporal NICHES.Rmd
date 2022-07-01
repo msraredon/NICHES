@@ -46,10 +46,14 @@ names(data.list) <- c('E10','E11')
 # Run NICHES on each item in list and store the output
 niches.list <- list()
 for (i in 1:length(data.list)){
+
+data.list[[i]]@meta.data$cell_types <- Idents(data.list[[i]])  
+  
 niches.list[[i]] <- RunNICHES(data.list[[i]],
                  assay = 'alra', # Note: using alra imputed data here instead of SCT
                  species = 'mouse',
                  LR.database = 'fantom5',
+                 cell_types = "cell_types",
                  CellToCellSpatial = T, # We are interested in local relationships
                  NeighborhoodToCell = T, # We are interested in local niches
                  CellToCell = F, # We do not want crosses which don't take into account spatial information
