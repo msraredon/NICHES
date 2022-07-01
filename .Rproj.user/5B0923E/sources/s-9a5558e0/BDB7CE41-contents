@@ -1,2 +1,0 @@
-setClass("SCC", representation(traditional = "Seurat", spatial = "Seurat"))
-SCC_tmp <- new("SCC",tradtional = spatial_data,spatial=spatial_data)
