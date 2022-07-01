@@ -56,16 +56,20 @@ rat.sub <- subset(rat,idents = c('ATII','ATI',
 We may then compute and explore the character of different cellular 'niches' (System-to-Cell signaling networks) within this specific cell-system, as follows:
 
 ```{r message=F, warning=F}
+
+rat.sub@meta.data$cell_types <- Idents(rat.sub)
+
 lung.niche <- RunNICHES(rat.sub,
                         assay = 'alra',
                         species = 'rat',
                         LR.database = 'fantom5',
+                        cell_types = "cell_types",
                         SystemToCell = T,
                         CellToCell = F) 
 # Here we use a previously-created imputed data slot. The same computation may be performed on any data slot including standard log-normalized RNA values.
 niche.object <- lung.niche$SystemToCell #Extract the output of interest
 niche.object <- ScaleData(niche.object) #Scale
-niche.object <- FindVariableFeatures(niche.object) #Identify variable features
+niche.object <- FindVariableFeatures(niche.object,selection.method="disp") #Identify variable features
 niche.object <- RunPCA(niche.object,npcs = 100) #RunPCA
 ElbowPlot(niche.object,ndims=100) #Choose PCs to use for embedding
 niche.object <- RunUMAP(niche.object,dims = 1:15) #Embed
@@ -98,10 +102,11 @@ lung.cc <- RunNICHES(rat.sub,
                         assay = 'alra',
                         species = 'rat',
                         LR.database = 'fantom5',
+                        cell_types = "cell_types",
                         CellToCell = T) #Note the difference in input arguments here
 cc.object <- lung.cc$CellToCell #Extract the output of interest
 cc.object <- ScaleData(cc.object) #Scale
-cc.object <- FindVariableFeatures(cc.object) #Identify variable features
+cc.object <- FindVariableFeatures(cc.object,selection.method="disp") #Identify variable features
 cc.object <- RunPCA(cc.object,npcs = 100) #RunPCA
 ElbowPlot(cc.object,ndims=100) #Choose PCs to use for embedding
 cc.object <- RunUMAP(cc.object,dims = 1:100) #Embed
@@ -135,7 +140,7 @@ One of the powerful applications of NICHES is the ability to parse intra-cluster
 Idents(cc.object) <- cc.object[['VectorType']]
 sub <- subset(cc.object,idents = 'Mac_alv—ATI')
 sub <- ScaleData(sub)
-sub <- FindVariableFeatures(sub)
+sub <- FindVariableFeatures(sub,selection.method="disp")
 sub <- RunPCA(sub)
 ElbowPlot(sub,ndims=50)
 PCHeatmap(sub,dims=1:10,balanced = T,cells=100)
