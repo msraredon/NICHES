@@ -85,6 +85,7 @@ for(i in 1:length(data.list)){
                              LR.database="fantom5",
                              species="human",
                              assay="RNA",
+                             cell_types = 'seurat_annotations',
                              min.cells.per.ident=1,
                              min.cells.per.gene = 50,
                              meta.data.to.map = c('orig.ident','seurat_annotations','stim'),
@@ -124,7 +125,7 @@ Let's now perform an initial visualization of signaling between these two condit
 ```{r message=F, warning=F}
 # Perform initial visualization
 scc.sub <- ScaleData(scc.sub)
-scc.sub <- FindVariableFeatures(scc.sub)
+scc.sub <- FindVariableFeatures(scc.sub,selection.method = "disp")
 scc.sub <- RunPCA(scc.sub,npcs = 50)
 ElbowPlot(scc.sub,ndim=50)
 ```
@@ -159,7 +160,7 @@ lapply(COI, function(x){
   Idents(subs) <- subs@meta.data$Condition
   
   #scale the subsetted data
-  FindVariableFeatures(subs,assay='SystemToCell')
+  FindVariableFeatures(subs,assay='SystemToCell',selection.method = "disp")
   ScaleData(subs, assay='SystemToCell')
   
   #find markers (here we use ROC)
