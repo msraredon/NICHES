@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-NICHES is also able to compare SystemToCell signaling across conditions to estimate changes in sensed-microenvironment due to altered experimental conditions or altered tissue state. To perform this operation, NICHES creates a measurement of ligand coming from the whole system by taking the mean of all sending cells for each ligand mechanis, and then multiplying this value with the cognate receptor mechanism expression on each receiving cell. The workflow has been designed this way so that altered cell compositions between samples will have a measurable effect on the NICHES output. This allows insight into the alterations to network connectivity which occur due to the development or elimination of celltypes in dynamic processes and can help users to identify cell-cell relationships of interest for further investigation.
+NICHES is also able to compare SystemToCell signaling across conditions to estimate changes in sensed-microenvironment due to altered experimental conditions or altered tissue state. To perform this operation, NICHES creates a measurement of ligand coming from the whole system by taking the mean of all sending cells for each ligand mechanism, and then multiplying this value with the cognate receptor mechanism expression on each receiving cell. The workflow has been designed this way so that altered cell compositions between samples will have a measurable effect on the NICHES output. This allows insight into the alterations to network connectivity which occur due to the development or elimination of celltypes in dynamic processes and can help users to identify cell-cell relationships of interest for further investigation.
 
 However, it also means that care must be taken when setting up the computational workflow. In particular, we recommend that the number of cells analyzed in each condition be standardized, to avoid potential artifacts which might be caused by taking the mean in different conditions using different denominators.
 
@@ -43,14 +43,12 @@ This dataset contains two experimental conditions, annotated STIM and CTRL. As b
 
 ## Split by Experimental Contion
 ```{r message=F, warning=F}
+# Normalize the data
+ifnb <- NormalizeData(ifnb)
 # Set idents so that celltypes are in active identity slot
 Idents(ifnb) <- ifnb@meta.data["seurat_annotations"]
 # Split object into STIM and CTRL conditions, to calculate NICHES objects separately
 data.list <- SplitObject(ifnb, split.by="stim")
-# Make sure that data is normalized
-data.list <- lapply(X = data.list, FUN = function(x) {
-    x <- NormalizeData(x)
-})
 ```
 
 In contrast to the previous vignette, we are interested in the SystemToCell signaling output. Because of this, we advise standardizing the number of cells in each condition that are input into NICHES for each condition. This is one simple approach for how to do this:
@@ -91,7 +89,8 @@ for(i in 1:length(data.list)){
                              min.cells.per.gene = 50,
                              meta.data.to.map = c('orig.ident','seurat_annotations','stim'),
                              SystemToCell = T,
-                             CellToCell = T)
+                             CellToCell = T,
+                             blend = 'mean')
 }
 names(scc.list) <- names(data.list)
 ```
@@ -139,18 +138,18 @@ p2 <- DimPlot(scc.sub,group.by = 'ReceivingType')
 plot_grid(p1,p2)
 ```
 
-Predictably here, there is a big observed shift in
+Predictably here, there is a big observed shift between conditions.
 
-## Focus on a single cell-cell cross of interest
+## Focus on a single receiving cell of interest
 ```{r message=F, warning=F}
-head(unique(scc.sub@meta.data$VectorType))
-# Define VectorTypes of interest (note the long em-dash used in NICHES)
-VOI <- "CD14 Mono—DC"
-# Loop over VectorTypes of interest, subsetting those interactions, finding markers associated with the comparison of interest (stimulus vs control) and  create a heatmap of top markers:
-lapply(VOI, function(x){
+unique(scc.sub@meta.data$ReceivingType)
+# Define ReceivingType of interest
+COI <- "DC"
+# Loop over ReceivingType of interest, subsetting those interactions, finding markers associated with the comparison of interest (stimulus vs control) and  create a heatmap of top markers:
+lapply(COI, function(x){
  
   #subset
-  subs <- subset(scc.sub, subset = VectorType == x)
+  subs <- subset(scc.sub, subset = ReceivingType == x)
   
   #print number of cells per condition
   print(paste0(x , ":  CTRL:", sum(subs@meta.data$Condition == "CTRL")))
@@ -160,47 +159,53 @@ lapply(VOI, function(x){
   Idents(subs) <- subs@meta.data$Condition
   
   #scale the subsetted data
-  FindVariableFeatures(subs,assay='CellToCell')
-  ScaleData(subs, assay='CellToCell')
+  FindVariableFeatures(subs,assay='SystemToCell')
+  ScaleData(subs, assay='SystemToCell')
   
-  #these are the features in the scaledata slot
-  feats <- dimnames(subs@assays$CellToCell@scale.data)[[1]]
-  feats
+  #find markers (here we use ROC)
+  markers <- FindAllMarkers(subs, test.use = "roc",assay='SystemToCell',
+                            min.pct = 0.1,logfc.threshold = 0.1,
+                            return.thresh = 0.1,only.pos = T)
   
-  #find markers (here we use wilcox, but ROC and other tests can be used as well)
-  markers <- FindAllMarkers(subs, features=feats, test.use = "wilcox",assay='CellToCell')
-  
-  #subset to top 20 markers per condition
-  top10 <- markers %>% group_by(cluster) %>% top_n(n = 10, wt = avg_log2FC)
+  #subset to top 10 markers per condition
+  top10 <- markers %>% group_by(cluster) %>% top_n(n = 10, wt = myAUC)
   
   #Make a heatmap
-  DoHeatmap(subs,group.by="ident",features=top10$gene, assay="CellToCell") +  ggtitle("Top DE Mechanisms, CTRL vs STIM: ",x)
+  DoHeatmap(subs,group.by="ident",features=top10$gene, assay="SystemToCell") +  ggtitle("Top DE SystemToCell Mechanisms, CTRL vs STIM: ",x)
+  
 })
 ```
 
-These results confirm our expectation that chemokine signaling for this cell-cell VectorType is upregulated in the STIM condition as compared to contol. We can further isolate this specific VectorType for embedding or clustering:
+Some of these markers we have already identified in the previous vignette in whcih we queried the CD14 Mono—DC relationship. However, some of these mechanisms are new to us. IL15-IL2RG is new from this analysis. Let's see where this signal is coming from in the original data, and if it is more likley an effect of altered ligand expressivity in the tissue or altered receptor expressivity on DCs:
 
 ```{r message=F, warning=F}
-# Perform visualization for VectorTypes of interest
-VOI <- c("CD14 Mono—DC")
-Idents(scc.sub) <- scc.sub@meta.data$VectorType
-voi.data <- subset(scc.sub,idents = VOI)
-voi.data <- ScaleData(voi.data)
-voi.data <- FindVariableFeatures(voi.data)
-voi.data <- RunPCA(voi.data,npcs = 50)
-ElbowPlot(voi.data,ndim=50)
-voi.data <- RunUMAP(voi.data,dims = 1:10)
-DimPlot(voi.data,group.by = 'VectorType')
-DimPlot(voi.data,group.by = 'Condition')
+p1 <- VlnPlot(ifnb,'IL15',split.by = 'stim',pt.size = 0,log=T)
+p2 <- VlnPlot(ifnb,'IL2RG',split.by = 'stim',pt.size = 0,log=T)
+plot_grid(p1,p2,ncol=1)
 ```
 
-And we can then check that the markers we found earlier appear accurate:
+It looks like this pattern is most likley an effect of upregulated IL15 expressivity in the system by CD16 Mono cells. Let's probe this further:
 
 ```{r message=F, warning=F}
-FeaturePlot(voi.data,
-            features = c('CCL2—CCR1','CCL2—CCR5'),max.cutoff = 150)
-VlnPlot(voi.data,
-            features = c('CCL2—CCR1','CCL2—CCR5'),log = T,group.by = 'Condition')
+VlnPlot(scc.sub, 'IL15—IL2RG',split.by = 'Condition',pt.size = 0)
+subs <- subset(scc.sub, idents = 'DC')
+subs <- ScaleData(subs)
+subs <- RunPCA(subs)
+subs <- RunUMAP(subs,dims = 1:5)
+p1 <- DimPlot(subs,group.by = 'Condition')
+p2 <- FeaturePlot(subs,'IL15—IL2RG')
+title <- ggdraw() + 
+  draw_label(
+    "DC Microenvironment Across Conditions",
+    fontface = 'bold',
+    x = 0,
+    hjust = 0
+  ) +
+  theme(
+    # add margin on the left of the drawing canvas,
+    # so title is aligned with left edge of first plot
+    plot.margin = margin(0, 0, 0, 7)
+  )
+plot_grid(title,p1,p2,ncol=1,rel_heights = c(0.1, 1,1))
 ```
-
 

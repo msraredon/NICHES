@@ -73,9 +73,15 @@
     <loc>https://msraredon.github.io/NICHES//articles/03 Rat Alveolus.html</loc>
   </url>
   <url>
-    <loc>https://msraredon.github.io/NICHES//articles/04 NICHES Differential By Vectortype.html</loc>
+    <loc>https://msraredon.github.io/NICHES//articles/04 Differential CellToCell.html</loc>
   </url>
   <url>
-    <loc>https://msraredon.github.io/NICHES//articles/05 Pseudotime.html</loc>
+    <loc>https://msraredon.github.io/NICHES//articles/05 Differential SystemToCell.html</loc>
+  </url>
+  <url>
+    <loc>https://msraredon.github.io/NICHES//articles/06 Pseudotime.html</loc>
+  </url>
+  <url>
+    <loc>https://msraredon.github.io/NICHES//articles/07 Spatiotemporal NICHES.html</loc>
   </url>
 </urlset>
