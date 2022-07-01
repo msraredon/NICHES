@@ -67,7 +67,7 @@ brain <- NormalizeData(brain)
 NICHES can be run on imputed or non-imputed data. Here, we will use imputed data.
 
 ## Impute and Run NICHES
-```{r message=F, warning=F}
+```{r message=F, warning=T}
 brain <- SeuratWrappers::RunALRA(brain)
 
 NICHES_output <- RunNICHES(object = brain,
@@ -76,7 +76,8 @@ NICHES_output <- RunNICHES(object = brain,
                            assay = "alra",
                            position.x = 'x',
                            position.y = 'y',
-                           rad.set = 2, # Geometry dependent
+                           k = 4, 
+                           cell_types = "seurat_clusters",
                            min.cells.per.ident = 0,
                            min.cells.per.gene = NULL,
                            meta.data.to.map = c('orig.ident','seurat_clusters'),
