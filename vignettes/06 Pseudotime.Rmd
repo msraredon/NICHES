@@ -62,10 +62,14 @@ We then compute SystemToCell information within this cell-system and isolate the
 
 ## Visualization of homeostatic microenvironment for two transdifferentiating cell types
 ```{r message=F, warning=F}
+
+rat.sub@meta.data$cell_types <- Idents(rat.sub)
+
 lung.niche <- RunNICHES(rat.sub,
                         assay = 'alra',
                         species = 'rat',
                         LR.database = 'fantom5',
+                        cell_types = "cell_types",
                         SystemToCell = T,
                         CellToCell = F) 
 # Here we use a previously-created imputed data slot. The same computation may be performed on any data slot including standard log-normalized RNA values.
@@ -75,7 +79,7 @@ niche.object <- lung.niche$SystemToCell #Extract the output of interest
 Idents(niche.object) <- niche.object@meta.data$ReceivingType
 niche.object <- subset(niche.object,idents = c('ATII','ATI'))
 niche.object <- ScaleData(niche.object) #Scale
-niche.object <- FindVariableFeatures(niche.object) #Identify variable features
+niche.object <- FindVariableFeatures(niche.object,selection.method="disp") #Identify variable features
 niche.object <- RunPCA(niche.object,npcs = 50) #RunPCA
 ElbowPlot(niche.object,ndims=50) #Choose PCs to use for embedding
 niche.object <- RunUMAP(niche.object,dims = 1:12) #Embed
