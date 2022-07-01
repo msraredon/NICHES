@@ -59,6 +59,7 @@ for(i in 1:length(data.list)){
                              LR.database="fantom5",
                              species="human",
                              assay="RNA",
+                             cell_types = "seurat_annotations",
                              min.cells.per.ident=1,
                              min.cells.per.gene = 50,
                              meta.data.to.map = c('orig.ident','seurat_annotations','stim'),
@@ -97,7 +98,7 @@ Let's now perform an initial visualization of signaling between these two condit
 ```{r message=F, warning=F}
 # Perform initial visualization
 scc.sub <- ScaleData(scc.sub)
-scc.sub <- FindVariableFeatures(scc.sub)
+scc.sub <- FindVariableFeatures(scc.sub,selection.method = "disp")
 scc.sub <- RunPCA(scc.sub,npcs = 50)
 ElbowPlot(scc.sub,ndim=50)
 ```
@@ -133,7 +134,7 @@ lapply(VOI, function(x){
   Idents(subs) <- subs@meta.data$Condition
   
   #scale the subsetted data
-  FindVariableFeatures(subs,assay='CellToCell')
+  FindVariableFeatures(subs,assay='CellToCell',selection.method = "disp")
   ScaleData(subs, assay='CellToCell')
   
   #these are the features in the scaledata slot
@@ -159,7 +160,7 @@ VOI <- c("CD14 Mono—DC")
 Idents(scc.sub) <- scc.sub@meta.data$VectorType
 voi.data <- subset(scc.sub,idents = VOI)
 voi.data <- ScaleData(voi.data)
-voi.data <- FindVariableFeatures(voi.data)
+voi.data <- FindVariableFeatures(voi.data,selection.method = "disp")
 voi.data <- RunPCA(voi.data,npcs = 50)
 ElbowPlot(voi.data,ndim=50)
 voi.data <- RunUMAP(voi.data,dims = 1:10)
