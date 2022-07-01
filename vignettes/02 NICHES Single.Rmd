@@ -57,6 +57,7 @@ scc <- RunNICHES(sub,
                  assay = 'RNA',
                  species = 'human',
                  LR.database = 'omnipath',
+                 cell_types = 'seurat_annotations',
                  CellToCell = T)
 ```
 
@@ -67,8 +68,7 @@ We can visualize cell-cell signaling relationships quickly using tSNE or UMAP as
 ```{r message=F, warning=F}
 demo <- scc$CellToCell
 demo <- ScaleData(demo)
-demo <- FindVariableFeatures(demo)
-demo <- RunPCA(demo)
+demo <- RunPCA(demo,features = rownames(demo))
 ElbowPlot(demo,ndims=50)
 PCHeatmap(demo,dims = 1:6,balanced = T,cells = 100)
 demo <- RunUMAP(demo,dims = 1:6)
@@ -83,11 +83,11 @@ scc.imputed <- RunNICHES(imputed,
                  assay = 'alra',
                  species = 'human',
                  LR.database = 'omnipath',
+                 cell_types = 'seurat_annotations',
                  CellToCell = T)
 demo.2 <- scc.imputed$CellToCell
 demo.2 <- ScaleData(demo.2)
-demo.2 <- FindVariableFeatures(demo.2)
-demo.2 <- RunPCA(demo.2)
+demo.2 <- RunPCA(demo.2,features = rownames(demo.2))
 ElbowPlot(demo.2,ndims=50)
 PCHeatmap(demo.2,dims = 1:6,balanced = T,cells = 100)
 demo.2 <- RunUMAP(demo.2,dims = 1:6)
