@@ -47,7 +47,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -74,6 +74,9 @@
     <li>
       <a href="../articles/07%20Spatiotemporal%20NICHES.html">Spatio-Temporal NICHES</a>
     </li>
+    <li>
+      <a href="../articles/08%20Interperobility%20-%20NICHES.html">08 Interperobility - NICHES</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -93,7 +96,7 @@
       <h1 data-toc-skip>Spatio-Temporal NICHES</h1>
                         <h4 class="author">Junchen Yang &amp; Micha Sam Brickman Raredon</h4>
             
-            <h4 class="date">2022-06-20</h4>
+            <h4 class="date">2022-07-05</h4>
       
       
       <div class="hidden name"><code>07 Spatiotemporal NICHES.Rmd</code></div>
@@ -143,10 +146,14 @@
 <span class="co"># Run NICHES on each item in list and store the output</span>
 <span class="va">niches.list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span><span class="op">(</span><span class="op">)</span>
 <span class="kw">for</span> <span class="op">(</span><span class="va">i</span> <span class="kw">in</span> <span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">)</span><span class="op">)</span><span class="op">{</span>
+
+<span class="va">data.list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">@</span><span class="va">meta.data</span><span class="op">$</span><span class="va">cell_types</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>  
+  
 <span class="va">niches.list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunNICHES.html">RunNICHES</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,
                  assay <span class="op">=</span> <span class="st">'alra'</span>, <span class="co"># Note: using alra imputed data here instead of SCT</span>
                  species <span class="op">=</span> <span class="st">'mouse'</span>,
                  LR.database <span class="op">=</span> <span class="st">'fantom5'</span>,
+                 cell_types <span class="op">=</span> <span class="st">"cell_types"</span>,
                  CellToCellSpatial <span class="op">=</span> <span class="cn">T</span>, <span class="co"># We are interested in local relationships</span>
                  NeighborhoodToCell <span class="op">=</span> <span class="cn">T</span>, <span class="co"># We are interested in local niches</span>
                  CellToCell <span class="op">=</span> <span class="cn">F</span>, <span class="co"># We do not want crosses which don't take into account spatial information</span>

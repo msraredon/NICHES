@@ -47,7 +47,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -74,6 +74,9 @@
     <li>
       <a href="../articles/07%20Spatiotemporal%20NICHES.html">Spatio-Temporal NICHES</a>
     </li>
+    <li>
+      <a href="../articles/08%20Interperobility%20-%20NICHES.html">08 Interperobility - NICHES</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -93,7 +96,7 @@
       <h1 data-toc-skip>Cellular Relationships in the Rat Alveolus</h1>
                         <h4 class="author">Micha Sam Brickman Raredon &amp; Junchen Yang</h4>
             
-            <h4 class="date">2022-06-20</h4>
+            <h4 class="date">2022-07-05</h4>
       
       
       <div class="hidden name"><code>03 Rat Alveolus.Rmd</code></div>
@@ -138,16 +141,20 @@
                                  <span class="st">'EC_cap'</span>,<span class="st">'EC_vasc'</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>We may then compute and explore the character of different cellular ‘niches’ (System-to-Cell signaling networks) within this specific cell-system, as follows:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">lung.niche</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunNICHES.html">RunNICHES</a></span><span class="op">(</span><span class="va">rat.sub</span>,
+<code class="sourceCode R">
+<span class="va">rat.sub</span><span class="op">@</span><span class="va">meta.data</span><span class="op">$</span><span class="va">cell_types</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">rat.sub</span><span class="op">)</span>
+
+<span class="va">lung.niche</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/RunNICHES.html">RunNICHES</a></span><span class="op">(</span><span class="va">rat.sub</span>,
                         assay <span class="op">=</span> <span class="st">'alra'</span>,
                         species <span class="op">=</span> <span class="st">'rat'</span>,
                         LR.database <span class="op">=</span> <span class="st">'fantom5'</span>,
+                        cell_types <span class="op">=</span> <span class="st">"cell_types"</span>,
                         SystemToCell <span class="op">=</span> <span class="cn">T</span>,
                         CellToCell <span class="op">=</span> <span class="cn">F</span><span class="op">)</span> 
 <span class="co"># Here we use a previously-created imputed data slot. The same computation may be performed on any data slot including standard log-normalized RNA values.</span>
 <span class="va">niche.object</span> <span class="op">&lt;-</span> <span class="va">lung.niche</span><span class="op">$</span><span class="va">SystemToCell</span> <span class="co">#Extract the output of interest</span>
 <span class="va">niche.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">niche.object</span><span class="op">)</span> <span class="co">#Scale</span>
-<span class="va">niche.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">niche.object</span><span class="op">)</span> <span class="co">#Identify variable features</span>
+<span class="va">niche.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">niche.object</span>,selection.method<span class="op">=</span><span class="st">"disp"</span><span class="op">)</span> <span class="co">#Identify variable features</span>
 <span class="va">niche.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">niche.object</span>,npcs <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="co">#RunPCA</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">niche.object</span>,ndims<span class="op">=</span><span class="fl">100</span><span class="op">)</span> <span class="co">#Choose PCs to use for embedding</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
@@ -175,10 +182,11 @@
                         assay <span class="op">=</span> <span class="st">'alra'</span>,
                         species <span class="op">=</span> <span class="st">'rat'</span>,
                         LR.database <span class="op">=</span> <span class="st">'fantom5'</span>,
+                        cell_types <span class="op">=</span> <span class="st">"cell_types"</span>,
                         CellToCell <span class="op">=</span> <span class="cn">T</span><span class="op">)</span> <span class="co">#Note the difference in input arguments here</span>
 <span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="va">lung.cc</span><span class="op">$</span><span class="va">CellToCell</span> <span class="co">#Extract the output of interest</span>
 <span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">cc.object</span><span class="op">)</span> <span class="co">#Scale</span>
-<span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">cc.object</span><span class="op">)</span> <span class="co">#Identify variable features</span>
+<span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">cc.object</span>,selection.method<span class="op">=</span><span class="st">"disp"</span><span class="op">)</span> <span class="co">#Identify variable features</span>
 <span class="va">cc.object</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">cc.object</span>,npcs <span class="op">=</span> <span class="fl">100</span><span class="op">)</span> <span class="co">#RunPCA</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">cc.object</span>,ndims<span class="op">=</span><span class="fl">100</span><span class="op">)</span> <span class="co">#Choose PCs to use for embedding</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-6-1.png" width="1152"></p>
@@ -210,7 +218,7 @@
 <span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">cc.object</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">cc.object</span><span class="op">[[</span><span class="st">'VectorType'</span><span class="op">]</span><span class="op">]</span>
 <span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">cc.object</span>,idents <span class="op">=</span> <span class="st">'Mac_alv—ATI'</span><span class="op">)</span>
 <span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">sub</span><span class="op">)</span>
-<span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">sub</span><span class="op">)</span>
+<span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">sub</span>,selection.method<span class="op">=</span><span class="st">"disp"</span><span class="op">)</span>
 <span class="va">sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">sub</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">sub</span>,ndims<span class="op">=</span><span class="fl">50</span><span class="op">)</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-8-1.png" width="700"></p>

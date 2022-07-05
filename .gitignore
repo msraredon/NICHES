@@ -13,3 +13,5 @@ vignettes/*.Robj
 Vignettes/*.RDS
 vignettes/*.h5ad
 vignettes/*.h5Seurat
+vignettes/data/*.h5ad
+docs

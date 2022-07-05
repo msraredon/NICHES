@@ -47,7 +47,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -74,6 +74,9 @@
     <li>
       <a href="../articles/07%20Spatiotemporal%20NICHES.html">Spatio-Temporal NICHES</a>
     </li>
+    <li>
+      <a href="../articles/08%20Interperobility%20-%20NICHES.html">08 Interperobility - NICHES</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -93,7 +96,7 @@
       <h1 data-toc-skip>Differential CellToCell Signaling Across Conditions</h1>
                         <h4 class="author">Wes Lewis &amp; Micha Sam Brickman Raredon</h4>
             
-            <h4 class="date">2022-06-20</h4>
+            <h4 class="date">2022-07-05</h4>
       
       
       <div class="hidden name"><code>04 Differential CellToCell.Rmd</code></div>
@@ -158,6 +161,7 @@
                              LR.database<span class="op">=</span><span class="st">"fantom5"</span>,
                              species<span class="op">=</span><span class="st">"human"</span>,
                              assay<span class="op">=</span><span class="st">"RNA"</span>,
+                             cell_types <span class="op">=</span> <span class="st">"seurat_annotations"</span>,
                              min.cells.per.ident<span class="op">=</span><span class="fl">1</span>,
                              min.cells.per.gene <span class="op">=</span> <span class="fl">50</span>,
                              meta.data.to.map <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'orig.ident'</span>,<span class="st">'seurat_annotations'</span>,<span class="st">'stim'</span><span class="op">)</span>,
@@ -199,7 +203,7 @@
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Perform initial visualization</span>
 <span class="va">scc.sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">scc.sub</span><span class="op">)</span>
-<span class="va">scc.sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">scc.sub</span><span class="op">)</span>
+<span class="va">scc.sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">scc.sub</span>,selection.method <span class="op">=</span> <span class="st">"disp"</span><span class="op">)</span>
 <span class="va">scc.sub</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">scc.sub</span>,npcs <span class="op">=</span> <span class="fl">50</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">scc.sub</span>,ndim<span class="op">=</span><span class="fl">50</span><span class="op">)</span></code></pre></div>
 <p><img src="04%20Differential%20CellToCell_files/figure-html/unnamed-chunk-7-1.png" width="700"></p>
@@ -242,7 +246,7 @@
   <span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">subs</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">subs</span><span class="op">@</span><span class="va">meta.data</span><span class="op">$</span><span class="va">Condition</span>
   
   <span class="co">#scale the subsetted data</span>
-  <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">subs</span>,assay<span class="op">=</span><span class="st">'CellToCell'</span><span class="op">)</span>
+  <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">subs</span>,assay<span class="op">=</span><span class="st">'CellToCell'</span>,selection.method <span class="op">=</span> <span class="st">"disp"</span><span class="op">)</span>
   <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">subs</span>, assay<span class="op">=</span><span class="st">'CellToCell'</span><span class="op">)</span>
   
   <span class="co">#these are the features in the scaledata slot</span>
@@ -269,7 +273,7 @@
 <span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/Idents.html">Idents</a></span><span class="op">(</span><span class="va">scc.sub</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="va">scc.sub</span><span class="op">@</span><span class="va">meta.data</span><span class="op">$</span><span class="va">VectorType</span>
 <span class="va">voi.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span><span class="op">(</span><span class="va">scc.sub</span>,idents <span class="op">=</span> <span class="va">VOI</span><span class="op">)</span>
 <span class="va">voi.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">voi.data</span><span class="op">)</span>
-<span class="va">voi.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">voi.data</span><span class="op">)</span>
+<span class="va">voi.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">voi.data</span>,selection.method <span class="op">=</span> <span class="st">"disp"</span><span class="op">)</span>
 <span class="va">voi.data</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">voi.data</span>,npcs <span class="op">=</span> <span class="fl">50</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">voi.data</span>,ndim<span class="op">=</span><span class="fl">50</span><span class="op">)</span></code></pre></div>
 <p><img src="04%20Differential%20CellToCell_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>

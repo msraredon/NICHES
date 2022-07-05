@@ -47,7 +47,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -74,6 +74,9 @@
     <li>
       <a href="../articles/07%20Spatiotemporal%20NICHES.html">Spatio-Temporal NICHES</a>
     </li>
+    <li>
+      <a href="../articles/08%20Interperobility%20-%20NICHES.html">08 Interperobility - NICHES</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -93,7 +96,7 @@
       <h1 data-toc-skip>Converting Single-Cell Atlases to Single-Cell Signaling Atlases</h1>
                         <h4 class="author">Micha Sam Brickman Raredon &amp; Junchen Yang</h4>
             
-            <h4 class="date">2022-06-20</h4>
+            <h4 class="date">2022-07-05</h4>
       
       
       <div class="hidden name"><code>02 NICHES Single.Rmd</code></div>
@@ -146,6 +149,7 @@
                  assay <span class="op">=</span> <span class="st">'RNA'</span>,
                  species <span class="op">=</span> <span class="st">'human'</span>,
                  LR.database <span class="op">=</span> <span class="st">'omnipath'</span>,
+                 cell_types <span class="op">=</span> <span class="st">'seurat_annotations'</span>,
                  CellToCell <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></code></pre></div>
 </div>
 <div id="visualize-cell-cell-signaling-relationships-using-umap" class="section level2">
@@ -155,8 +159,7 @@
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">demo</span> <span class="op">&lt;-</span> <span class="va">scc</span><span class="op">$</span><span class="va">CellToCell</span>
 <span class="va">demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">demo</span><span class="op">)</span>
-<span class="va">demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">demo</span><span class="op">)</span>
-<span class="va">demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">demo</span><span class="op">)</span>
+<span class="va">demo</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">demo</span>,features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">demo</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">demo</span>,ndims<span class="op">=</span><span class="fl">50</span><span class="op">)</span></code></pre></div>
 <p><img src="02%20NICHES%20Single_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
@@ -173,11 +176,11 @@
                  assay <span class="op">=</span> <span class="st">'alra'</span>,
                  species <span class="op">=</span> <span class="st">'human'</span>,
                  LR.database <span class="op">=</span> <span class="st">'omnipath'</span>,
+                 cell_types <span class="op">=</span> <span class="st">'seurat_annotations'</span>,
                  CellToCell <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>
 <span class="va">demo.2</span> <span class="op">&lt;-</span> <span class="va">scc.imputed</span><span class="op">$</span><span class="va">CellToCell</span>
 <span class="va">demo.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">demo.2</span><span class="op">)</span>
-<span class="va">demo.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/FindVariableFeatures.html">FindVariableFeatures</a></span><span class="op">(</span><span class="va">demo.2</span><span class="op">)</span>
-<span class="va">demo.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">demo.2</span><span class="op">)</span>
+<span class="va">demo.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/RunPCA.html">RunPCA</a></span><span class="op">(</span><span class="va">demo.2</span>,features <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html">rownames</a></span><span class="op">(</span><span class="va">demo.2</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/ElbowPlot.html">ElbowPlot</a></span><span class="op">(</span><span class="va">demo.2</span>,ndims<span class="op">=</span><span class="fl">50</span><span class="op">)</span></code></pre></div>
 <p><img src="02%20NICHES%20Single_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">

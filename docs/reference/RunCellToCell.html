@@ -91,7 +91,7 @@ Meta.data slots by default contain &quot;SendingType&quot; &quot;ReceivingType&q
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -117,6 +117,9 @@ Meta.data slots by default contain &quot;SendingType&quot; &quot;ReceivingType&q
     </li>
     <li>
       <a href="../articles/07 Spatiotemporal NICHES.html">Spatio-Temporal NICHES</a>
+    </li>
+    <li>
+      <a href="../articles/08 Interperobility - NICHES.html">08 Interperobility - NICHES</a>
     </li>
   </ul>
 </li>
@@ -148,7 +151,7 @@ The default assay of this object is called "CellToCell" to distinguish it from n
 Meta.data slots by default contain "SendingType" "ReceivingType" and "VectorType" information.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>RunCellToCell</span><span class='op'>(</span><span class='va'>sys.small</span>, <span class='va'>ground.truth</span>, <span class='va'>assay</span>, <span class='va'>meta.data.to.map</span><span class='op'>)</span></pre>
+    <pre class="usage"><span class='fu'>RunCellToCell</span><span class='op'>(</span><span class='va'>sys.small</span>, <span class='va'>ground.truth</span>, <span class='va'>assay</span>, <span class='va'>meta.data.to.map</span>, <span class='va'>output_format</span><span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -168,6 +171,10 @@ Meta.data slots by default contain "SendingType" "ReceivingType" and "VectorType
     <tr>
       <th>meta.data.to.map</th>
       <td><p>A character vector of metadata names present in the original object which will be carried to the SCC objects</p></td>
+    </tr>
+    <tr>
+      <th>output_format</th>
+      <td><p>string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata</p></td>
     </tr>
     </table>
 

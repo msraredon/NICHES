@@ -47,7 +47,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -74,6 +74,9 @@
     <li>
       <a href="../articles/07%20Spatiotemporal%20NICHES.html">Spatio-Temporal NICHES</a>
     </li>
+    <li>
+      <a href="../articles/08%20Interperobility%20-%20NICHES.html">08 Interperobility - NICHES</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -93,7 +96,7 @@
       <h1 data-toc-skip>Estimating Microenvironment from Spatial Data</h1>
                         <h4 class="author">Junchen Yang &amp; Micha Sam Brickman Raredon</h4>
             
-            <h4 class="date">2022-06-20</h4>
+            <h4 class="date">2022-07-05</h4>
       
       
       <div class="hidden name"><code>01 NICHES Spatial.Rmd</code></div>
@@ -166,7 +169,8 @@
                            assay <span class="op">=</span> <span class="st">"alra"</span>,
                            position.x <span class="op">=</span> <span class="st">'x'</span>,
                            position.y <span class="op">=</span> <span class="st">'y'</span>,
-                           rad.set <span class="op">=</span> <span class="fl">2</span>, <span class="co"># Geometry dependent</span>
+                           k <span class="op">=</span> <span class="fl">4</span>, 
+                           cell_types <span class="op">=</span> <span class="st">"seurat_clusters"</span>,
                            min.cells.per.ident <span class="op">=</span> <span class="fl">0</span>,
                            min.cells.per.gene <span class="op">=</span> <span class="cn">NULL</span>,
                            meta.data.to.map <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'orig.ident'</span>,<span class="st">'seurat_clusters'</span><span class="op">)</span>,

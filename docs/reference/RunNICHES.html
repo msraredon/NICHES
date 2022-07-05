@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="RunNICHES — RunNICHES" />
-<meta property="og:description" content="Performs user-selected NICHES transformations on a Seurat object. 
+<meta property="og:description" content="Performs user-selected NICHES transformations on a Seurat object or a normalized data matrix. 
 By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
 If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
 Output is a set of specialized NICHES objects which allow fine analysis of cell-cell interactions." />
@@ -91,7 +91,7 @@ Output is a set of specialized NICHES objects which allow fine analysis of cell-
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -118,6 +118,9 @@ Output is a set of specialized NICHES objects which allow fine analysis of cell-
     <li>
       <a href="../articles/07 Spatiotemporal NICHES.html">Spatio-Temporal NICHES</a>
     </li>
+    <li>
+      <a href="../articles/08 Interperobility - NICHES.html">08 Interperobility - NICHES</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -142,13 +145,16 @@ Output is a set of specialized NICHES objects which allow fine analysis of cell-
     </div>
 
     <div class="ref-description">
-    <p>Performs user-selected NICHES transformations on a Seurat object. 
+    <p>Performs user-selected NICHES transformations on a Seurat object or a normalized data matrix. 
 By default, references RunCellToCell, RunCellToSystem, and RunSystemToCell functions. 
 If positional data is provided, similar analyses can be performed which are limited exclusively to cells that directly neighbor each other.
 Output is a set of specialized NICHES objects which allow fine analysis of cell-cell interactions.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>RunNICHES</span><span class='op'>(</span>
+    <pre class="usage"><span class='fu'>RunNICHES</span><span class='op'>(</span><span class='va'>object</span>, <span class='va'>...</span><span class='op'>)</span>
+
+<span class='co'># S3 method for default</span>
+<span class='fu'>RunNICHES</span><span class='op'>(</span>
   <span class='va'>object</span>,
   assay <span class='op'>=</span> <span class='st'>"RNA"</span>,
   LR.database <span class='op'>=</span> <span class='st'>"fantom5"</span>,
@@ -167,7 +173,85 @@ Output is a set of specialized NICHES objects which allow fine analysis of cell-
   SystemToCell <span class='op'>=</span> <span class='cn'>F</span>,
   CellToCellSpatial <span class='op'>=</span> <span class='cn'>F</span>,
   CellToNeighborhood <span class='op'>=</span> <span class='cn'>F</span>,
-  NeighborhoodToCell <span class='op'>=</span> <span class='cn'>F</span>
+  NeighborhoodToCell <span class='op'>=</span> <span class='cn'>F</span>,
+  output_format <span class='op'>=</span> <span class='st'>"seurat"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
+
+<span class='co'># S3 method for Seurat</span>
+<span class='fu'>RunNICHES</span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  assay <span class='op'>=</span> <span class='st'>"RNA"</span>,
+  LR.database <span class='op'>=</span> <span class='st'>"fantom5"</span>,
+  <span class='va'>species</span>,
+  min.cells.per.ident <span class='op'>=</span> <span class='cn'>NULL</span>,
+  min.cells.per.gene <span class='op'>=</span> <span class='cn'>NULL</span>,
+  meta.data.to.map <span class='op'>=</span> <span class='cn'>NULL</span>,
+  position.x <span class='op'>=</span> <span class='cn'>NULL</span>,
+  position.y <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cell_types <span class='op'>=</span> <span class='cn'>NULL</span>,
+  custom_LR_database <span class='op'>=</span> <span class='cn'>NULL</span>,
+  k <span class='op'>=</span> <span class='fl'>4</span>,
+  rad.set <span class='op'>=</span> <span class='cn'>NULL</span>,
+  blend <span class='op'>=</span> <span class='st'>"mean"</span>,
+  CellToCell <span class='op'>=</span> <span class='cn'>T</span>,
+  CellToSystem <span class='op'>=</span> <span class='cn'>F</span>,
+  SystemToCell <span class='op'>=</span> <span class='cn'>F</span>,
+  CellToCellSpatial <span class='op'>=</span> <span class='cn'>F</span>,
+  CellToNeighborhood <span class='op'>=</span> <span class='cn'>F</span>,
+  NeighborhoodToCell <span class='op'>=</span> <span class='cn'>F</span>,
+  output_format <span class='op'>=</span> <span class='st'>"seurat"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
+
+<span class='co'># S3 method for matrix</span>
+<span class='fu'>RunNICHES</span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  LR.database <span class='op'>=</span> <span class='st'>"fantom5"</span>,
+  <span class='va'>species</span>,
+  min.cells.per.ident <span class='op'>=</span> <span class='cn'>NULL</span>,
+  min.cells.per.gene <span class='op'>=</span> <span class='cn'>NULL</span>,
+  meta.data.df <span class='op'>=</span> <span class='cn'>NULL</span>,
+  position.x <span class='op'>=</span> <span class='cn'>NULL</span>,
+  position.y <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cell_types <span class='op'>=</span> <span class='cn'>NULL</span>,
+  custom_LR_database <span class='op'>=</span> <span class='cn'>NULL</span>,
+  k <span class='op'>=</span> <span class='fl'>4</span>,
+  rad.set <span class='op'>=</span> <span class='cn'>NULL</span>,
+  blend <span class='op'>=</span> <span class='st'>"mean"</span>,
+  CellToCell <span class='op'>=</span> <span class='cn'>T</span>,
+  CellToSystem <span class='op'>=</span> <span class='cn'>F</span>,
+  SystemToCell <span class='op'>=</span> <span class='cn'>F</span>,
+  CellToCellSpatial <span class='op'>=</span> <span class='cn'>F</span>,
+  CellToNeighborhood <span class='op'>=</span> <span class='cn'>F</span>,
+  NeighborhoodToCell <span class='op'>=</span> <span class='cn'>F</span>,
+  output_format <span class='op'>=</span> <span class='st'>"seurat"</span>,
+  <span class='va'>...</span>
+<span class='op'>)</span>
+
+<span class='co'># S3 method for Matrix</span>
+<span class='fu'>RunNICHES</span><span class='op'>(</span>
+  <span class='va'>object</span>,
+  LR.database <span class='op'>=</span> <span class='st'>"fantom5"</span>,
+  <span class='va'>species</span>,
+  min.cells.per.ident <span class='op'>=</span> <span class='cn'>NULL</span>,
+  min.cells.per.gene <span class='op'>=</span> <span class='cn'>NULL</span>,
+  meta.data.df <span class='op'>=</span> <span class='cn'>NULL</span>,
+  position.x <span class='op'>=</span> <span class='cn'>NULL</span>,
+  position.y <span class='op'>=</span> <span class='cn'>NULL</span>,
+  cell_types <span class='op'>=</span> <span class='cn'>NULL</span>,
+  custom_LR_database <span class='op'>=</span> <span class='cn'>NULL</span>,
+  k <span class='op'>=</span> <span class='fl'>4</span>,
+  rad.set <span class='op'>=</span> <span class='cn'>NULL</span>,
+  blend <span class='op'>=</span> <span class='st'>"mean"</span>,
+  CellToCell <span class='op'>=</span> <span class='cn'>T</span>,
+  CellToSystem <span class='op'>=</span> <span class='cn'>F</span>,
+  SystemToCell <span class='op'>=</span> <span class='cn'>F</span>,
+  CellToCellSpatial <span class='op'>=</span> <span class='cn'>F</span>,
+  CellToNeighborhood <span class='op'>=</span> <span class='cn'>F</span>,
+  NeighborhoodToCell <span class='op'>=</span> <span class='cn'>F</span>,
+  output_format <span class='op'>=</span> <span class='st'>"seurat"</span>,
+  <span class='va'>...</span>
 <span class='op'>)</span></pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -175,7 +259,11 @@ Output is a set of specialized NICHES objects which allow fine analysis of cell-
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>object</th>
-      <td><p>Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.</p></td>
+      <td><p>A normalized data matrix. Rows are genes and columns are cells.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Arguments passed for other methods</p></td>
     </tr>
     <tr>
       <th>assay</th>
@@ -183,11 +271,11 @@ Output is a set of specialized NICHES objects which allow fine analysis of cell-
     </tr>
     <tr>
       <th>LR.database</th>
-      <td><p>string. Default: "fantom5". Currently accepts "fantom5","omnipath", or "custom"</p></td>
+      <td><p>string. Default: "fantom5". Currently accepts "fantom5","omnipath", or "custom".</p></td>
     </tr>
     <tr>
       <th>species</th>
-      <td><p>string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'</p></td>
+      <td><p>string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'.</p></td>
     </tr>
     <tr>
       <th>min.cells.per.ident</th>
@@ -203,11 +291,11 @@ Output is a set of specialized NICHES objects which allow fine analysis of cell-
     </tr>
     <tr>
       <th>position.x</th>
-      <td><p>string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.</p></td>
+      <td><p>string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial x-axis in the input meta.data.df.</p></td>
     </tr>
     <tr>
       <th>position.y</th>
-      <td><p>string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.</p></td>
+      <td><p>string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial y-axis in the input meta.data.df.</p></td>
     </tr>
     <tr>
       <th>custom_LR_database</th>
@@ -248,6 +336,18 @@ Output is a set of specialized NICHES objects which allow fine analysis of cell-
     <tr>
       <th>NeighborhoodToCell</th>
       <td><p>logical. Default: FALSE. Whether to analyze summed signaling input from Euclidean neighbors (cellular microenvironment/niche). Only applicable in spatial datasets.</p></td>
+    </tr>
+    <tr>
+      <th>output_format</th>
+      <td><p>string. Default: "seurat". Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata</p></td>
+    </tr>
+    <tr>
+      <th>cell_types</th>
+      <td><p>string. Default: NULL. The name of the meta.data.df column specifying the cell types of the cells.</p></td>
+    </tr>
+    <tr>
+      <th>meta.data.df</th>
+      <td><p>A dataframe. Optional. Default: NULL. A dataframe of the metadata (columns) associated with the cells (rows).</p></td>
     </tr>
     </table>
 
