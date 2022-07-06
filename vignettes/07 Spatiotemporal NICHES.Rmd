@@ -13,6 +13,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+Here, we show how NICHES can be used to compare cellular microenvironment change between different time points in spatial transcriptomic data. 
+
+First, let's load dependencies.
+
 ## Load Required Packages
 ```{r message=F, warning=F}
 library(Seurat)
@@ -22,11 +26,15 @@ library(dplyr)
 library(cowplot)
 ```
 
+The data we will be using is the E10 and E11 mouse embryonic eye region dbit-seq data demonstrated in Liu, Yang, et al. "High-spatial-resolution multi-omics sequencing via deterministic barcoding in tissue." Cell 183.6 (2020): 1665-1681. The data are processed using the original pipeline and then imputed by ALRA.
+
 ## Load Data
 ```{r message=F, warning=F}
 load("spatial_e10_processed_alra.Robj")
 load("spatial_e11_processed_alra.Robj")
 ```
+
+Let's visualize the data on top of the spatial grids.
 
 ## Visualize Data
 ```{r message=F, warning=F}
@@ -37,6 +45,8 @@ ggplot(data = E11@meta.data,aes(x=x,y=y,color=cell_label_dom))+
   geom_point(size=2)+
   scale_color_brewer(palette="Paired")
 ```
+
+NICHES can be run on imputed or non-imputed data. Here, we will run NICHES on each sample using imputed data.
 
 ## Run NICHES on each sample
 ```{r message=F, warning=F}
@@ -64,6 +74,8 @@ niches.list[[i]] <- RunNICHES(data.list[[i]],
 names(niches.list) <- names(data.list)
 ```
 
+NICHES outputs a list of objects. Each object contains a certain style of cell-system signaling atlas. Above, we computed both spatial cell to cell interactions and individual cellular microenvironment. We next isolate this output and focus on the spatial microenvironemnt of each cell. Then we can visualize the data on UMAP after the processing steps.
+
 ## Investigate local microenvironment
 ```{r message=F, warning=F}
 # Extract output of interest
@@ -90,6 +102,10 @@ p2 <- DimPlot(menv,group.by = 'Condition')
 plot_grid(p1,p2,ncol=1)
 ```
 
+
+Here as a demonstration, we focus on a specific cell population, namely "Neual tube and notochord".
+
+
 ## Isolate a ReceivingType of interest
 ```{r message=F, warning=F}
 ROI <- "Neural tube and notochord"
@@ -108,6 +124,9 @@ p2 <- DimPlot(subs,group.by = 'Condition')
 plot_grid(p1,p2,ncol=1)
 ```
 
+
+With the NICHES framework, we can very easily perform  differential ligand-receptor interaction analysis between the time points. We can also visualize the top markers in different visualization plots.
+
 ## Differential Analysis of Neural Tube Microenvironment
 ```{r message=F, warning=F}
 Idents(subs) <- subs[['Condition']]
@@ -125,6 +144,9 @@ DoHeatmap(subs,
   theme(plot.title = element_text(vjust = 5)) 
 FeaturePlot(subs,'Dll1—Notch4')
 ```
+
+
+For this identified Dll1—Notch4 interaction, we can incorporate the NICHES output back to the original data as a new assy and visualize their interaction levels along with the corresponding gene expression levels.
 
 # Add Niches microenvironment output as an assay in the original data
 ```{r message=F, warning=F,fig.width = 8,fig.height = 12}

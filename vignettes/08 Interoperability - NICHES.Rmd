@@ -15,25 +15,30 @@ knitr::opts_chunk$set(
 )
 ```
 
+In the previous vignettes, NICHES was mainly demonstrated with Seurat framework. Here in this vignette, we demonstrate the interoperability of NICHES with other popular scRNA-seq frameworks, namely, Scanpy, Monocle3, and scater.
 
-Interperobility with Scanpy
 
-# Pkg prep
+First, let's start with Scanpy and use the pbmc3k dataset as a demonstration. Scanpy is python-based and uses AnnData as the primary data strcture. We will demonstrate how to extract the data from Scanpy to run NICHES, convert the NICHES output to AnnData, and use functions from Scanpy to perform downstream analysis.
+
+# Interperobility with Scanpy
+
+## Load Required Packages
+
+Here besides NICHES, we will also load ALRA for imputation and reticulate for running python.
 
 ```{r message=F, warning=F}
-# install NICHES
-#devtools::install()
 library(NICHES)
 
 # Load ALRA
 devtools::source_url('https://raw.githubusercontent.com/KlugerLab/ALRA/master/alra.R')
 
 # Set up reticulate and the python env
-#install.packages("reticulate")
 library(reticulate)
+# change to your corresponding python path
 Sys.setenv(RETICULATE_PYTHON = "/Library/Frameworks/Python.framework/Versions/3.10/bin/python3.10")
 ```
 
+We will also need a few python packages, in particular, scanpy.
 
 ```{python}
 import numpy as np
@@ -45,7 +50,9 @@ import scanpy as sc
 sc.set_figure_params(dpi=300,figsize=(20,16))
 ```
 
-# Load the data and preprocess
+## Load the data and preprocess
+
+Now let's load the pbmc3k data from scanpy directly. Here we load both the raw and processed pbmc3k. The former will be used to run NICHES after a few processing steps and we will use the latter to add cell annotations.
 
 ```{python dev='png'}
 # load the raw pbmc3k and the processed pbmc3k
@@ -68,13 +75,19 @@ sc.pp.log1p(adata)
 adata.obs['louvain'] = adata2.obs['louvain']
 ```
 
-# Visualize the data
+
+## Visualize the data
+
+We can visualize the processed data on UMAP using Scanpy.
+
 ```{python}
 with plt.rc_context({"figure.figsize": (8, 8), "figure.dpi": (300)}):
     sc.pl.umap(adata2, color='louvain',legend_loc ="on data")
 ```
 
-# Subset to only 'B cells','CD4 T cells','CD14+ Monocytes'
+## Subset to only 'B cells','CD4 T cells','CD14+ Monocytes'
+
+Here for demonstration, For let's focus in on signaling within a simple 3-cell system:
 
 ```{python}
 adata = adata[adata.obs['louvain'].isin(['B cells','CD4 T cells','CD14+ Monocytes']),:]
@@ -83,7 +96,10 @@ cell_names = np.array(adata.obs_names)
 gene_names = np.array(adata.var_names)
 ```
 
-# Extract the meta data and impute the data to run NICHES
+## Extract the meta data and impute the data to run NICHES
+
+Here we will extract the cell types metadata from anndata and impute the data to run NICHES. In particular, data.imputed will the data matrix to run NICHES.
+
 ```{r message=F, warning=F}
 meta.data.df <- data.frame("louvain" = py$adata$obs$louvain,row.names = py$cell_names)
 
@@ -91,12 +107,13 @@ meta.data.df <- data.frame("louvain" = py$adata$obs$louvain,row.names = py$cell_
 imputed.list <- alra(as.matrix(py$adata$X$toarray()))
 data.imputed <- t(imputed.list[[3]])
 
-#potential bug: colnames and rownames of the matrix have to be set
 colnames(data.imputed) <- py$cell_names
 rownames(data.imputed) <- py$gene_names
 ```
 
-# Run NICHES
+## Run NICHES
+
+Here we will take the previously imputed data matrix as input to run NICHES and specify output_format to be "raw" for easier conversion to AnnData.
 
 ```{r message=F, warning=F}
 niches_list <- RunNICHES(data.imputed,
@@ -109,7 +126,9 @@ niches_list <- RunNICHES(data.imputed,
 lr_names <- rownames(niches_list$CellToCell$CellToCellMatrix)
 ```
 
-# Convert the output to AnnData
+## Convert the output to AnnData
+
+We will extract the output CellToCellMatrix from NICHES and convert it to AnnData.
 
 ```{python}
 adata_niches = sc.AnnData(X = r.niches_list['CellToCell']['CellToCellMatrix'].T)
@@ -117,7 +136,9 @@ adata_niches.obs = r.niches_list['CellToCell']['metadata']
 adata_niches.var_names = r.lr_names
 ```
 
-# Process the output from NICHES using scanpy
+## Process the output from NICHES using Scanpy
+
+We will use the Scanpy functions to perform downstream analysis. Here we will scale the data, do PCA and UMAP.
 
 ```{python}
 # data scaling, pca, find neighbors, and umap
@@ -128,14 +149,18 @@ sc.tl.umap(adata_niches)
 ```
 
 
-# Visualize CellToCell matrix
+## Visualize CellToCell matrix
+
+We can use the visualization function from Scanpy to visualize the data in UMAP.
 
 ```{python}
 with plt.rc_context({"figure.figsize": (8, 8), "figure.dpi": (300)}):
     sc.pl.umap(adata_niches,color="VectorType",legend_loc ="on data",legend_fontsize=7)
 ```
 
-# Differential LR analysis
+## Differential analysis
+
+We can also use the function from Scanpy to perform differential analysis between different VectorTypes. Here we will rank the genes using a logistic regression classifier with L1 regularization and visualize the top markers.
 
 ```{python}
 sc.tl.rank_genes_groups(adata_niches, 'VectorType', method='logreg', solver='liblinear',penalty='l1')
@@ -143,11 +168,11 @@ with plt.rc_context({"figure.figsize": (8, 12), "figure.dpi": (300)}):
     sc.pl.rank_genes_groups(adata_niches, n_genes=5, sharey=False,show=True,fontsize=20)
 ```
 
+We can also check the interaction levels on violin plot for certain markers.
+
 ```{python}
 marker_LRs = np.array([g for g in adata_niches.uns['rank_genes_groups']['names'][0]])
 ```
-
-
 
 ```{python}
 # check specific LRs
@@ -155,11 +180,14 @@ with plt.rc_context({"figure.figsize": (10,7), "figure.dpi": (300),"font.size":(
     sc.pl.violin(adata_niches, marker_LRs[0], groupby='VectorType',rotation=20)
 ```
 
+We can also visualize the interaction levels on top of UMAP. 
+
 ```{python}
 with plt.rc_context({"figure.figsize": (8, 8), "figure.dpi": (300)}):
     sc.pl.umap(adata_niches, color=marker_LRs[:2],ncols=2)
 ```
 
+We can also visualize the interaction levels for the top markers of different groups using dot plot. 
 
 ```{python}
 with plt.rc_context({"figure.dpi": (300),"font.size":(10)}):
@@ -172,6 +200,12 @@ with plt.rc_context({"figure.dpi": (300),"font.size":(10)}):
 
 # Interporability with  Monocle3 (CellDataSet)
 
+Here we will continue to use this pbmc3k dataset, but we will switch to Monocle3 (CellDataSet). This will be a simple demonstration of how to convert the output from NICHES to CellDataSet and use certain functions from Monocle3 to perform downstream analysis.
+
+
+## Convert the output from NICHES to CellDataSet
+
+Here we use the same output from NICHES from previous run and convert it to CellDataSet.
 
 ```{r message=F, warning=F}
 library(monocle3)
@@ -183,6 +217,11 @@ cds <- new_cell_data_set(niches_list$CellToCell$CellToCellMatrix,
 
 ```
 
+
+## Data Processing
+
+Then we will process the data using Monocle3 and run PCA and UMAP on it.
+
 ```{r message=F, warning=F}
 # use all genes for pca
 cds <- preprocess_cds(cds, num_dim = 30,
@@ -193,6 +232,9 @@ cds <- preprocess_cds(cds, num_dim = 30,
 cds <- reduce_dimension(cds)
 ```
 
+## Data Visualization
+
+We can visualize the data on UMAP (Cells are colored by VectorTypes).
 
 ```{r message=F, warning=F}
 plot_cells(cds, color_cells_by="VectorType")
@@ -203,7 +245,9 @@ plot_cells(cds, color_cells_by="VectorType")
 
 # Interporability with Scater (SingleCellExperiment)
 
+Here we will continue to use this pbmc3k dataset, but we will switch to Scater (SingleCellExperiment) and utilize certain functions to perform downstream analysis.
 
+## Convert the output from NICHES to SingleCellExperiment
 
 ```{r message=F, warning=F}
 library(scater)
@@ -214,15 +258,21 @@ sce <- SingleCellExperiment(
 )
 ```
 
+## RunPCA on the ouput
 
 ```{r message=F, warning=F}
 sce <- runPCA(sce,exprs_values="data")
 ```
 
+## Visualize Ligand-receptor interactions using violin plot
+
 ```{r message=F, warning=F}
 plotExpression(sce,features = "GNAI2—C5AR1",exprs_values = "data",x = "VectorType",colour_by="VectorType")+
   theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust=1))
 ```
+
+## Visualize the output on UMAP
+
 ```{r message=F, warning=F}
 sce <- runUMAP(sce,exprs_values="data")
 ```
