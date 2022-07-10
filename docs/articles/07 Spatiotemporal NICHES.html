@@ -96,7 +96,7 @@
       <h1 data-toc-skip>Spatio-Temporal NICHES</h1>
                         <h4 class="author">Junchen Yang &amp; Micha Sam Brickman Raredon</h4>
             
-            <h4 class="date">2022-07-06</h4>
+            <h4 class="date">2022-07-10</h4>
       
       
       <div class="hidden name"><code>07 Spatiotemporal NICHES.Rmd</code></div>
@@ -105,6 +105,8 @@
 
     
     
+<p>Here, we show how NICHES can be used to compare cellular microenvironment change between different time points in spatial transcriptomic data.</p>
+<p>First, let’s load dependencies.</p>
 <div id="load-required-packages" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-required-packages" class="anchor"></a>Load Required Packages</h2>
@@ -114,6 +116,7 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org">ggplot2</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org">dplyr</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/">cowplot</a></span><span class="op">)</span></code></pre></div>
+<p>The data we will be using is the E10 and E11 mouse embryonic eye region dbit-seq data demonstrated in Liu, Yang, et al. “High-spatial-resolution multi-omics sequencing via deterministic barcoding in tissue.” Cell 183.6 (2020): 1665-1681. The data are processed using the original pipeline and then imputed by ALRA.</p>
 </div>
 <div id="load-data" class="section level2">
 <h2 class="hasAnchor">
@@ -121,6 +124,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="st">"spatial_e10_processed_alra.Robj"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="st">"spatial_e11_processed_alra.Robj"</span><span class="op">)</span></code></pre></div>
+<p>Let’s visualize the data on top of the spatial grids.</p>
 </div>
 <div id="visualize-data" class="section level2">
 <h2 class="hasAnchor">
@@ -135,6 +139,7 @@
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html">geom_point</a></span><span class="op">(</span>size<span class="op">=</span><span class="fl">2</span><span class="op">)</span><span class="op">+</span>
   <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_brewer.html">scale_color_brewer</a></span><span class="op">(</span>palette<span class="op">=</span><span class="st">"Paired"</span><span class="op">)</span></code></pre></div>
 <p><img src="07%20Spatiotemporal%20NICHES_files/figure-html/unnamed-chunk-3-2.png" width="700"></p>
+<p>NICHES can be run on imputed or non-imputed data. Here, we will run NICHES on each sample using imputed data.</p>
 </div>
 <div id="run-niches-on-each-sample" class="section level2">
 <h2 class="hasAnchor">
@@ -162,6 +167,7 @@
                   <span class="op">)</span>
 <span class="op">}</span>
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">niches.list</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">)</span></code></pre></div>
+<p>NICHES outputs a list of objects. Each object contains a certain style of cell-system signaling atlas. Above, we computed both spatial cell to cell interactions and individual cellular microenvironment. We next isolate this output and focus on the spatial microenvironemnt of each cell. Then we can visualize the data on UMAP after the processing steps.</p>
 </div>
 <div id="investigate-local-microenvironment" class="section level2">
 <h2 class="hasAnchor">
@@ -202,6 +208,7 @@
 <span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">menv</span>,group.by <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span>
 <span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>,<span class="va">p2</span>,ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="07%20Spatiotemporal%20NICHES_files/figure-html/unnamed-chunk-5-3.png" width="700"></p>
+<p>Here as a demonstration, we focus on a specific cell population, namely “Neual tube and notochord”.</p>
 </div>
 <div id="isolate-a-receivingtype-of-interest" class="section level2">
 <h2 class="hasAnchor">
@@ -226,6 +233,7 @@
 <span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">DimPlot</a></span><span class="op">(</span><span class="va">subs</span>,group.by <span class="op">=</span> <span class="st">'Condition'</span><span class="op">)</span>
 <span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html">plot_grid</a></span><span class="op">(</span><span class="va">p1</span>,<span class="va">p2</span>,ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span></code></pre></div>
 <p><img src="07%20Spatiotemporal%20NICHES_files/figure-html/unnamed-chunk-6-3.png" width="700"></p>
+<p>With the NICHES framework, we can very easily perform differential ligand-receptor interaction analysis between the time points. We can also visualize the top markers in different visualization plots.</p>
 </div>
 <div id="differential-analysis-of-neural-tube-microenvironment" class="section level2">
 <h2 class="hasAnchor">
@@ -248,6 +256,7 @@
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">subs</span>,<span class="st">'Dll1—Notch4'</span><span class="op">)</span></code></pre></div>
 <p><img src="07%20Spatiotemporal%20NICHES_files/figure-html/unnamed-chunk-7-2.png" width="700"></p>
+<p>For this identified Dll1—Notch4 interaction, we can incorporate the NICHES output back to the original data as a new assy and visualize their interaction levels along with the corresponding gene expression levels.</p>
 </div>
 <div id="add-niches-microenvironment-output-as-an-assay-in-the-original-data" class="section level1">
 <h1 class="hasAnchor">
