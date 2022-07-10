@@ -146,10 +146,10 @@ FeaturePlot(subs,'Dll1—Notch4')
 ```
 
 
-For this identified Dll1—Notch4 interaction, we can incorporate the NICHES output back to the original data as a new assy and visualize their interaction levels along with the corresponding gene expression levels.
+For this identified Dll1—Notch4 interaction, we can incorporate the NICHES output back to the original data as a new assay and visualize their interaction levels along with the corresponding gene expression levels.
 
 # Add Niches microenvironment output as an assay in the original data
-```{r message=F, warning=F,fig.width = 8,fig.height = 12}
+```{r message=F, warning=F,fig.width = 8,fig.height = 6}
 # Extract tabular data and annotate with receiving cell barcodes
 niches.data <- list()
 for (i in 1:length(niches.list)){
@@ -162,35 +162,13 @@ for (i in 1:length(data.list)){
   DefaultAssay(data.list[[i]]) <- "NeighborhoodToCell"
   data.list[[i]] <- ScaleData(data.list[[i]])
 }
-p1 <- VlnPlot(data.list[[1]],'Dll1—Notch4',assay = "NeighborhoodToCell")
-p2 <- VlnPlot(data.list[[1]],c('Dll1','Notch4'),assay = 'alra')
-title <- ggdraw() + 
-  draw_label(
-    names(data.list[1]),
-    fontface = 'bold',
-    x = 0,
-    hjust = 0
-  ) +
-  theme(
-    # add margin on the left of the drawing canvas,
-    # so title is aligned with left edge of first plot
-    plot.margin = margin(0, 0, 0, 7)
-  )
-plot_grid(title,p1,p2,ncol=1,rel_heights = c(0.5, 1,1))
+# Merge the timepoints together to visualizejointly
+merge <- merge(data.list[[1]],data.list[2])
 
-p3 <- VlnPlot(data.list[[2]],'Dll1—Notch4',assay = 'NeighborhoodToCell')
-p4 <- VlnPlot(data.list[[2]],c('Dll1','Notch4'),assay = 'alra')
-title <- ggdraw() + 
-  draw_label(
-    names(data.list[2]),
-    fontface = 'bold',
-    x = 0,
-    hjust = 0
-  ) +
-  theme(
-    # add margin on the left of the drawing canvas,
-    # so title is aligned with left edge of first plot
-    plot.margin = margin(0, 0, 0, 7)
-  )
-plot_grid(title,p3,p4,ncol=1,rel_heights = c(0.5, 1,1))
+# View change in microenvironment for all celltypes and for specific celltype of interest
+VlnPlot(merge,'Dll1—Notch4',assay = "NeighborhoodToCell",split.by = 'orig.ident')
+VlnPlot(merge,idents = ROI,'Dll1—Notch4',assay = "NeighborhoodToCell",split.by = 'orig.ident')
+
+# View change in ligand and receptor expression for all celltypes to better understand origin of the above signal differential
+VlnPlot(merge,c('Dll1','Notch4'),assay = 'alra',split.by = 'orig.ident')
 ```

@@ -54,7 +54,7 @@ sc.set_figure_params(dpi=300,figsize=(20,16))
 
 Now let's load the pbmc3k data from scanpy directly. Here we load both the raw and processed pbmc3k. The former will be used to run NICHES after a few processing steps and we will use the latter to add cell annotations.
 
-```{python dev='png'}
+```{python dev='png', message=F, warning=F}
 # load the raw pbmc3k and the processed pbmc3k
 adata = sc.datasets.pbmc3k()
 adata2 = sc.datasets.pbmc3k_processed()

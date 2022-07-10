@@ -256,7 +256,7 @@
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://satijalab.org/seurat/reference/FeaturePlot.html">FeaturePlot</a></span><span class="op">(</span><span class="va">subs</span>,<span class="st">'Dll1—Notch4'</span><span class="op">)</span></code></pre></div>
 <p><img src="07%20Spatiotemporal%20NICHES_files/figure-html/unnamed-chunk-7-2.png" width="700"></p>
-<p>For this identified Dll1—Notch4 interaction, we can incorporate the NICHES output back to the original data as a new assy and visualize their interaction levels along with the corresponding gene expression levels.</p>
+<p>For this identified Dll1—Notch4 interaction, we can incorporate the NICHES output back to the original data as a new assay and visualize their interaction levels along with the corresponding gene expression levels.</p>
 </div>
 <div id="add-niches-microenvironment-output-as-an-assay-in-the-original-data" class="section level1">
 <h1 class="hasAnchor">
@@ -274,40 +274,20 @@
   <span class="fu"><a href="https://mojaveazure.github.io/seurat-object/reference/DefaultAssay.html">DefaultAssay</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="st">"NeighborhoodToCell"</span>
   <span class="va">data.list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/ScaleData.html">ScaleData</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="op">}</span>
-<span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="st">'Dll1—Notch4'</span>,assay <span class="op">=</span> <span class="st">"NeighborhoodToCell"</span><span class="op">)</span>
-<span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Dll1'</span>,<span class="st">'Notch4'</span><span class="op">)</span>,assay <span class="op">=</span> <span class="st">'alra'</span><span class="op">)</span>
-<span class="va">title</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/ggdraw.html">ggdraw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/draw_label.html">draw_label</a></span><span class="op">(</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span>,
-    fontface <span class="op">=</span> <span class="st">'bold'</span>,
-    x <span class="op">=</span> <span class="fl">0</span>,
-    hjust <span class="op">=</span> <span class="fl">0</span>
-  <span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>
-    <span class="co"># add margin on the left of the drawing canvas,</span>
-    <span class="co"># so title is aligned with left edge of first plot</span>
-    plot.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">7</span><span class="op">)</span>
-  <span class="op">)</span>
-<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html">plot_grid</a></span><span class="op">(</span><span class="va">title</span>,<span class="va">p1</span>,<span class="va">p2</span>,ncol<span class="op">=</span><span class="fl">1</span>,rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<span class="co"># Merge the timepoints together to visualizejointly</span>
+<span class="va">merge</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/merge.html">merge</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>,<span class="va">data.list</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>
+
+<span class="co"># View change in microenvironment for all celltypes and for specific celltype of interest</span>
+<span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">merge</span>,<span class="st">'Dll1—Notch4'</span>,assay <span class="op">=</span> <span class="st">"NeighborhoodToCell"</span>,split.by <span class="op">=</span> <span class="st">'orig.ident'</span><span class="op">)</span></code></pre></div>
 <p><img src="07%20Spatiotemporal%20NICHES_files/figure-html/unnamed-chunk-8-1.png" width="768"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R">
-<span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,<span class="st">'Dll1—Notch4'</span>,assay <span class="op">=</span> <span class="st">'NeighborhoodToCell'</span><span class="op">)</span>
-<span class="va">p4</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Dll1'</span>,<span class="st">'Notch4'</span><span class="op">)</span>,assay <span class="op">=</span> <span class="st">'alra'</span><span class="op">)</span>
-<span class="va">title</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://wilkelab.org/cowplot/reference/ggdraw.html">ggdraw</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> 
-  <span class="fu"><a href="https://wilkelab.org/cowplot/reference/draw_label.html">draw_label</a></span><span class="op">(</span>
-    <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span><span class="op">(</span><span class="va">data.list</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span><span class="op">)</span>,
-    fontface <span class="op">=</span> <span class="st">'bold'</span>,
-    x <span class="op">=</span> <span class="fl">0</span>,
-    hjust <span class="op">=</span> <span class="fl">0</span>
-  <span class="op">)</span> <span class="op">+</span>
-  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/theme.html">theme</a></span><span class="op">(</span>
-    <span class="co"># add margin on the left of the drawing canvas,</span>
-    <span class="co"># so title is aligned with left edge of first plot</span>
-    plot.margin <span class="op">=</span> <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/element.html">margin</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">0</span>, <span class="fl">7</span><span class="op">)</span>
-  <span class="op">)</span>
-<span class="fu"><a href="https://wilkelab.org/cowplot/reference/plot_grid.html">plot_grid</a></span><span class="op">(</span><span class="va">title</span>,<span class="va">p3</span>,<span class="va">p4</span>,ncol<span class="op">=</span><span class="fl">1</span>,rel_heights <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">1</span>,<span class="fl">1</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<code class="sourceCode R"><span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">merge</span>,idents <span class="op">=</span> <span class="va">ROI</span>,<span class="st">'Dll1—Notch4'</span>,assay <span class="op">=</span> <span class="st">"NeighborhoodToCell"</span>,split.by <span class="op">=</span> <span class="st">'orig.ident'</span><span class="op">)</span></code></pre></div>
 <p><img src="07%20Spatiotemporal%20NICHES_files/figure-html/unnamed-chunk-8-2.png" width="768"></p>
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R">
+<span class="co"># View change in ligand and receptor expression for all celltypes to better understand origin of the above signal differential</span>
+<span class="fu"><a href="https://satijalab.org/seurat/reference/VlnPlot.html">VlnPlot</a></span><span class="op">(</span><span class="va">merge</span>,<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span><span class="op">(</span><span class="st">'Dll1'</span>,<span class="st">'Notch4'</span><span class="op">)</span>,assay <span class="op">=</span> <span class="st">'alra'</span>,split.by <span class="op">=</span> <span class="st">'orig.ident'</span><span class="op">)</span></code></pre></div>
+<p><img src="07%20Spatiotemporal%20NICHES_files/figure-html/unnamed-chunk-8-3.png" width="768"></p>
 </div>
   </div>
 
