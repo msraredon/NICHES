@@ -36,11 +36,12 @@ library(writexl)
 library(RColorBrewer)
 ```
 
-First, let's take a look at the whole dataset (10,953 cells):
+First, let's take a look at the whole dataset (10,953 cells), which has already been ALRA-imputed for this vignette and is publicly available on Zenodo:
 
-#Load Data
+## Load Data
 ```{r message=F, warning=F}
 load("raredon_2019_rat.Robj")
+#load(url('https://zenodo.org/record/6846618/files/raredon_2019_rat.Robj'))
 TSNEPlot(rat)
 ```
 

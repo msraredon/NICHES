@@ -1,0 +1,87 @@
+---
+title: "System Effects of Aberrant Cells"
+author: "Micha Sam Brickman Raredon"
+date: "`r Sys.Date()`"
+vignette: |
+  %\VignetteIndexEntry{System Effects of Aberrant Cells} %\VignetteEngine{knitr::rmarkdown} %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+In this vignette we show how the SystemToCell functionality of NICHES can be used to probe the hypothetical effects of aberrant additional cell populations in tissues. We leverage data from https://www.science.org/doi/10.1126/sciadv.aba1983 (10.1126/sciadv.aba1983) for this.
+
+## Load Dependencies
+```{r message=F, warning=F}
+require(Seurat)
+require(SeuratWrappers)
+require(NICHES)
+library(ggplot2)
+library(cowplot)
+library(dplyr)
+```
+
+Here, we use downsampled data from 10.1126/sciadv.aba1983, re-annotated, ALRA-imputed, and publicly available on Zenodo:
+
+## Load Data
+```{r message=F, warning=F}
+load("ipf.Robj")
+load("control.Robj")
+#load(url())
+#load(url())
+table(Idents(ipf))
+table(Idents(control))
+
+# Stash idents
+ipf$stash <- Idents(ipf)
+control$stash <- Idents(control)
+
+
+```
+
+For demonstration, let's limit our analysis to celltypes that we know co-localize near each other in lung tissue. Note that the aberrant basaloid cells are only present in IPF tissue and not in control tissue. We standardize the total cell number in each condition so that the mean operator used to measure the total ligand production within each system uses the same denominator.
+
+```{r message=F, warning=F}
+
+COI <- c('ATII','ATI','Aberrant Basaloid',
+         'Alveolar Macrophage',
+         'Endothelial',
+         'Fib ITGA8+')
+ipf.sub <- subset(ipf,idents = COI)
+control.sub <- subset(control,idents = COI[!(COI == 'Aberrant Basaloid')])
+
+# Downsample to make each system the same size
+Idents(ipf.sub) <- ipf.sub@meta.data$disease.ident
+Idents(control.sub) <- control.sub@meta.data$disease.ident
+
+num <- min(ncol(ipf.sub),ncol(control.sub))
+
+ipf.sub <- subset(ipf.sub,cells = WhichCells(ipf.sub,downsample = num))
+control.sub <- subset(control.sub,cells = WhichCells(control.sub,downsample = num))
+
+# Set cell labels as identity
+Idents(ipf.sub) <- ipf.sub$stash
+Idents(control.sub) <- control.sub$stash
+
+# Observe different celltype distributions
+table(Idents(ipf.sub))
+table(Idents(control.sub))
+
+# Double check that systems are the same size
+ncol(ipf.sub) == ncol(control.sub)
+```
+
+We want to know how the presence of disease-specific Aberrant Basaloid cells in IPF affect the sensed signaling milieu of other cells. In other words, we are asking:
+
+1) How does the cell-signaling milieu in IPF tissue differ from that in control tissue, given that there is an additional cell population in the IPF disease tissue?
+
+We approach this as follows:
+
+
+```{r message=F, warning=F}
+
+```
