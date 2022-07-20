@@ -116,7 +116,7 @@ scc.merge <- merge(temp.list[[1]],temp.list[2])
 
 # Clean up low-information crosses (connectivity data can be very sparse)
 VlnPlot(scc.merge,features = 'nFeature_SystemToCell',group.by = 'Condition',pt.size=0.1,log = T)
-scc.sub <- subset(scc.merge,nFeature_SystemToCell > 5) # Requesting at least 5 distinct ligand-receptor interactions between two cells
+scc.sub <- subset(scc.merge,nFeature_SystemToCell > 5) # Requesting at least 5 distinct ligand-receptor interactions per measurement
 ```
 
 Let's now perform an initial visualization of signaling between these two conditions, which we do as follows:
