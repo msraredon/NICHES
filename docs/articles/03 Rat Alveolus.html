@@ -77,6 +77,9 @@
     <li>
       <a href="../articles/08%20Interoperability%20-%20NICHES.html">Interoperability</a>
     </li>
+    <li>
+      <a href="../articles/09%20System%20Effects%20of%20Aberrant%20Cells.html">System Effects of Aberrant Cells</a>
+    </li>
   </ul>
 </li>
       </ul>
@@ -96,7 +99,7 @@
       <h1 data-toc-skip>Cellular Relationships in the Rat Alveolus</h1>
                         <h4 class="author">Micha Sam Brickman Raredon &amp; Junchen Yang</h4>
             
-            <h4 class="date">2022-07-16</h4>
+            <h4 class="date">2022-07-20</h4>
       
       
       <div class="hidden name"><code>03 Rat Alveolus.Rmd</code></div>
@@ -127,13 +130,14 @@
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/eclarke/ggbeeswarm">ggbeeswarm</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va"><a href="https://docs.ropensci.org/writexl">writexl</a></span><span class="op">)</span>
 <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span><span class="op">(</span><span class="va">RColorBrewer</span><span class="op">)</span></code></pre></div>
-<p>First, let’s take a look at the whole dataset (10,953 cells):</p>
+<p>First, let’s take a look at the whole dataset (10,953 cells), which has already been ALRA-imputed for this vignette and is publicly available on Zenodo:</p>
 </div>
 <div id="load-data" class="section level2">
 <h2 class="hasAnchor">
 <a href="#load-data" class="anchor"></a>Load Data</h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/load.html">load</a></span><span class="op">(</span><span class="st">"raredon_2019_rat.Robj"</span><span class="op">)</span>
+<span class="co">#load(url('https://zenodo.org/record/6846618/files/raredon_2019_rat.Robj'))</span>
 <span class="fu"><a href="https://satijalab.org/seurat/reference/DimPlot.html">TSNEPlot</a></span><span class="op">(</span><span class="va">rat</span><span class="op">)</span></code></pre></div>
 <p><img src="03%20Rat%20Alveolus_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
 <p>It is important to note that not all of these cell types are localized close together in the same region of tissue. Let’s limit our analysis to 9 celltypes that we are confident co-localize within the same region of tissue, namely, the alveolus:</p>
