@@ -151,6 +151,7 @@ RunNICHES.default <- function(object,
   
   if(org_names_indicator["CellToSystem"] == T | org_names_indicator["SystemToCell"] == T)
     if(!blend %in% c("sum","mean")) stop("blend paramter is not recognized: need to be 'sum' or 'mean" )
+    if(blend == "sum") warning("Operator `sum` will be deprecated in the later release.")
   
   # Initialize output structure
   output <- list()
