@@ -18,7 +18,7 @@ install_github('msraredon/NICHES', ref = 'master')
 ```
 
 ## Vignettes
-For use-case vignettes, please visit: https://msraredon.github.io/NICHES/
+For use-case vignettes, please visit: https://msraredon.github.io/NICHES/articles/
 
 ## Reference
 If used for publication, please cite: https://doi.org/10.1101/2022.01.23.477401
