@@ -8,7 +8,7 @@ When applied to scRNAseq datasets, a uniform sampling of unique barcode pairings
 
 Inputs and outputs to NICHES may be in either tabular or Seurat object format.
 
-For detailed Methods, please see our preprint on bioRxiv: https://www.biorxiv.org/content/10.1101/2022.01.23.477401v1
+For detailed Methods, please see our publication in Bioinformatics: https://doi.org/10.1093/bioinformatics/btac775
 
 ## Installation
 To install `NICHES` in R, you may run:
@@ -21,4 +21,4 @@ install_github('msraredon/NICHES', ref = 'master')
 For use-case vignettes, please visit: https://msraredon.github.io/NICHES/articles/
 
 ## Reference
-If used for publication, please cite: https://doi.org/10.1101/2022.01.23.477401
+If used for publication, please cite: https://doi.org/10.1093/bioinformatics/btac775
