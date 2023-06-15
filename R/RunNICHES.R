@@ -241,7 +241,7 @@ RunNICHES.default <- function(object,
 #' @param species string. The species of the object that is being processed. Only required when LR.database = 'fantom5' with species being 'human','mouse','rat', or 'pig', or LR.database = 'omnipath' with species being 'human','mouse', or 'rat'.
 #' @param min.cells.per.ident integer. Default: NULL. A limit on how small (how many cells) a single population can be to participate in connectomic crossings.
 #' @param min.cells.per.gene integer. Default: NULL. Limits analysis to interactions involving genes expressed above minimum threshold number of cells in the system. 
-#' @param meta.data.to.map character vector. Optional. Default: NULL. A vector of metadata names present in the original object which will be carried to the NICHES objects
+#' @param meta.data.to.map character vector. Optional. Default: all metadata in input object. A vector of metadata names present in the original object which will be carried to the NICHES objects
 #' @param position.x string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial x-axis in the corresponding meta.data column of `object`.
 #' @param position.y string. Optional. Default: NULL. Only required for spatial omics data. The name that specifies location on the spatial y-axis in the corresponding meta.data column of `object`.
 #' @param cell_types string. Default: NULL. The name in the meta.data of `object` that specifies the cell types of the cells. 
@@ -268,7 +268,7 @@ RunNICHES.Seurat <- function(object,
                         species,
                         min.cells.per.ident = NULL,
                         min.cells.per.gene = NULL,
-                        meta.data.to.map = NULL,
+                        meta.data.to.map = 'all',
                         position.x = NULL,
                         position.y = NULL,
                         cell_types = NULL,
@@ -298,6 +298,11 @@ RunNICHES.Seurat <- function(object,
   
   
   # check meta.data.to.map
+  ## UPDATE 2023-06-15 to Default to all Metadata in input object
+  if(meta.data.to.map=='all'){
+    meta.data.to.map <- names(object@meta.data)
+  }
+  ##
   if(!is.null(meta.data.to.map)){
     # check each meta data is present in the provided seurat object
     for(each_meta in meta.data.to.map){
