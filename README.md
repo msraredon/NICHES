@@ -2,11 +2,13 @@
 Niche Interactions and Cellular Heterogeneity in Extracellular Signaling
 
 ## Overview
-NICHES is a simple but powerful computational toolset to analyze cell-cell signaling at the single-cell level. NICHES creates unique one-to-one pairs of cells and characterizes each cellular interaction across queried ligand-receptor signaling mechanisms. This allows low-dimensional embedding of cellular interactions in signal-space. Existing meta-data is carried over during transformation, allowing easy downstream statistical analysis using existing single-cell software packages including Seurat, Scanpy, Scater, and Monocle3.  NICHES allows UMAP, tSNE, and pseudotemporal exploration of cell-cell interactions and sensed cellular microenvironmments across celltypes, between experimental batches and conditions, and over developmental trajectories.
+NICHES is a powerful computational toolset to analyze cell-cell signaling at the single-cell level. NICHES creates unique one-to-one pairs of cells and characterizes the resulting cellular relationships across all queried ligand-receptor signaling mechanisms. This allows dimensional reduction and subsequent vizualization of cellular interactions relative to one another in signal-space. 
 
-When applied to scRNAseq datasets, a uniform sampling of unique barcode pairings is taken from each celltype cross. When applied to spatial datasets, users may elect to constrain edge construction to cellular nearest-neighbors, or to neighbors within a certain radius, to provide a histologically-grounded portrait of cell-cell signaling and cellular niches. When system-level outputs are requested, NICHES computes all possible connectivity edges between all input cells.
+We recommend carrying over all existing meta-data when running NICHES, which facilitates easy downstream data manipulation and statistical analysis. NICHES output data can be analyzed using existing single-cell software packages in both R and python, including Seurat, Scanpy, Scater, and Monocle3.  NICHES allows rapid creation of UMAP, tSNE, pseudotemporal and ComplexHeatmap-based exploration of cell-cell interactions and sensed cellular microenvironmments across celltypes, between experimental batches and conditions, and over developmental trajectories.
 
-Inputs and outputs to NICHES may be in either tabular or Seurat object format.
+When applied to scRNAseq datasets without spatial coordinates, a uniform sampling of unique barcode pairings is taken from each celltype cross so that all possible celltype crosses are sampled. When applied to spatial datasets, users may elect to constrain edge construction to spot-wise nearest-neighbors, or to neighbors within a certain radius, to provide a histologically-grounded portrait of cell-cell signaling and cellular niches. These spatially-informed pairings can then be visualized directly in histologic space. When system-level outputs are requested without spatial coordinates (SystemToCell and CellToSystem), NICHES considers all connectivity edges between all input cells for a given system.
+
+Inputs and outputs to NICHES may be in either tabular or Seurat object format, which facilitates intercompatibility across platforms and packages. 
 
 For detailed Methods, please see our publication in Bioinformatics: https://doi.org/10.1093/bioinformatics/btac775
 
