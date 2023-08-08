@@ -49,6 +49,12 @@ RunSystemToCell <- function(sys.small,
   if (blend == 'mean'){
     lig.map2 <- Matrix::rowMeans(lig.map,dims = 1)
   }
+  if (blend == 'mean.adj'){
+    binary <- lig.map>0
+    percent.expression <- rowSums(binary)/ncol(binary)
+    lig.map2 <- Matrix::rowMeans(lig.map,dims = 1)
+    lig.map2 <- lig.map2/percent.expression # This normalizes for the effect of higher/lower zero rates across replicates
+  }
   lig.map2 <- do.call(cbind, replicate(ncol(lig.map), lig.map2, simplify=FALSE))
   
   # Receptor data
