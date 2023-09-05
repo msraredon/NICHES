@@ -46,7 +46,7 @@ RunNICHES <- function(object,...){
 #' @param custom_LR_database data.frame. Optional. Default: NULL. Only required when LR.database = "custom". Each row is a ligand-receptor mechanism where the first column corresponds to the source genes that express the ligands subunits (separated by '_') and the second column corresponds to the receptor genes that express the receptor subunits (separated by '_').
 #' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
 #' @param rad.set numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.
-#' @param blend string. Default: "mean". Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "mean", also accepts "sum".
+#' @param blend string. Default: "mean". Choice of linear operator to combine edges in single-cell niche investigations. Defaults to "mean", also accepts "sum","mean.adj"
 #' @param CellToCell logical. Default: TRUE. Whether to analyze cell-cell interactions without considering spatial coordinates.
 #' @param CellToSystem logical. Default: FALSE. Whether to analyze summed signaling output to total system coming from each cell. Does not consider Euclidean coordinates.
 #' @param SystemToCell logical. Default: FALSE. Whether to analyze summed signaling input from total system landing on each cell (cellular microenvironment/niche). Does not consider Euclidean coordinates. 
@@ -150,8 +150,9 @@ RunNICHES.default <- function(object,
     
   
   if(org_names_indicator["CellToSystem"] == T | org_names_indicator["SystemToCell"] == T)
-    if(!blend %in% c("sum","mean")) stop("blend paramter is not recognized: need to be 'sum' or 'mean" )
+    if(!blend %in% c("sum","mean","mean.adj")) stop("blend paramter is not recognized: need to be 'sum' or 'mean" )
     if(blend == "sum") warning("Operator `sum` will be deprecated in the later release.")
+  if(blend == "mean.adj") warning("Operator `mean.adj` is still in experimental stage, use in caution")
   
   # Initialize output structure
   output <- list()
@@ -268,7 +269,7 @@ RunNICHES.Seurat <- function(object,
                         species,
                         min.cells.per.ident = NULL,
                         min.cells.per.gene = NULL,
-                        meta.data.to.map = NULL,
+                        meta.data.to.map = colnames(object@meta.data),
                         position.x = NULL,
                         position.y = NULL,
                         cell_types = NULL,
