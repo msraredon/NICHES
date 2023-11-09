@@ -85,7 +85,12 @@ RunSystemToCell <- function(sys.small,
   meta.data.to.add <- data.frame(as.character(colnames(rec.map)))
   rownames(meta.data.to.add) <- paste("System",colnames(rec.map),sep = '—')
   demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add,col.name = 'ReceivingCell')
-  demo <- Seurat::AddMetaData(demo,metadata = Seurat::Idents(sys.small),col.name = 'ReceivingType')
+  
+  # bug fix: add the system - prefix
+  receiving_type.meta <- data.frame(Seurat::Idents(sys.small))
+  rownames(receiving_type.meta) <- paste("System",rownames(receiving_type.meta),sep = '—')
+  
+  demo <- Seurat::AddMetaData(demo,metadata = receiving_type.meta,col.name = 'ReceivingType')
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){

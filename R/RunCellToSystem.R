@@ -87,7 +87,12 @@ RunCellToSystem <- function(sys.small,
   meta.data.to.add <- data.frame(as.character(colnames(lig.map)))
   rownames(meta.data.to.add) <- paste(colnames(lig.map),"System",sep = '—')
   demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add,col.name = 'SendingCell')
-  demo <- Seurat::AddMetaData(demo,metadata = Seurat::Idents(sys.small),col.name = 'SendingType')
+  
+  # bug fix: add the system - prefix
+  sending_type.meta <- data.frame(Seurat::Idents(sys.small))
+  rownames(sending_type.meta) <- paste(rownames(sending_type.meta),"System",sep = '—')
+  
+  demo <- Seurat::AddMetaData(demo,metadata = sending_type.meta,col.name = 'SendingType')
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
