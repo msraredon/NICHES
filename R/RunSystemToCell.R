@@ -37,7 +37,7 @@ RunSystemToCell <- function(sys.small,
     colnames(subunit.list[[s]]) <- colnames(sys.small)
     rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
     non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
-    subunit.list[[s]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    subunit.list[[s]][non.na.indices,] <- as.matrix(getSeuratAssay(sys.small,assay,"data")[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
   }
   lig.map <- Reduce('*',subunit.list)
   rm(subunit.list)
@@ -64,7 +64,7 @@ RunSystemToCell <- function(sys.small,
     colnames(subunit.list[[t]]) <- colnames(sys.small)
     rownames(subunit.list[[t]]) <- rownames(ground.truth$target.subunits)
     non.na.indices <- !is.na(ground.truth$target.subunits[,t]) #Identify rows in the s-th column of the ground truth which are not NA
-    subunit.list[[t]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$target.subunits[non.na.indices,t],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    subunit.list[[t]][non.na.indices,] <- as.matrix(getSeuratAssay(sys.small,assay,"data")[ground.truth$target.subunits[non.na.indices,t],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
   }
   rec.map <- Reduce('*',subunit.list)
   rm(subunit.list)
@@ -126,7 +126,7 @@ RunSystemToCell <- function(sys.small,
   else{
     output_list <- vector(mode = "list",length=2)
     names(output_list) <- c("SystemToCellMatrix","metadata")
-    output_list[["SystemToCellMatrix"]] <- demo[["SystemToCell"]]@counts
+    output_list[["SystemToCellMatrix"]] <- getSeuratAssay(demo,"SystemToCell","counts")
     output_list[["metadata"]] <- demo@meta.data
     return(output_list)
   }
