@@ -139,7 +139,8 @@ RunCellToCell <- function(sys.small,
   # Compile
   meta.data.to.add.also <- cbind(sending.metadata,receiving.metadata,joint.metadata)
   rownames(meta.data.to.add.also) <- paste(sending.barcodes,receiving.barcodes,sep='—')
-  # Add additional metadata
+  # Add additional metadata 
+  ### COMMENT 2024-02-03 MSBR: Is this compatible with Seurat v5?###
   demo <- Seurat::AddMetaData(demo,metadata = as.data.frame(meta.data.to.add.also))
   }
   # Define initial identity
