@@ -108,6 +108,13 @@ RunCellToCell <- function(sys.small,
   
   #Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
+  # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
+  if(SeuratObject::Version(demo) >= 5){
+    demo <- NormalizeData(demo,assay = "CellToCell")  # Seura Object need to be >= 5.0.1
+    demo@assays$CellToCell@layers$data <- demo@assays$CellToCell@layers$counts # Seura Object need to be>= 5.0.1
+    
+  }
+  
   
   # Gather and assemble metadata based on "ident" slot
   sending.cell.idents.2 <- do.call(c,sending.cell.idents)

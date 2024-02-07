@@ -82,6 +82,12 @@ RunCellToSystem <- function(sys.small,
   
   # Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'CellToSystem')
+  # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
+  if(SeuratObject::Version(demo) >= 5){
+    demo <- NormalizeData(demo,assay = "CellToSystem")  # Seura Object need to be >= 5.0.1
+    demo@assays$CellToCell@layers$data <- demo@assays$CellToCell@layers$counts # Seura Object need to be >= 5.0.1
+    
+  }
   
   # Add metadata to the Seurat object
   meta.data.to.add <- data.frame(as.character(colnames(lig.map)))
