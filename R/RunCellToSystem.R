@@ -85,7 +85,7 @@ RunCellToSystem <- function(sys.small,
   # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
   if(SeuratObject::Version(demo) >= 5){
     demo <- NormalizeData(demo,assay = "CellToSystem")  # Seura Object need to be >= 5.0.1
-    demo@assays$CellToCell@layers$data <- demo@assays$CellToCell@layers$counts # Seura Object need to be >= 5.0.1
+    demo@assays$CellToSystem@layers$data <- demo@assays$CellToSystem@layers$counts # Seura Object need to be >= 5.0.1
     
   }
   
