@@ -38,6 +38,7 @@ Next, we load the data, perform basic pre-processing, and cluster the data so th
 ```{r message=F, warning=F}
 InstallData("stxBrain")
 brain <- LoadData("stxBrain", type = "anterior1")
+brain <- UpdateSeuratObject(brain) # JC: need to update seurat obj
 # Normalization 
 brain <- SCTransform(brain, assay = "Spatial", verbose = FALSE)
 SpatialFeaturePlot(brain, features = c("Hpca", "Ttr"))
@@ -89,7 +90,7 @@ NICHES outputs a list of objects. Each object contains a certain style of cell-s
 
 ```{r message=F, warning=F}
 niche <- NICHES_output[['NeighborhoodToCell']]
-Idents(niche) <- niche[['ReceivingType']]
+Idents(niche) <- niche@meta.data$ReceivingType
 
 # Scale and visualize
 niche <- ScaleData(niche)
