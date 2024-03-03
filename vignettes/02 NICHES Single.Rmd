@@ -32,7 +32,9 @@ Here, we use the 'pbmc3k' dataset from SeuratData. This is a commonly-used datas
 ```{r message=F, warning=F}
 InstallData("pbmc3k")
 data("pbmc3k")
+pbmc3k <- UpdateSeuratObject(pbmc3k) # JC: need to update pbmc3k
 Idents(pbmc3k) <- pbmc3k$seurat_annotations
+pbmc3k <- NormalizeData(pbmc3k) # JC: to be added
 pbmc3k <- ScaleData(pbmc3k)
 pbmc3k <- FindVariableFeatures(pbmc3k)
 pbmc3k <- RunPCA(pbmc3k)
@@ -58,7 +60,9 @@ scc <- RunNICHES(sub,
                  species = 'human',
                  LR.database = 'omnipath',
                  cell_types = 'seurat_annotations',
-                 CellToCell = T)
+                 CellToCell = T,
+                 SystemToCell = T
+                  )
 ```
 
 ## Visualize Cell-Cell Signaling Relationships using UMAP
@@ -86,6 +90,7 @@ scc.imputed <- RunNICHES(imputed,
                  cell_types = 'seurat_annotations',
                  CellToCell = T)
 demo.2 <- scc.imputed$CellToCell
+
 demo.2 <- ScaleData(demo.2)
 demo.2 <- RunPCA(demo.2,features = rownames(demo.2))
 ElbowPlot(demo.2,ndims=50)

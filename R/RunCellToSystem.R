@@ -37,7 +37,7 @@ RunCellToSystem <- function(sys.small,
     colnames(subunit.list[[t]]) <- colnames(sys.small)
     rownames(subunit.list[[t]]) <- rownames(ground.truth$target.subunits)
     non.na.indices <- !is.na(ground.truth$target.subunits[,t]) #Identify rows in the s-th column of the ground truth which are not NA
-    subunit.list[[t]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$target.subunits[non.na.indices,t],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    subunit.list[[t]][non.na.indices,] <- as.matrix(getSeuratAssay(sys.small,assay,"data")[ground.truth$target.subunits[non.na.indices,t],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
   }
   rec.map <- Reduce('*',subunit.list)
   rm(subunit.list)
@@ -65,7 +65,7 @@ RunCellToSystem <- function(sys.small,
     colnames(subunit.list[[s]]) <- colnames(sys.small)
     rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
     non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
-    subunit.list[[s]][non.na.indices,] <- as.matrix(sys.small@assays[[assay]]@data[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    subunit.list[[s]][non.na.indices,] <- as.matrix(getSeuratAssay(sys.small,assay,"data")[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
   }
   lig.map <- Reduce('*',subunit.list)
   rm(subunit.list)
@@ -82,6 +82,12 @@ RunCellToSystem <- function(sys.small,
   
   # Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(sc.connectome),assay = 'CellToSystem')
+  # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
+  if(SeuratObject::Version(demo) >= 5){
+    demo <- NormalizeData(demo,assay = "CellToSystem")  # Seura Object need to be >= 5.0.1
+    demo@assays$CellToSystem@layers$data <- demo@assays$CellToSystem@layers$counts # Seura Object need to be >= 5.0.1
+    
+  }
   
   # Add metadata to the Seurat object
   meta.data.to.add <- data.frame(as.character(colnames(lig.map)))
@@ -126,7 +132,7 @@ RunCellToSystem <- function(sys.small,
   else{
     output_list <- vector(mode = "list",length=2)
     names(output_list) <- c("CellToSystemMatrix","metadata")
-    output_list[["CellToSystemMatrix"]] <- demo[["CellToSystem"]]@counts
+    output_list[["CellToSystemMatrix"]] <- getSeuratAssay(demo,"CellToSystem","counts")
     output_list[["metadata"]] <- demo@meta.data
     return(output_list)
   }

@@ -41,7 +41,7 @@ RunNICHES(object, ...)
   species,
   min.cells.per.ident = NULL,
   min.cells.per.gene = NULL,
-  meta.data.to.map = NULL,
+  meta.data.to.map = colnames(object@meta.data),
   position.x = NULL,
   position.y = NULL,
   cell_types = NULL,

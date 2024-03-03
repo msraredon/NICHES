@@ -20,7 +20,7 @@ RunSystemToCell(
 
 \item{assay}{The assay to run the SystemToCell transformation on. Defaults to "RNA."}
 
-\item{blend}{Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum"}
+\item{blend}{Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum", "mean.adj"}
 
 \item{meta.data.to.map}{A character vector of metadata names present in the original object which will be carried to the NICHES objects}
 

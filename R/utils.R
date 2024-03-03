@@ -1,3 +1,15 @@
+#' Wrapper function for GetAssayData based on the version of the SeuratObject
+#'
+#' @param object input Seurat object 
+#' @param assay which assay to use in object
+#' @param slot "data","counts",or "scale.data"
+#'
+#' @return the specified assay data
+#' @export
+getSeuratAssay <- function(object,assay,slot){
+  if(SeuratObject::Version(object) >= 5) return(Seurat::GetAssayData(object,assay=assay,layer=slot))
+  else return(Seurat::GetAssayData(object,assay=assay,slot=slot))
+}
 
 #' Seurat input preprocessing
 #'
@@ -16,6 +28,7 @@ prepSeurat <- function(object,assay,min.cells.per.ident,min.cells.per.gene){
   # Stash object
   sys.small <- object
   
+  
   # Limit object to cell populations larger than requested minimum
   if (!is.null(min.cells.per.ident)){
     message(paste("\n",'Subsetting to populations with greater than',min.cells.per.ident,'cells'))
@@ -28,9 +41,9 @@ prepSeurat <- function(object,assay,min.cells.per.ident,min.cells.per.gene){
     message(paste("\n",'Subsetting to genes expressed in greater than',min.cells.per.gene,'cells'))
     
     # jc: return an error if the count matrix in the given assay is empty
-    if(!length(sys.small@assays[[assay]]@counts)) stop("Unable to subset: the count matrix in the given assay is empty.")
+    if(!length(getSeuratAssay(sys.small,assay,"counts"))) stop("Unable to subset: the count matrix in the given assay is empty.")
     
-    cells.per.gene <- data.frame(non.zero.cells = Matrix::rowSums(sys.small@assays[[assay]]@counts>0))
+    cells.per.gene <- data.frame(non.zero.cells = Matrix::rowSums(getSeuratAssay(sys.small,assay,"counts")>0))
     GOI <- subset(cells.per.gene,non.zero.cells > min.cells.per.gene)
     sys.small <- sys.small[rownames(GOI),]
   }
