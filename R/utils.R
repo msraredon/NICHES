@@ -172,15 +172,16 @@ compute_edgelist <- function(sys.small,
   #### MSBR 2024-06-16
   
   if(nn.method=='aoz'){
-    df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
-    df$barcode <- rownames(df)
-    df$x <- as.character(df$x)
-    df$y <- as.character(df$y)
-    df$x <- as.numeric(df$x)
-    df$y <- as.numeric(df$y)
-    df <- df[,c('x','y')] 
-    
-    coords <- as.matrix(df)#cbind(data.list[[i]]$x,data.list[[i]]$y)
+    # df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
+    # df$barcode <- rownames(df)
+    # df$x <- as.character(df$x)
+    # df$y <- as.character(df$y)
+    # df$x <- as.numeric(df$x)
+    # df$y <- as.numeric(df$y)
+    # df <- df[,c('x','y')] 
+    # 
+    # coords <- as.matrix(df)#cbind(data.list[[i]]$x,data.list[[i]]$y)
+    coords <- cbind(sys.small$x,sys.small$y)
     ord <- order(coords[,1])
     
     n.neighbors <- 5
