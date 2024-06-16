@@ -112,11 +112,14 @@ compute_edgelist <- function(sys.small,
                              position.x,
                              position.y,
                              k=4,
-                             rad.set=NULL
+                             rad.set=NULL,
+                             nn.method='aoz'
                              ){
   
   ### CREATE MAPPING ###
-  
+  if(is.null(nn.method)){ #### MSBR 2024-06-16
+    
+    
   # Create adjacency matrix
   # Adapted from :: https://stackoverflow.com/questions/16075232/how-to-create-adjacency-matrix-from-grid-coordinates-in-r
   # Setup numbering and labeling
@@ -165,7 +168,64 @@ compute_edgelist <- function(sys.small,
   # Convert adj matrix to edgelist
   edgelist <- igraph::graph.adjacency(adj_mat_final)
   edgelist <- igraph::get.data.frame(edgelist)
+  }
+  #### MSBR 2024-06-16
   
+  if(nn.method=='aoz'){
+    df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
+    df$barcode <- rownames(df)
+    df$x <- as.character(df$x)
+    df$y <- as.character(df$y)
+    df$x <- as.numeric(df$x)
+    df$y <- as.numeric(df$y)
+    df <- df[,c('x','y')] 
+    
+    coords <- df#cbind(data.list[[i]]$x,data.list[[i]]$y)
+    ord <- order(coords[,1])
+    
+    n.neighbors <- 5
+    n.omp.t <- 1
+    
+    n <- nrow(coords)
+    
+    
+    u.search.type <- 2 ##2 is very fast, 1 is slightly faster than 0, and 0 is the orginal slow one (2 and 0 should match, 1 is also corrected just different opposite sorting among the children)
+    
+    indx <- spNNGP:::mkNNIndxCB(coords, n.neighbors, n.omp.t)
+    
+    nn.indx <- indx$nnIndx
+    nn.indx.lu <- indx$nnIndxLU
+    nn.indx.run.time <- indx$run.time
+    
+    storage.mode(nn.indx) <- "integer"
+    storage.mode(nn.indx.lu) <- "integer"
+    
+    n.indx <- spNNGP:::mk.n.indx.list(nn.indx, n, n.neighbors)
+    names(n.indx) <- 1:nrow(coords)
+    
+    # build sparse Adjacency Matrix
+    n.indx.names <- names(n.indx)
+    # this unusual code let's me reference a list element's 
+    # name INSIDE the apply function, neat
+    # THIS NEXT STEP AOZ WROTE - IT'S SLOW AND COULD BE SPED UP
+    adj.ij <- lapply(setNames(n.indx.names, n.indx.names), function(nameindex) {
+      data.frame(i=rep(as.integer(nameindex), length(n.indx[[nameindex]])),
+                 j=n.indx[[nameindex]])})
+    adj.ij <- data.table::rbindlist(adj.ij)
+    # clean and make it mutual
+    adj.ij <- na.omit(adj.ij)
+    adj.ij <- rbind(adj.ij, 
+                    data.frame(i=adj.ij$j,
+                               j=adj.ij$i))
+    # map back to original coord indexing
+    adj.ij$i <- ord[adj.ij$i]
+    adj.ij$j <- ord[adj.ij$j]
+    adj.ij <- as.data.frame(adj.ij)
+    colnames(adj.ij) <- c("from", "to")
+    edgelist <- adj.ij
+    
+    
+  }
   return(edgelist)
   
 }
