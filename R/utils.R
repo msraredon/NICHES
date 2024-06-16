@@ -180,7 +180,7 @@ compute_edgelist <- function(sys.small,
     df$y <- as.numeric(df$y)
     df <- df[,c('x','y')] 
     
-    coords <- df#cbind(data.list[[i]]$x,data.list[[i]]$y)
+    coords <- as.matrix(df)#cbind(data.list[[i]]$x,data.list[[i]]$y)
     ord <- order(coords[,1])
     
     n.neighbors <- 5
