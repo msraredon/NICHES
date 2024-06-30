@@ -2,6 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+.DS_Store
+
 <<<<<<< HEAD
 # inst/doc
 =======
@@ -15,4 +17,4 @@ vignettes/*.h5ad
 vignettes/*.h5Seurat
 vignettes/data/*.h5ad
 
-.DS_Store
+
