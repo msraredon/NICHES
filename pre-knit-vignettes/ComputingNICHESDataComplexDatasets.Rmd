@@ -1,0 +1,41 @@
+---
+title: "Computing NICHES Data in Complex Datasets"
+author: "MSBR"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This vignette shows how to think about and navigate computation of NICHES data in single-cell datasets with multiple timepoints, conditions, and samples.
+
+We use the data from Rivero et al. 2024 as a demonstration.
+
+### Principles
+
+1. We assume the data is already cleaned, annotated, and organized, and that we have access to both non-imputed and imputed versions of gene expression. (See earlier Raredon Lab vignettes for guidance on how to think about and perform these steps.)
+
+2. In general, we seek to only compute connectivity data between cells derived from a common tissue. This preserves tissue-specific patterns and prevents blurring of biologically-relevant signal by crossing cells between samples.
+
+3. We always have a choice between using normalized gene expression values vs. using imputed (or otherwise manipulated) gene expression values to compute NICHES data. 
+  a. NICHES data made from imputed gene expression values is generally more rich than NICHES data made from normalized gene expression values. The data is less sparse, and therefore has a greater signal-to-noise ratio. It is 'easier' to analyze and can be easier to recognize patterns.
+  b. However, data imputation can sometimes generate false-positive gene expression, 'making up' patterns that are not humanly-recognizable in the source data. This will then carry-over into NICHES connectivity values. Choice of imputation approach, and parameters, matters a great deal and will affect outputs. Therefore, imputation itself must be done thoughtfully and with care. (See imputation vignette for guidance.)
+  c. For NICHES data generation, we often adopt an approach where both options are computed in parallel, so that findings within one analytic arm can be compared to those in the other if necessary, as a sanity check. We demonstrate this parallel workflow here.
+
+4. The goal of this analysis is to identify signaling styles, or signaling trends-over-time, which are enriched in one experimental condition or the other. This will inform our analysis. (It is always important to define the scientific question of interest before commencing NICHES data analysis, because there is no one-size-fits-all approach.)
+
+## Step 1: Load and Inspect Non-Imputed Data
+
+## Step 2: Load and Inspect Imputed Data
+
+## Step 3: Compute NICHES Data from both Non-Imputed and Imputed Gene Expression Values
+
+## Step 4: Inspect NICHES Data Quality and Clean as Necessary
+
+## Step 5: Organize NICHES Data for Downstream Analysis
+
+
