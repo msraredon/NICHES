@@ -6,7 +6,7 @@
 #' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
 #' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
 #' @param rad.set numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.
-#'
+#' @param nn.methods string. Optional. Default: 'aoz'. Method to define nearest neighbors. If NULL, defaults to legacy technique, which is inefficient for very large datasets due to full edgelist construction followed by downsampling.
 #' @export
 #'
 compute_edgelist <- function(sys.small,
