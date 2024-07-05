@@ -1,7 +1,7 @@
 
-#' Compute an edgelist based on the spatial coordinates
+#' Compute a node-to-node edgelist based on the spatial coordinates
 #'
-#' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
+#' @param node.object A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param position.x string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.
 #' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
 #' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
@@ -9,7 +9,7 @@
 #' @param nn.methods string. Optional. Default: 'aoz'. Method to define nearest neighbors. If NULL, defaults to legacy technique, which is inefficient for very large datasets due to full edgelist construction followed by downsampling.
 #' @export
 #'
-compute_edgelist <- function(sys.small,
+ComputeEdgelist <- function(node.object,
                              position.x,
                              position.y,
                              k=4,
@@ -24,8 +24,8 @@ compute_edgelist <- function(sys.small,
     # Create adjacency matrix
     # Adapted from :: https://stackoverflow.com/questions/16075232/how-to-create-adjacency-matrix-from-grid-coordinates-in-r
     # Setup numbering and labeling
-    # jc: possible bug, change object to sys.small
-    df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
+    # jc: possible bug, change object to node.object
+    df <- data.frame(x = node.object[[position.x]], y = node.object[[position.y]])
     df$barcode <- rownames(df)
     df$x <- as.character(df$x)
     df$y <- as.character(df$y)
@@ -73,7 +73,7 @@ compute_edgelist <- function(sys.small,
   #### MSBR 2024-06-16
   
   if(nn.method=='aoz'){
-    # df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
+    # df <- data.frame(x = node.object[[position.x]], y = node.object[[position.y]])
     # df$barcode <- rownames(df)
     # df$x <- as.character(df$x)
     # df$y <- as.character(df$y)
@@ -82,7 +82,7 @@ compute_edgelist <- function(sys.small,
     # df <- df[,c('x','y')] 
     # 
     # coords <- as.matrix(df)#cbind(data.list[[i]]$x,data.list[[i]]$y)
-    coords <- as.matrix(cbind(sys.small$x,sys.small$y))
+    coords <- as.matrix(cbind(node.object$x,node.object$y))
     ord <- order(coords[,1])
     
     n.neighbors <- 5

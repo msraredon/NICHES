@@ -9,7 +9,7 @@
 #' @return a list of ligands and receptors
 #' @export
 
-lr_load <- function(LR.database,custom_LR_database=NULL,species,input_rownames){
+LoadGroundTruth <- function(LR.database,custom_LR_database=NULL,species,input_rownames){
   if (LR.database == 'omnipath'){
     ground.truth <- LoadOmniPath(species = species)
   }else if (LR.database == 'fantom5'){
