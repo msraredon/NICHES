@@ -26,14 +26,14 @@ prepSeurat <- function(object,assay,min.cells.per.ident,min.cells.per.gene){
   Seurat::DefaultAssay(object) <- assay
   
   # Stash object
-  sys.small <- object
+  filtered.obj <- object
   
   
   # Limit object to cell populations larger than requested minimum
   if (!is.null(min.cells.per.ident)){
     message(paste("\n",'Subsetting to populations with greater than',min.cells.per.ident,'cells'))
-    idents.include <- names(table(Seurat::Idents(sys.small)))[table(Seurat::Idents(sys.small)) > min.cells.per.ident]
-    sys.small <- subset(sys.small,idents = idents.include)
+    idents.include <- names(table(Seurat::Idents(filtered.obj)))[table(Seurat::Idents(filtered.obj)) > min.cells.per.ident]
+    filtered.obj <- subset(filtered.obj,idents = idents.include)
   }
   
   # Limit analysis to interaction involving genes expressed above minimum threshold number of cells in the system
@@ -41,18 +41,18 @@ prepSeurat <- function(object,assay,min.cells.per.ident,min.cells.per.gene){
     message(paste("\n",'Subsetting to genes expressed in greater than',min.cells.per.gene,'cells'))
     
     # jc: return an error if the count matrix in the given assay is empty
-    if(!length(getSeuratAssay(sys.small,assay,"counts"))) stop("Unable to subset: the count matrix in the given assay is empty.")
+    if(!length(getSeuratAssay(filtered.obj,assay,"counts"))) stop("Unable to subset: the count matrix in the given assay is empty.")
     
-    cells.per.gene <- data.frame(non.zero.cells = Matrix::rowSums(getSeuratAssay(sys.small,assay,"counts")>0))
+    cells.per.gene <- data.frame(non.zero.cells = Matrix::rowSums(getSeuratAssay(filtered.obj,assay,"counts")>0))
     GOI <- subset(cells.per.gene,non.zero.cells > min.cells.per.gene)
-    sys.small <- sys.small[rownames(GOI),]
+    filtered.obj <- filtered.obj[rownames(GOI),]
   }
   
-  num.cells <- ncol(sys.small)
+  num.cells <- ncol(filtered.obj)
   message(paste("\n",num.cells,'distinct cells from',
-                length(names(table(Seurat::Idents(sys.small)))),'celltypes to be analyzed'))
+                length(names(table(Seurat::Idents(filtered.obj)))),'celltypes to be analyzed'))
   
-  return(sys.small)
+  return(filtered.obj)
 }
 
 
@@ -100,7 +100,7 @@ return_celltypes <- function(seurat_object){
 
 #' Compute an edgelist based on the spatial coordinates
 #'
-#' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
+#' @param filtered.obj A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param position.x string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.
 #' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
 #' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
@@ -108,7 +108,7 @@ return_celltypes <- function(seurat_object){
 #'
 #' @export
 #'
-compute_edgelist <- function(sys.small,
+compute_edgelist <- function(filtered.obj,
                              position.x,
                              position.y,
                              k=4,
@@ -120,8 +120,8 @@ compute_edgelist <- function(sys.small,
   # Create adjacency matrix
   # Adapted from :: https://stackoverflow.com/questions/16075232/how-to-create-adjacency-matrix-from-grid-coordinates-in-r
   # Setup numbering and labeling
-  # jc: possible bug, change object to sys.small
-  df <- data.frame(x = sys.small[[position.x]], y = sys.small[[position.y]])
+  # jc: possible bug, change object to filtered.obj
+  df <- data.frame(x = filtered.obj[[position.x]], y = filtered.obj[[position.y]])
   df$barcode <- rownames(df)
   df$x <- as.character(df$x)
   df$y <- as.character(df$y)
