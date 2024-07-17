@@ -63,7 +63,7 @@ RunNeighborhoodToCell <- function(sys.small,
     
   # Label columns properly
   barcodes <- colnames(scc)
-  colnames(scc) <- paste('Neighborhood',colnames(scc),sep = '—')
+  colnames(scc) <- paste('Neighborhood',barcodes,sep = '—')
   
   # Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'NeighborhoodToCell')
@@ -75,12 +75,12 @@ RunNeighborhoodToCell <- function(sys.small,
   }
   
   # Add metadata based on ident slot
-  demo <- Seurat::AddMetaData(demo,metadata = barcodes,col.name = 'ReceivingCell')
   # bug fix: add the Neighborhood - prefix
-  receiving_type.meta <- data.frame(Seurat::Idents(sys.small)[barcodes])
-  rownames(receiving_type.meta) <- paste("Neighborhood",rownames(receiving_type.meta),sep = '—')
+  receiving_type.meta <- data.frame(ReceivingCell = barcodes,
+                                    ReceivingType = Seurat::Idents(sys.small)[barcodes],
+                                    row.names = paste("Neighborhood",barcodes,sep = '—'))
   
-  demo <- Seurat::AddMetaData(demo,metadata = receiving_type.meta,col.name = 'ReceivingType')
+  demo <- Seurat::AddMetaData(demo,metadata = receiving_type.meta,col.name = c("ReceivingCell","ReceivingType"))
   
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
