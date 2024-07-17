@@ -62,7 +62,7 @@ RunCellToCellSpatial <- function(sys.small,
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCellSpatial')
 
   # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
-  if(SeuratObject::Version(demo) >= 5){
+  if(SeuratObject::Version(demo) >= "5.0.0"){
     demo <- NormalizeData(demo,assay = "CellToCellSpatial")  # Seura Object need to be >= 5.0.1
     demo@assays$CellToCellSpatial@layers$data <- demo@assays$CellToCellSpatial@layers$counts # Seura Object need to be >= 5.0.1
     

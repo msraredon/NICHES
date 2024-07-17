@@ -68,7 +68,7 @@ RunCellToNeighborhood <- function(sys.small,
   # Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToNeighborhood')
   # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
-  if(SeuratObject::Version(demo) >= 5){
+  if(SeuratObject::Version(demo) >= "5.0.0"){
     demo <- NormalizeData(demo,assay = "CellToNeighborhood")  # Seura Object need to be >= 5.0.1
     demo@assays$CellToNeighborhood@layers$data <- demo@assays$CellToNeighborhood@layers$counts # Seura Object need to be >= 5.0.1
     

@@ -7,7 +7,7 @@
 #' @return the specified assay data
 #' @export
 getSeuratAssay <- function(object,assay,slot){
-  if(SeuratObject::Version(object) >= 5) return(Seurat::GetAssayData(object,assay=assay,layer=slot))
+  if(SeuratObject::Version(object) >= "5.0.0") return(Seurat::GetAssayData(object,assay=assay,layer=slot))
   else return(Seurat::GetAssayData(object,assay=assay,slot=slot))
 }
 
