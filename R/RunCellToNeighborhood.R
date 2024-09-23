@@ -1,7 +1,7 @@
 #' RunCellToNeighborhood
 #'
-#' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
-#' @param ground.truth Ground truth signaling mechanisms present in sys.small.
+#' @param filtered.obj A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
+#' @param ground.truth Ground truth signaling mechanisms present in filtered.obj.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
 #' @param blend Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum"
@@ -10,7 +10,7 @@
 #'
 #' @export
 
-RunCellToNeighborhood <- function(sys.small,
+RunCellToNeighborhood <- function(filtered.obj,
                                   ground.truth,
                                   assay,
                                   meta.data.to.map,
@@ -21,30 +21,30 @@ RunCellToNeighborhood <- function(sys.small,
 
   # Make ligand matrix
   
-  #lig.data <- sys.small@assays[[assay]]@data[ligands,edgelist$from]
+  #lig.data <- filtered.obj@assays[[assay]]@data[ligands,edgelist$from]
   
   subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
   for (s in 1:ncol(ground.truth$source.subunits)){ #For each subunit column...
-    subunit.list[[s]] <- matrix(data = 1,nrow = nrow(ground.truth$source.subunits),ncol = ncol(getSeuratAssay(sys.small,assay,"data")[,edgelist$from])) #initialize a mechanism x barcode matrix of all NAs
-    colnames(subunit.list[[s]]) <- colnames(getSeuratAssay(sys.small,assay,"data")[,edgelist$from])
+    subunit.list[[s]] <- matrix(data = 1,nrow = nrow(ground.truth$source.subunits),ncol = ncol(getSeuratAssay(filtered.obj,assay,"data")[,edgelist$from])) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[s]]) <- colnames(getSeuratAssay(filtered.obj,assay,"data")[,edgelist$from])
     rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
     non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
-    subunit.list[[s]][non.na.indices,] <- as.matrix(getSeuratAssay(sys.small,assay,"data")[ground.truth$source.subunits[non.na.indices,s],edgelist$from])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    subunit.list[[s]][non.na.indices,] <- as.matrix(getSeuratAssay(filtered.obj,assay,"data")[ground.truth$source.subunits[non.na.indices,s],edgelist$from])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
   }
   lig.data <- Reduce('*',subunit.list)
   rm(subunit.list)
   
   # Make receptor matrix
   
-  #rec.data <- sys.small@assays[[assay]]@data[receptors,edgelist$to]
+  #rec.data <- filtered.obj@assays[[assay]]@data[receptors,edgelist$to]
   
   subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
   for (t in 1:ncol(ground.truth$target.subunits)){
-    subunit.list[[t]] <- matrix(data = 1,nrow = nrow(ground.truth$target.subunits),ncol = ncol(getSeuratAssay(sys.small,assay,"data")[,edgelist$to])) #initialize a mechanism x barcode matrix of all NAs
-    colnames(subunit.list[[t]]) <- colnames(getSeuratAssay(sys.small,assay,"data")[,edgelist$to])
+    subunit.list[[t]] <- matrix(data = 1,nrow = nrow(ground.truth$target.subunits),ncol = ncol(getSeuratAssay(filtered.obj,assay,"data")[,edgelist$to])) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[t]]) <- colnames(getSeuratAssay(filtered.obj,assay,"data")[,edgelist$to])
     rownames(subunit.list[[t]]) <- rownames(ground.truth$target.subunits)
     non.na.indices <- !is.na(ground.truth$target.subunits[,t]) #Identify rows in the t-th column of the ground truth which are not NA
-    subunit.list[[t]][non.na.indices,] <- as.matrix(getSeuratAssay(sys.small,assay,"data")[ground.truth$target.subunits[non.na.indices,t],edgelist$to])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    subunit.list[[t]][non.na.indices,] <- as.matrix(getSeuratAssay(filtered.obj,assay,"data")[ground.truth$target.subunits[non.na.indices,t],edgelist$to])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
   }
   rec.data <- Reduce('*',subunit.list)
   rm(subunit.list)
@@ -63,24 +63,24 @@ RunCellToNeighborhood <- function(sys.small,
   
   # Label columns properly
   barcodes <- colnames(scc)
-  colnames(scc) <- paste(colnames(scc),'Neighborhood',sep = '—')
+  colnames(scc) <- paste(barcodes,'Neighborhood',sep = '—')
 
   # Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToNeighborhood')
   # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
-  if(SeuratObject::Version(demo) >= 5){
-    demo <- NormalizeData(demo,assay = "CellToNeighborhood")  # Seura Object need to be >= 5.0.1
+  if(SeuratObject::Version(demo) >= "5.0.0"){
+    demo <- Seurat::NormalizeData(demo,assay = "CellToNeighborhood")  # Seura Object need to be >= 5.0.1
     demo@assays$CellToNeighborhood@layers$data <- demo@assays$CellToNeighborhood@layers$counts # Seura Object need to be >= 5.0.1
     
   }
   
   # Add metadata based on ident slot
-  demo <- Seurat::AddMetaData(demo,metadata = barcodes,col.name = 'SendingCell')
   # bug fix: add the Neighborhood - prefix
-  sending_type.meta <- data.frame(Seurat::Idents(sys.small)[barcodes])
-  rownames(sending_type.meta) <- paste(rownames(sending_type.meta),"Neighborhood",sep = '—')
+  sending_type.meta <- data.frame(SendingCell = barcodes,
+                                  SendingType = Seurat::Idents(filtered.obj)[barcodes],
+                                    row.names = paste(barcodes,"Neighborhood",sep = '—'))
   
-  demo <- Seurat::AddMetaData(demo,metadata = sending_type.meta,col.name = 'SendingType')
+  demo <- Seurat::AddMetaData(demo,metadata = sending_type.meta,col.name = c("SendingCell","SendingType"))
 
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
@@ -88,8 +88,8 @@ RunCellToNeighborhood <- function(sys.small,
     sending.barcodes <- barcodes # Only sending cell metadata applies for this function
     #receiving.barcodes <- colnames(rec.map)
     # Pull and format sending and receiving metadata
-    # jc: possible bug, change object to sys.small
-    sending.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map,drop=FALSE][sending.barcodes,])
+    # jc: possible bug, change object to filtered.obj
+    sending.metadata <- as.matrix(filtered.obj@meta.data[,meta.data.to.map,drop=FALSE][sending.barcodes,])
     #receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
     # Make joint metadata
     #datArray <- abind(sending.metadata,receiving.metadata,along=3)
