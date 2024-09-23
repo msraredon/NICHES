@@ -5,8 +5,8 @@
 #' The default assay of this object is called "CellToCell" to distinguish it from normal Seurat objects.
 #' Meta.data slots by default contain "SendingType" "ReceivingType" and "VectorType" information.
 #' 
-#' @param sys.small A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings. 
-#' @param ground.truth Ground truth signaling mechanisms present in sys.small.
+#' @param filtered.obj A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings. 
+#' @param ground.truth Ground truth signaling mechanisms present in filtered.obj.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the SCC objects
 #' @param output_format string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
@@ -16,7 +16,7 @@
 #' @export
 
 
-RunCellToCell <- function(sys.small,
+RunCellToCell <- function(filtered.obj,
                           ground.truth,
                           assay,
                           meta.data.to.map,
@@ -25,13 +25,13 @@ RunCellToCell <- function(sys.small,
   
   ### CREATE MAPPING ###
 
-  # jc: Identify celltypes:names(table(Idents(sys.small))). Better to run check_celltypes, but harder to check
-  celltypes <- return_celltypes(sys.small)
+  # jc: Identify celltypes:names(table(Idents(filtered.obj))). Better to run check_celltypes, but harder to check
+  celltypes <- return_celltypes(filtered.obj)
   
   # Ligand dataset (listwise, for each celltype)
   lig.list <- list()
   for (i in 1:length(celltypes)){
-    temp <- subset(sys.small,idents = celltypes[i])
+    temp <- subset(filtered.obj,idents = celltypes[i])
     subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
     for (s in 1:ncol(ground.truth$source.subunits)){ #For each subunit column...
       subunit.list[[s]] <- matrix(data = 1,nrow = nrow(ground.truth$source.subunits),ncol = ncol(temp)) #initialize a mechanism x barcode matrix of all NAs
@@ -47,7 +47,7 @@ RunCellToCell <- function(sys.small,
   # Receptor dataset (listwise, for each celltype)
   rec.list <- list()
   for (i in 1:length(celltypes)){
-    temp <- subset(sys.small,idents = celltypes[i])
+    temp <- subset(filtered.obj,idents = celltypes[i])
     subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
     for (t in 1:ncol(ground.truth$target.subunits)){
       subunit.list[[t]] <- matrix(data = 1,nrow = nrow(ground.truth$target.subunits),ncol = ncol(temp)) #initialize a mechanism x barcode matrix of all NAs
@@ -72,7 +72,7 @@ RunCellToCell <- function(sys.small,
   for (i in 1:length(celltypes)){
     
     # Define maximum number of comparisons for each pairing
-    num <- as.data.frame(table(Seurat::Idents(sys.small)))
+    num <- as.data.frame(table(Seurat::Idents(filtered.obj)))
     num$sender.freq <- ncol(lig.list[[i]])
     rownames(num) <- num$Var1
     num <- num[,-1]
@@ -98,8 +98,8 @@ RunCellToCell <- function(sys.small,
     rownames(scc.data[[i]]) <- paste(rownames(lig.data[[i]]),rownames(rec.data[[i]]),sep = '—')
     colnames(scc.data[[i]]) <- paste(colnames(lig.data[[i]]),colnames(rec.data[[i]]),sep = '—')
     
-    sending.cell.idents[[i]] <- as.character(Seurat::Idents(sys.small)[colnames(lig.data[[i]])])
-    receiving.cell.idents[[i]] <- as.character(Seurat::Idents(sys.small)[colnames(rec.data[[i]])])
+    sending.cell.idents[[i]] <- as.character(Seurat::Idents(filtered.obj)[colnames(lig.data[[i]])])
+    receiving.cell.idents[[i]] <- as.character(Seurat::Idents(filtered.obj)[colnames(rec.data[[i]])])
     
   }
   
@@ -109,8 +109,8 @@ RunCellToCell <- function(sys.small,
   #Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToCell')
   # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
-  if(SeuratObject::Version(demo) >= 5){
-    demo <- NormalizeData(demo,assay = "CellToCell")  # Seura Object need to be >= 5.0.1
+  if(SeuratObject::Version(demo) >= "5.0.0"){
+    demo <- Seurat::NormalizeData(demo,assay = "CellToCell")  # Seura Object need to be >= 5.0.1
     demo@assays$CellToCell@layers$data <- demo@assays$CellToCell@layers$counts # Seura Object need to be>= 5.0.1
     
   }
@@ -133,9 +133,9 @@ RunCellToCell <- function(sys.small,
   # Identify sending and receiving barcodes
   sending.barcodes <- colnames(do.call(cbind,lig.data)) #This can be simplified if the above SCC construction is simplified
   receiving.barcodes <- colnames(do.call(cbind,rec.data)) #This can be simplified if the above SCC construction is simplified
-  # Pull and format sending and receiving metadata    jc: possible bug, change object to sys.small
-  sending.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map,drop=FALSE][sending.barcodes,])
-  receiving.metadata <- as.matrix(sys.small@meta.data[,meta.data.to.map,drop=FALSE][receiving.barcodes,])
+  # Pull and format sending and receiving metadata    jc: possible bug, change object to filtered.obj
+  sending.metadata <- as.matrix(filtered.obj@meta.data[,meta.data.to.map,drop=FALSE][sending.barcodes,])
+  receiving.metadata <- as.matrix(filtered.obj@meta.data[,meta.data.to.map,drop=FALSE][receiving.barcodes,])
   # Make joint metadata
   datArray <- abind::abind(sending.metadata,receiving.metadata,along=3)
   joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
@@ -154,7 +154,7 @@ RunCellToCell <- function(sys.small,
   Seurat::Idents(demo) <- demo$VectorType
   
   # How many vectors were captured by this sampling?
-  message(paste("\n",ncol(demo),'Cell-To-Cell edges computed, sampling',length(unique(demo$VectorType)),'distinct VectorTypes, out of',length(table(Seurat::Idents(sys.small)))^2,'total possible'))
+  message(paste("\n",ncol(demo),'Cell-To-Cell edges computed, sampling',length(unique(demo$VectorType)),'distinct VectorTypes, out of',length(table(Seurat::Idents(filtered.obj)))^2,'total possible'))
   
   if(output_format == "seurat") return(demo)
   else{
