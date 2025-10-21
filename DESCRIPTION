@@ -2,7 +2,7 @@ Package: NICHES
 Version: 1.1.0
 Date: 2024-03-06
 Title: Niche Interactions and Communication Heterogeneity in Extracellular Signaling
-Authors@R: c(person("Micha Sam", "Brickman Raredon", email = "michasam.raredon@yale.edu", role = c("aut", "cre")),person("Junchen", "Yang", email = "junchen.yang@yale.edu", role = c("aut")))
+Authors@R: c(person("Micha Sam", "Brickman Raredon", email = "michasam.raredon@yale.edu", role = c("aut", "cre")),person("Junchen", "Yang", email = "junchen.yang@yale.edu", role = c("aut")),person("Aaron", "Osgood-Zimmerman", email = "aeoz001@bucknell.edu", role = c("aut")))
 Description: Cell-cell Interactions at Single-Cell Resolution
 License: GPL-3
 Encoding: UTF-8

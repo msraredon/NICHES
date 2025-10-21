@@ -161,12 +161,14 @@ RunNICHES.default <- function(object,
   # jc: move the shared preprocessing steps here to avoid redundancy and reduce the number of parameters to be passed to other functions
 
   # NOTE: relies on Idents(object) to be cell types to subset
-  filtered.obj <- prepSeurat(object,assay,min.cells.per.ident,min.cells.per.gene) 
-  ground.truth <- lr_load(LR.database,custom_LR_database,species,rownames(filtered.obj@assays[[assay]]))
+
+  node.object <- PrepNodeObject(object,assay,min.cells.per.ident,min.cells.per.gene) 
+  ground.truth <- LoadGroundTruth(LR.database,custom_LR_database,species,rownames(node.object@assays[[assay]]))
   if (org_names_indicator["CellToCellSpatial"] == T | org_names_indicator["CellToNeighborhood"] == T | org_names_indicator["NeighborhoodToCell"] == T){
     ## 1. Move the neighbor graph construction here
     ## 2. Enable a k-nearest-neighbor parameter as an alternative
-    edgelist <- compute_edgelist(filtered.obj,position.x,position.y,k,rad.set)
+    edgelist <- ComputeEdgelist(node.object,position.x,position.y,k,rad.set)
+
   }
   
   # check the output format
@@ -179,20 +181,26 @@ RunNICHES.default <- function(object,
   # NOTE: RunCellToCell relies on Idents(object) to be cell types to subset
   #       Also each RunXXX function needs Idents(object) to build VectorType meta data 
 
-  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(filtered.obj=filtered.obj,
+
+  if (CellToCell == T){output[[length(output)+1]] <- RunCellToCell(node.object=node.object,
+
                                                                    ground.truth=ground.truth,
                                                                    assay = assay,
                                                                    meta.data.to.map = meta.data.to.map,
                                                                    output_format = output_format
                                                                    )}
-  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(filtered.obj=filtered.obj,
+
+  if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(node.object=node.object,
+
                                                                        ground.truth=ground.truth,
                                                                        assay = assay,
                                                                        meta.data.to.map = meta.data.to.map,
                                                                        blend = blend,
                                                                        output_format = output_format
                                                                        )}
-  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(filtered.obj=filtered.obj,
+
+  if (SystemToCell == T){output[[length(output)+1]] <- RunSystemToCell(node.object=node.object,
+
                                                                        ground.truth=ground.truth,
                                                                        assay = assay,
                                                                        meta.data.to.map = meta.data.to.map,
@@ -201,14 +209,18 @@ RunNICHES.default <- function(object,
                                                                        )}
   
   
-  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(filtered.obj=filtered.obj,
+
+  if (CellToCellSpatial == T){output[[length(output)+1]] <- RunCellToCellSpatial(node.object=node.object,
+
                                                                                  ground.truth=ground.truth,
                                                                                  assay = assay,
                                                                                  meta.data.to.map = meta.data.to.map,
                                                                                  edgelist = edgelist,
                                                                                  output_format = output_format
                                                                                  )} #Spatially-limited Cell-Cell vectors
-  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(filtered.obj=filtered.obj,
+
+  if (CellToNeighborhood == T){output[[length(output)+1]] <- RunCellToNeighborhood(node.object=node.object,
+
                                                                                    ground.truth=ground.truth,
                                                                                    assay = assay,
                                                                                    meta.data.to.map = meta.data.to.map,
@@ -216,7 +228,9 @@ RunNICHES.default <- function(object,
                                                                                    edgelist = edgelist,
                                                                                    output_format = output_format
                                                                                    )} #Spatially-limited Cell-Neighborhood vectors
-  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(filtered.obj=filtered.obj,
+
+  if (NeighborhoodToCell == T){output[[length(output)+1]] <- RunNeighborhoodToCell(node.object=node.object,
+
                                                                                    ground.truth=ground.truth,
                                                                                    assay = assay,
                                                                                    meta.data.to.map = meta.data.to.map,

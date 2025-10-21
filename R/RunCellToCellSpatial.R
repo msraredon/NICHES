@@ -1,7 +1,9 @@
 #' RunCellToCellSpatial
 #'
-#' @param filtered.obj A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.
-#' @param ground.truth Ground truth signaling mechanisms present in filtered.obj.
+
+#' @param node.object A Seurat object containing cells-as-barcode data. The active identity will be used to define populations for connectomic sampling and crossings.
+#' @param ground.truth Ground truth signaling mechanisms to be queried.
+
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
 #' @param edgelist data.frame. Each row is an directional edge between two spatially connected cells
@@ -11,7 +13,9 @@
 #' @importFrom dplyr %>%
 #' @export
 
-RunCellToCellSpatial <- function(filtered.obj,
+
+RunCellToCellSpatial <- function(node.object,
+
                                  ground.truth,
                                  assay,
                                  meta.data.to.map,
@@ -22,30 +26,34 @@ RunCellToCellSpatial <- function(filtered.obj,
   
     # Make ligand matrix
 
-    #lig.data <- filtered.obj@assays[[assay]]@data[ligands,edgelist$from]
+
+    #lig.data <- node.object@assays[[assay]]@data[ligands,edgelist$from]
 
     subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
     for (s in 1:ncol(ground.truth$source.subunits)){ #For each subunit column...
-      subunit.list[[s]] <- matrix(data = 1,nrow = nrow(ground.truth$source.subunits),ncol = ncol(getSeuratAssay(filtered.obj,assay,"data")[,edgelist$from])) #initialize a mechanism x barcode matrix of all NAs
-      colnames(subunit.list[[s]]) <- colnames(getSeuratAssay(filtered.obj,assay,"data")[,edgelist$from])
+      subunit.list[[s]] <- matrix(data = 1,nrow = nrow(ground.truth$source.subunits),ncol = ncol(GetSeuratAssay(node.object,assay,"data")[,edgelist$from])) #initialize a mechanism x barcode matrix of all NAs
+      colnames(subunit.list[[s]]) <- colnames(GetSeuratAssay(node.object,assay,"data")[,edgelist$from])
       rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
       non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
-      subunit.list[[s]][non.na.indices,] <- as.matrix(getSeuratAssay(filtered.obj,assay,"data")[ground.truth$source.subunits[non.na.indices,s],edgelist$from])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+      subunit.list[[s]][non.na.indices,] <- as.matrix(GetSeuratAssay(node.object,assay,"data")[ground.truth$source.subunits[non.na.indices,s],edgelist$from])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+
     }
     lig.data <- Reduce('*',subunit.list)
     rm(subunit.list)
     
   # Make receptor matrix
 
-    #rec.data <- filtered.obj@assays[[assay]]@data[receptors,edgelist$to]
+
+    #rec.data <- node.object@assays[[assay]]@data[receptors,edgelist$to]
     
     subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
     for (t in 1:ncol(ground.truth$target.subunits)){
-      subunit.list[[t]] <- matrix(data = 1,nrow = nrow(ground.truth$target.subunits),ncol = ncol(getSeuratAssay(filtered.obj,assay,"data")[,edgelist$to])) #initialize a mechanism x barcode matrix of all NAs
-      colnames(subunit.list[[t]]) <- colnames(getSeuratAssay(filtered.obj,assay,"data")[,edgelist$to])
+      subunit.list[[t]] <- matrix(data = 1,nrow = nrow(ground.truth$target.subunits),ncol = ncol(GetSeuratAssay(node.object,assay,"data")[,edgelist$to])) #initialize a mechanism x barcode matrix of all NAs
+      colnames(subunit.list[[t]]) <- colnames(GetSeuratAssay(node.object,assay,"data")[,edgelist$to])
       rownames(subunit.list[[t]]) <- rownames(ground.truth$target.subunits)
       non.na.indices <- !is.na(ground.truth$target.subunits[,t]) #Identify rows in the t-th column of the ground truth which are not NA
-      subunit.list[[t]][non.na.indices,] <- as.matrix(getSeuratAssay(filtered.obj,assay,"data")[ground.truth$target.subunits[non.na.indices,t],edgelist$to])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+      subunit.list[[t]][non.na.indices,] <- as.matrix(GetSeuratAssay(node.object,assay,"data")[ground.truth$target.subunits[non.na.indices,t],edgelist$to])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+
     }
     rec.data <- Reduce('*',subunit.list)
     rm(subunit.list)
@@ -54,8 +62,10 @@ RunCellToCellSpatial <- function(filtered.obj,
   scc <- lig.data*rec.data
   rownames(scc) <- paste(rownames(lig.data),rownames(rec.data),sep = '—')
   colnames(scc) <- paste(colnames(lig.data),colnames(rec.data),sep = '—')
-  sending.cell.idents <- as.character(Seurat::Idents(filtered.obj)[colnames(lig.data)])
-  receiving.cell.idents <- as.character(Seurat::Idents(filtered.obj)[colnames(rec.data)])
+
+  sending.cell.idents <- as.character(Seurat::Idents(node.object)[colnames(lig.data)])
+  receiving.cell.idents <- as.character(Seurat::Idents(node.object)[colnames(rec.data)])
+
   dim(scc)
 
   # Use this matrix to create a Seurat object:
@@ -87,9 +97,11 @@ RunCellToCellSpatial <- function(filtered.obj,
     sending.barcodes <- colnames(lig.data)
     receiving.barcodes <- colnames(rec.data)
     # Pull and format sending and receiving metadata
-    # jc: possible bug, change object to filtered.obj
-    sending.metadata <- as.matrix(filtered.obj@meta.data[,meta.data.to.map,drop=FALSE][sending.barcodes,])
-    receiving.metadata <- as.matrix(filtered.obj@meta.data[,meta.data.to.map,drop=FALSE][receiving.barcodes,])
+
+    # jc: possible bug, change object to node.object
+    sending.metadata <- as.matrix(node.object@meta.data[,meta.data.to.map,drop=FALSE][sending.barcodes,])
+    receiving.metadata <- as.matrix(node.object@meta.data[,meta.data.to.map,drop=FALSE][receiving.barcodes,])
+
     # Make joint metadata
     datArray <- abind::abind(sending.metadata,receiving.metadata,along=3)
     joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
@@ -107,14 +119,16 @@ RunCellToCellSpatial <- function(filtered.obj,
   Seurat::Idents(demo) <- demo$VectorType
   
   # How many vectors were captured by this sampling?
-  message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Seurat::Idents(filtered.obj)))^2,'total possible'))
+
+  message(paste("\n",length(unique(demo$VectorType)),'distinct VectorTypes were computed, out of',length(table(Seurat::Idents(node.object)))^2,'total possible'))
+
 
   
   if(output_format == "seurat") return(demo)
   else{
     output_list <- vector(mode = "list",length=2)
     names(output_list) <- c("CellToCellSpatialMatrix","metadata")
-    output_list[["CellToCellSpatialMatrix"]] <- getSeuratAssay(demo,"CellToCellSpatial","counts")
+    output_list[["CellToCellSpatialMatrix"]] <- GetSeuratAssay(demo,"CellToCellSpatial","counts")
     output_list[["metadata"]] <- demo@meta.data
     return(output_list)
   }

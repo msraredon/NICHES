@@ -9,8 +9,9 @@
 #' Meta.data slots by default contain "ReceivingType" information, which is the celltypes for each point, 
 #' and "ReceivingCell" which is the exact cell barcode present in the original Seurat object.
 #' 
-#' @param filtered.obj A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings. 
-#' @param ground.truth Ground truth signaling mechanisms present in filtered.obj.
+
+#' @param node.object A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings. 
+#' @param ground.truth Ground truth signaling mechanisms present in node.object.
 #' @param assay The assay to run the SystemToCell transformation on. Defaults to "RNA."
 #' @param blend Choice of linear operator to combine edges. Defaults to "mean", also accepts "sum", "mean.adj"
 #' @param meta.data.to.map A character vector of metadata names present in the original object which will be carried to the NICHES objects
@@ -19,7 +20,8 @@
 #' @export
 
 
-RunSystemToCell <- function(filtered.obj,
+
+RunSystemToCell <- function(node.object,
                             ground.truth,
                             assay,
                             blend = 'mean',
@@ -33,11 +35,13 @@ RunSystemToCell <- function(filtered.obj,
   # Ligand data
   subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
   for (s in 1:ncol(ground.truth$source.subunits)){ #For each subunit column...
-    subunit.list[[s]] <- matrix(data = 1,nrow = nrow(ground.truth$source.subunits),ncol = ncol(filtered.obj)) #initialize a mechanism x barcode matrix of all NAs
-    colnames(subunit.list[[s]]) <- colnames(filtered.obj)
+
+    subunit.list[[s]] <- matrix(data = 1,nrow = nrow(ground.truth$source.subunits),ncol = ncol(node.object)) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[s]]) <- colnames(node.object)
     rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
     non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
-    subunit.list[[s]][non.na.indices,] <- as.matrix(getSeuratAssay(filtered.obj,assay,"data")[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    subunit.list[[s]][non.na.indices,] <- as.matrix(GetSeuratAssay(node.object,assay,"data")[ground.truth$source.subunits[non.na.indices,s],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+
   }
   lig.map <- Reduce('*',subunit.list)
   rm(subunit.list)
@@ -60,11 +64,13 @@ RunSystemToCell <- function(filtered.obj,
   # Receptor data
   subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
   for (t in 1:ncol(ground.truth$target.subunits)){
-    subunit.list[[t]] <- matrix(data = 1,nrow = nrow(ground.truth$target.subunits),ncol = ncol(filtered.obj)) #initialize a mechanism x barcode matrix of all NAs
-    colnames(subunit.list[[t]]) <- colnames(filtered.obj)
+
+    subunit.list[[t]] <- matrix(data = 1,nrow = nrow(ground.truth$target.subunits),ncol = ncol(node.object)) #initialize a mechanism x barcode matrix of all NAs
+    colnames(subunit.list[[t]]) <- colnames(node.object)
     rownames(subunit.list[[t]]) <- rownames(ground.truth$target.subunits)
     non.na.indices <- !is.na(ground.truth$target.subunits[,t]) #Identify rows in the s-th column of the ground truth which are not NA
-    subunit.list[[t]][non.na.indices,] <- as.matrix(getSeuratAssay(filtered.obj,assay,"data")[ground.truth$target.subunits[non.na.indices,t],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+    subunit.list[[t]][non.na.indices,] <- as.matrix(GetSeuratAssay(node.object,assay,"data")[ground.truth$target.subunits[non.na.indices,t],])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+
   }
   rec.map <- Reduce('*',subunit.list)
   rm(subunit.list)
@@ -93,7 +99,9 @@ RunSystemToCell <- function(filtered.obj,
   demo <- Seurat::AddMetaData(demo,metadata = meta.data.to.add,col.name = 'ReceivingCell')
   
   # bug fix: add the system - prefix
-  receiving_type.meta <- data.frame(Seurat::Idents(filtered.obj))
+
+  receiving_type.meta <- data.frame(Seurat::Idents(node.object))
+
   rownames(receiving_type.meta) <- paste("System",rownames(receiving_type.meta),sep = '—')
   
   demo <- Seurat::AddMetaData(demo,metadata = receiving_type.meta,col.name = 'ReceivingType')
@@ -105,8 +113,10 @@ RunSystemToCell <- function(filtered.obj,
     receiving.barcodes <- colnames(rec.map) 
     # Pull and format sending and receiving metadata
     #sending.metadata <- as.matrix(object@meta.data[,meta.data.to.map][sending.barcodes,])
-    # jc: possible bug, change object to filtered.obj
-    receiving.metadata <- as.matrix(filtered.obj@meta.data[,meta.data.to.map,drop=FALSE][receiving.barcodes,])
+
+    # jc: possible bug, change object to node.object
+    receiving.metadata <- as.matrix(node.object@meta.data[,meta.data.to.map,drop=FALSE][receiving.barcodes,])
+
     # Make joint metadata
     #datArray <- abind(sending.metadata,receiving.metadata,along=3)
     #joint.metadata <- as.matrix(apply(datArray,1:2,function(x)paste(x[1],"-",x[2])))
@@ -132,7 +142,7 @@ RunSystemToCell <- function(filtered.obj,
   else{
     output_list <- vector(mode = "list",length=2)
     names(output_list) <- c("SystemToCellMatrix","metadata")
-    output_list[["SystemToCellMatrix"]] <- getSeuratAssay(demo,"SystemToCell","counts")
+    output_list[["SystemToCellMatrix"]] <- GetSeuratAssay(demo,"SystemToCell","counts")
     output_list[["metadata"]] <- demo@meta.data
     return(output_list)
   }
