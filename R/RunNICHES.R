@@ -168,6 +168,7 @@ RunNICHES.default <- function(object,
     ## 1. Move the neighbor graph construction here
     ## 2. Enable a k-nearest-neighbor parameter as an alternative
     edgelist <- ComputeEdgelist(node.object,position.x,position.y,k,rad.set)
+
   }
   
   # check the output format
@@ -190,6 +191,7 @@ RunNICHES.default <- function(object,
                                                                    )}
 
   if (CellToSystem == T){output[[length(output)+1]] <- RunCellToSystem(node.object=node.object,
+
                                                                        ground.truth=ground.truth,
                                                                        assay = assay,
                                                                        meta.data.to.map = meta.data.to.map,
