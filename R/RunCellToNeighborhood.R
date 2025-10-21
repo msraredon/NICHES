@@ -1,5 +1,6 @@
 #' RunCellToNeighborhood
 #'
+
 #' @param node.object A Seurat object containing cells-as-barcode data. The active identity will be used to define populations for connectomic sampling and crossings.
 #' @param ground.truth Ground truth signaling mechanisms to be queried.
 #' @param assay The assay to run the SCC transformation on. Defaults to "RNA."
@@ -9,6 +10,7 @@
 #' @param output_format string. Choice of the output format. "seurat" will output a list of seurat objects, "raw" will output a list of lists with raw interaction matrix and compiled metadata
 #'
 #' @export
+
 
 RunCellToNeighborhood <- function(node.object,
                                   ground.truth,
@@ -21,6 +23,7 @@ RunCellToNeighborhood <- function(node.object,
 
   # Make ligand matrix
   
+
   #lig.data <- node.object@assays[[assay]]@data[ligands,edgelist$from]
   
   subunit.list <- list() # Builds sending (ligand) data for any number of ligand subunits
@@ -30,12 +33,14 @@ RunCellToNeighborhood <- function(node.object,
     rownames(subunit.list[[s]]) <- rownames(ground.truth$source.subunits)
     non.na.indices <- !is.na(ground.truth$source.subunits[,s]) #Identify rows in the s-th column of the ground truth which are not NA
     subunit.list[[s]][non.na.indices,] <- as.matrix(GetSeuratAssay(node.object,assay,"data")[ground.truth$source.subunits[non.na.indices,s],edgelist$from])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+
   }
   lig.data <- Reduce('*',subunit.list)
   rm(subunit.list)
   
   # Make receptor matrix
   
+
   #rec.data <- node.object@assays[[assay]]@data[receptors,edgelist$to]
   
   subunit.list <- list() # Builds receiving (receptor) data for any number of receptor subunits
@@ -45,6 +50,7 @@ RunCellToNeighborhood <- function(node.object,
     rownames(subunit.list[[t]]) <- rownames(ground.truth$target.subunits)
     non.na.indices <- !is.na(ground.truth$target.subunits[,t]) #Identify rows in the t-th column of the ground truth which are not NA
     subunit.list[[t]][non.na.indices,] <- as.matrix(GetSeuratAssay(node.object,assay,"data")[ground.truth$target.subunits[non.na.indices,t],edgelist$to])   #For every row in the initialized matrix corresponding to the indices of the ground.truth which are not NA, replace with the rows from the Seurat object corresponding to the genes in the ground.truth at those indices
+
   }
   rec.data <- Reduce('*',subunit.list)
   rm(subunit.list)
@@ -63,24 +69,25 @@ RunCellToNeighborhood <- function(node.object,
   
   # Label columns properly
   barcodes <- colnames(scc)
-  colnames(scc) <- paste(colnames(scc),'Neighborhood',sep = '—')
+  colnames(scc) <- paste(barcodes,'Neighborhood',sep = '—')
 
   # Use this matrix to create a Seurat object:
   demo <- Seurat::CreateSeuratObject(counts = as.matrix(scc),assay = 'CellToNeighborhood')
   # JC: Seurat V5 will not create data slot automatically, the following step is to manually add this slot
-  if(SeuratObject::Version(demo) >= 5){
-    demo <- NormalizeData(demo,assay = "CellToNeighborhood")  # Seura Object need to be >= 5.0.1
+  if(SeuratObject::Version(demo) >= "5.0.0"){
+    demo <- Seurat::NormalizeData(demo,assay = "CellToNeighborhood")  # Seura Object need to be >= 5.0.1
     demo@assays$CellToNeighborhood@layers$data <- demo@assays$CellToNeighborhood@layers$counts # Seura Object need to be >= 5.0.1
     
   }
   
   # Add metadata based on ident slot
-  demo <- Seurat::AddMetaData(demo,metadata = barcodes,col.name = 'SendingCell')
   # bug fix: add the Neighborhood - prefix
+
   sending_type.meta <- data.frame(Seurat::Idents(node.object)[barcodes])
   rownames(sending_type.meta) <- paste(rownames(sending_type.meta),"Neighborhood",sep = '—')
+
   
-  demo <- Seurat::AddMetaData(demo,metadata = sending_type.meta,col.name = 'SendingType')
+  demo <- Seurat::AddMetaData(demo,metadata = sending_type.meta,col.name = c("SendingCell","SendingType"))
 
   # Gather and assemble additional metadata
   if (!is.null(meta.data.to.map)){
@@ -88,8 +95,10 @@ RunCellToNeighborhood <- function(node.object,
     sending.barcodes <- barcodes # Only sending cell metadata applies for this function
     #receiving.barcodes <- colnames(rec.map)
     # Pull and format sending and receiving metadata
+
     # jc: possible bug, change object to node.object
     sending.metadata <- as.matrix(node.object@meta.data[,meta.data.to.map,drop=FALSE][sending.barcodes,])
+
     #receiving.metadata <- as.matrix(object@meta.data[,meta.data.to.map][receiving.barcodes,])
     # Make joint metadata
     #datArray <- abind(sending.metadata,receiving.metadata,along=3)

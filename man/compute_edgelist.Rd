@@ -4,6 +4,7 @@
 \alias{compute_edgelist}
 \title{Compute an edgelist based on the spatial coordinates}
 \usage{
+
 compute_edgelist(
   sys.small,
   position.x,
@@ -12,9 +13,10 @@ compute_edgelist(
   rad.set = NULL,
   nn.method = "aoz"
 )
+
 }
 \arguments{
-\item{sys.small}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
+\item{filtered.obj}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
 
 \item{position.x}{string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial x-axis. Only required for spatial omics data.}
 
