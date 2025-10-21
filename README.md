@@ -1,5 +1,5 @@
-# NICHES
-Niche Interactions and Cellular Heterogeneity in Extracellular Signaling
+ # NICHES
+Niche Interactions and Communication Heterogeneity in Extracellular Signaling
 
 ## Overview
 NICHES is a simple but powerful computational toolset to analyze cell-cell signaling at the single-cell level. NICHES creates unique one-to-one pairs of cells and characterizes each cellular interaction across queried ligand-receptor signaling mechanisms. This allows low-dimensional embedding of cellular interactions in signal-space. Existing meta-data is carried over during transformation, allowing easy downstream statistical analysis using existing single-cell software packages including Seurat, Scanpy, Scater, and Monocle3.  NICHES allows UMAP, tSNE, and pseudotemporal exploration of cell-cell interactions and sensed cellular microenvironmments across celltypes, between experimental batches and conditions, and over developmental trajectories.
