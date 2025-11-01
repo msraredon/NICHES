@@ -5,7 +5,7 @@
 \title{RunCellToCellSpatial}
 \usage{
 RunCellToCellSpatial(
-  filtered.obj,
+  node.object,
   ground.truth,
   assay,
   meta.data.to.map,
@@ -14,9 +14,9 @@ RunCellToCellSpatial(
 )
 }
 \arguments{
-\item{filtered.obj}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
+\item{node.object}{A Seurat object containing cells-as-barcode data. The active identity will be used to define populations for connectomic sampling and crossings.}
 
-\item{ground.truth}{Ground truth signaling mechanisms present in filtered.obj.}
+\item{ground.truth}{Ground truth signaling mechanisms to be queried.}
 
 \item{assay}{The assay to run the SCC transformation on. Defaults to "RNA."}
 
