@@ -5,7 +5,7 @@
 \title{RunSystemToCell}
 \usage{
 RunSystemToCell(
-  filtered.obj,
+  node.object,
   ground.truth,
   assay,
   blend = "mean",
@@ -14,9 +14,9 @@ RunSystemToCell(
 )
 }
 \arguments{
-\item{filtered.obj}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
+\item{node.object}{A filtered Seurat object. The active identity will be used to define populations for connectomic sampling and crossings.}
 
-\item{ground.truth}{Ground truth signaling mechanisms present in filtered.obj.}
+\item{ground.truth}{Ground truth signaling mechanisms present in node.object.}
 
 \item{assay}{The assay to run the SystemToCell transformation on. Defaults to "RNA."}
 
