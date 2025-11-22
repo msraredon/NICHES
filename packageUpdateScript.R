@@ -5,6 +5,7 @@ require(pkgdown)
 # Document
 setwd("~/GitHub/NICHES")
 document()
+check()
 
 # Check installation from local
 setwd("~/GitHub")

@@ -10,7 +10,7 @@ ComputeEdgelist(
   position.y,
   k = 4,
   rad.set = NULL,
-  nn.method = "aoz"
+  nn.method = NULL
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ ComputeEdgelist(
 
 \item{rad.set}{numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.}
 
-\item{nn.methods}{string. Optional. Default: 'aoz'. Method to define nearest neighbors. If NULL, defaults to legacy technique, which is inefficient for very large datasets due to full edgelist construction followed by downsampling.}
+\item{nn.methods}{string. Optional. Default: NULL. Method to define nearest neighbors. If NULL, defaults to legacy technique, which is inefficient for very large datasets due to full edgelist construction followed by downsampling.}
 }
 \description{
 Compute a node-to-node edgelist based on the spatial coordinates
