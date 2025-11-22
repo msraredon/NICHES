@@ -6,7 +6,7 @@
 #' @param position.y string. Optional. Default: NULL. The name of the meta.data column specifying location on the spatial y-axis. Only required for spatial omics data.
 #' @param k integer. Optional. Default: 4. Number of neighbors in a knn graph. Used to compute a mutual nearest neighbor graph based on the spatial coordinates of the spatial transcriptomic datasets.  
 #' @param rad.set numeric. Optional. Default: NULL. The radius threshold to define neighbors based on the spatial coordinates of the spatial transcriptomic datasets. Ignored when 'k' is provided.
-#' @param nn.methods string. Optional. Default: 'aoz'. Method to define nearest neighbors. If NULL, defaults to legacy technique, which is inefficient for very large datasets due to full edgelist construction followed by downsampling.
+#' @param nn.methods string. Optional. Default: NULL. Method to define nearest neighbors. If NULL, defaults to legacy technique, which is inefficient for very large datasets due to full edgelist construction followed by downsampling.
 #' @export
 #'
 ComputeEdgelist <- function(node.object,
@@ -14,8 +14,7 @@ ComputeEdgelist <- function(node.object,
                              position.y,
                              k=4,
                              rad.set=NULL,
-                             nn.method='aoz'
-){
+                             nn.method=NULL){
   
   ### CREATE MAPPING ###
   if(is.null(nn.method)){ #### MSBR 2024-06-16
@@ -40,7 +39,7 @@ ComputeEdgelist <- function(node.object,
     # keep the cell names
     rownames(distance_mat) <- colnames(distance_mat)
     
-    if(!is.null(k)){
+    if(!is.null(k) & is.null(nn.method)){
       message("Compute edgelist based on mutual nearest neighbors.")
       if(!is.null(rad.set))warning("'k' is not NULL. Parameter 'rad.set' will be ignored.")
       # neighbor_mat: the indices of k nearest neighbors  
@@ -70,9 +69,11 @@ ComputeEdgelist <- function(node.object,
     edgelist <- igraph::graph.adjacency(adj_mat_final)
     edgelist <- igraph::get.data.frame(edgelist)
   }
-  #### MSBR 2024-06-16
   
-  if(nn.method=='aoz'){
+  #### MSBR 2024-06-16
+  #### Revised MSBR 2025-11-22 to fix k inheritance bug
+  
+  if(!(is.null(k)) & nn.method == 'aoz'){
     # df <- data.frame(x = node.object[[position.x]], y = node.object[[position.y]])
     # df$barcode <- rownames(df)
     # df$x <- as.character(df$x)
@@ -85,7 +86,7 @@ ComputeEdgelist <- function(node.object,
     coords <- as.matrix(cbind(node.object$x,node.object$y))
     ord <- order(coords[,1])
     
-    n.neighbors <- 5
+    n.neighbors <- k # inherits input 'k'
     n.omp.t <- 1
     
     n <- nrow(coords)
