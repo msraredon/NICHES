@@ -83,9 +83,9 @@ RunNeighborhoodToCell <- function(node.object,
   # Add metadata based on ident slot
   # bug fix: add the Neighborhood - prefix
 
-  receiving_type.meta <- data.frame(Seurat::Idents(node.object)[barcodes])
-  rownames(receiving_type.meta) <- paste("Neighborhood",rownames(receiving_type.meta),sep = '—')
-
+  receiving_type.meta <- data.frame(ReceivingCell = barcodes,
+                                    ReceivingType = Seurat::Idents(node.object)[barcodes],
+                                    row.names = paste("Neighborhood",barcodes,sep = '—'))
   
   demo <- Seurat::AddMetaData(demo,metadata = receiving_type.meta,col.name = c("ReceivingCell","ReceivingType"))
   
