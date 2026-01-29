@@ -18,6 +18,5 @@ pkgdown::build_article(name = "07 Spatiotemporal NICHES",lazy = T)
 
 # Install from release ?
 install_github('msraredon/NICHES', 
-               ref = 'v1.2.1',
-               auth_token = 'f7ea5d8790fe721ac0c9d5ef115d04068b19ed6d',
+               ref = 'v1.2.4',
                force = T)
