@@ -28,7 +28,7 @@ RunCellToCell <- function(node.object,
 
 
   # jc: Identify celltypes:names(table(Idents(node.object))). Better to run check_celltypes, but harder to check
-  celltypes <- return_celltypes(node.object)
+  celltypes <- ReturnCellTypes(node.object)
 
   
   # Ligand dataset (listwise, for each celltype)
